@@ -1234,7 +1234,7 @@
                 y = renderSectionTitle("Professional Experience", y);
                 
                 expPlanet.moons.forEach(job => {
-                    const details = job.moonDetails || {};
+                    const details = job.pdfDetails || job.moonDetails || {};
                     const company = safeText(details.company || job.name);
                     const role = safeText(details.role || "");
                     const duration = safeText(details.duration || "");
@@ -1302,8 +1302,9 @@
                 
                 if (skillsPlanet.moons) {
                     skillsPlanet.moons.forEach(cat => {
-                        const catTitle = safeText((cat.moonDetails && cat.moonDetails.title) || cat.name);
-                        const skills = (cat.moonDetails.skills || []).map(s => safeText(s)).join(", ");
+                        const details = cat.pdfDetails || cat.moonDetails || {};
+                        const catTitle = safeText(details.title || cat.name);
+                        const skills = (details.skills || []).map(s => safeText(s)).join(", ");
                         
                         y = checkPageBreak(y, 10);
                         doc.setFont(undefined, "bold");
@@ -1325,9 +1326,10 @@
                 y = renderSectionTitle("Key Projects", y);
                 
                 projPlanet.moons.forEach(proj => {
-                    const title = safeText(proj.moonDetails.title || proj.name);
-                    const desc = safeText(proj.moonDetails.description || "");
-                    const impact = proj.moonDetails.impact ? proj.moonDetails.impact.map(i => safeText(i)).join(". ") : "";
+                    const details = proj.pdfDetails || proj.moonDetails || {};
+                    const title = safeText(details.title || proj.name);
+                    const desc = safeText(details.description || "");
+                    const impact = details.impact ? details.impact.map(i => safeText(i)).join(". ") : "";
                     
                     y = checkPageBreak(y, 15);
                     doc.setFont(undefined, "bold");
@@ -1348,7 +1350,7 @@
             const eduPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
             if (eduPlanet) {
                 y = renderSectionTitle("Education", y);
-                const d = eduPlanet.details || {};
+                const d = eduPlanet.pdfDetails || eduPlanet.details || {};
                 
                 y = checkPageBreak(y, 10);
                 doc.setFont(undefined, "bold");
