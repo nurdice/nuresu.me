@@ -1085,7 +1085,7 @@
             const doc = new jsPDF();
             const PAGE_WIDTH = doc.internal.pageSize.getWidth();
             const PAGE_HEIGHT = doc.internal.pageSize.getHeight();
-            const margin = 15;
+            const margin = 20;
             const contentWidth = PAGE_WIDTH - (margin * 2);
             
             // Helper to strip emojis and non-standard chars to prevent junk characters
@@ -1173,7 +1173,7 @@
             if (contactPlanet && contactPlanet.moons) {
                 contactPlanet.moons.forEach(m => {
                     let val = m.moonDetails.value || m.name;
-                    let label = m.name.toUpperCase();
+                    let label = (m.moonDetails.method || m.name).toUpperCase();
                     contactItems.push(`${label}: ${val}`);
                 });
             }
@@ -1236,7 +1236,7 @@
                 expPlanet.moons.forEach(job => {
                     const details = job.moonDetails || {};
                     const company = safeText(details.company || job.name);
-                    const role = safeText(details.role || "Business Analyst");
+                    const role = safeText(details.role || "");
                     const duration = safeText(details.duration || "");
                     const location = safeText(details.location || "");
 
@@ -1268,6 +1268,8 @@
                     const items = [...(details.achievements || []), ...(details.responsibilities || [])];
                     if (items.length === 0 && job.details) {
                         items.push(...job.details.split('\n').slice(1));
+                    } else if (items.length === 0 && details.description) {
+                        items.push(details.description);
                     }
 
                     items.forEach(item => {
@@ -1300,15 +1302,15 @@
                 
                 if (skillsPlanet.moons) {
                     skillsPlanet.moons.forEach(cat => {
-                        const catTitle = safeText(cat.moonDetails.title);
-                        const skills = cat.moonDetails.skills.map(s => safeText(s)).join(", ");
+                        const catTitle = safeText(cat.moonDetails.title || cat.name);
+                        const skills = (cat.moonDetails.skills || []).map(s => safeText(s)).join(", ");
                         
                         y = checkPageBreak(y, 10);
                         doc.setFont(undefined, "bold");
                         doc.text(catTitle + ":", margin, y);
                         
                         doc.setFont(undefined, "normal");
-                        const titleWidth = doc.getTextWidth(catTitle + ":");
+                        const titleWidth = doc.getTextWidth(catTitle + ": ");
                         const splitSkills = doc.splitTextToSize(skills, contentWidth - titleWidth - 2);
                         doc.text(splitSkills, margin + titleWidth + 2, y);
                         y += splitSkills.length * 4.5;
@@ -1323,9 +1325,9 @@
                 y = renderSectionTitle("Key Projects", y);
                 
                 projPlanet.moons.forEach(proj => {
-                    const title = safeText(proj.moonDetails.title);
-                    const desc = safeText(proj.moonDetails.description);
-                    const impact = proj.moonDetails.impact ? proj.moonDetails.impact.map(i => safeText(i)).join("; ") : "";
+                    const title = safeText(proj.moonDetails.title || proj.name);
+                    const desc = safeText(proj.moonDetails.description || "");
+                    const impact = proj.moonDetails.impact ? proj.moonDetails.impact.map(i => safeText(i)).join(". ") : "";
                     
                     y = checkPageBreak(y, 15);
                     doc.setFont(undefined, "bold");
@@ -1346,14 +1348,14 @@
             const eduPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
             if (eduPlanet) {
                 y = renderSectionTitle("Education", y);
-                const d = eduPlanet.details;
+                const d = eduPlanet.details || {};
                 
                 y = checkPageBreak(y, 10);
                 doc.setFont(undefined, "bold");
-                doc.text(safeText(d.degree), margin, y);
+                doc.text(safeText(d.degree || ""), margin, y);
                 y += 5;
                 doc.setFont(undefined, "normal");
-                doc.text(`${safeText(d.institution)}, ${safeText(d.location)} | ${safeText(d.duration)}`, margin, y);
+                doc.text(`${safeText(d.institution || "")}, ${safeText(d.location || "")} | ${safeText(d.duration || "")}`, margin, y);
             }
 
             // Save
