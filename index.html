@@ -1302,7 +1302,7 @@
                 
                 if (skillsPlanet.moons) {
                     skillsPlanet.moons.forEach(cat => {
-                        const catTitle = safeText(cat.moonDetails.title || cat.name);
+                        const catTitle = safeText((cat.moonDetails && cat.moonDetails.title) || cat.name);
                         const skills = (cat.moonDetails.skills || []).map(s => safeText(s)).join(", ");
                         
                         y = checkPageBreak(y, 10);
