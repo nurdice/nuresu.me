@@ -6,7 +6,7 @@ window.RESUME_DATA = {
     contact: {
         email: "nurrali786@gmail.com",
         phone: "+1 (236) 508-4786",
-        website: "www.",
+        website: "www.nuresu.me",
         linkedin: "linkedin.com/in/nur786",
         location: "Port Coquitlam, BC"
     },

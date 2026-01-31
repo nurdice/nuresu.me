@@ -849,9 +849,7 @@
             // Initial render - Professional (Light) by default
             renderMobileView('professional');
             
-            // Stop execution for mobile
-            throw new Error("Mobile view initialized - stopping 3D execution"); 
-        }
+        } else {
 
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
@@ -2768,6 +2766,7 @@
                 animate();
             }, 1000);
         }, 1000);
+        }
     </script>
 </body>
 </html>
