@@ -1584,6 +1584,77 @@
             initDesktopScene();
         }
 
+        // === IMPROVED REALISTIC GALAXIES WITH VARIED COLORS ===
+        function createGalaxy(colorScheme = 0) {
+            const colors = [
+                { core: 'rgba(255, 200, 100, 0.4)', arms: 'rgba(255, 150, 200, 0.3)', wisps: 'rgba(200, 100, 255, 0.15)' },
+                { core: 'rgba(150, 200, 255, 0.4)', arms: 'rgba(100, 200, 255, 0.3)', wisps: 'rgba(200, 200, 255, 0.15)' },
+                { core: 'rgba(200, 100, 200, 0.4)', arms: 'rgba(150, 100, 255, 0.3)', wisps: 'rgba(150, 50, 255, 0.15)' },
+                { core: 'rgba(255, 150, 100, 0.4)', arms: 'rgba(255, 100, 50, 0.3)', wisps: 'rgba(255, 150, 100, 0.15)' }
+            ];
+            
+            const color = colors[colorScheme % colors.length];
+            
+            const texture = createCanvasTexture(512, 512, (ctx, w, h) => {
+                // Realistic galaxy with disk
+                const coreGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+                coreGrad.addColorStop(0, color.core);
+                coreGrad.addColorStop(0.3, color.core.replace('0.4', '0.25'));
+                coreGrad.addColorStop(0.6, color.core.replace('0.4', '0.1'));
+                coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = coreGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                // Realistic spiral arms
+                ctx.globalCompositeOperation = 'lighter';
+                for(let arm = 0; arm < 4; arm++) {
+                    for(let i = 0; i < 100; i++) {
+                        const t = i / 100;
+                        const angle = arm * Math.PI / 2 + t * Math.PI * 4;
+                        const r = t * w * 0.45;
+                        const x = w/2 + Math.cos(angle) * r;
+                        const y = h/2 + Math.sin(angle) * r;
+                        
+                        const opacity = (1 - t * 0.8);
+                        ctx.fillStyle = color.arms.replace(/[\d.]+\)$/, `${opacity * 0.3})`);
+                        ctx.beginPath();
+                        ctx.arc(x, y, 15 + t * 20, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // Dust lanes
+                ctx.globalCompositeOperation = 'multiply';
+                const dustGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+                dustGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                dustGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)');
+                dustGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = dustGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                // Star clusters
+                ctx.globalCompositeOperation = 'screen';
+                for(let i = 0; i < 100; i++) {
+                    const x = Math.random() * w;
+                    const y = Math.random() * h;
+                    ctx.fillStyle = color.wisps.replace(/[\d.]+\)$/, `${Math.random() * 0.3})`);
+                    ctx.beginPath();
+                    ctx.arc(x, y, Math.random() * 3 + 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+
+            const spriteMat = new THREE.SpriteMaterial({ 
+                map: texture, 
+                transparent: true, 
+                sizeAttenuation: true,
+                fog: true
+            });
+            const sprite = new THREE.Sprite(spriteMat);
+            sprite.scale.set(250, 250, 1);
+            return sprite;
+        }
+
         // ==========================================
         // DESKTOP SCENE SETUP (SOLAR SYSTEM)
         // ==========================================
@@ -1699,77 +1770,6 @@
         const starMesh = new THREE.Points(starsGeo, starsMat);
         starMesh.layers.set(0);
         scene.add(starMesh);
-
-        // === IMPROVED REALISTIC GALAXIES WITH VARIED COLORS ===
-        function createGalaxy(colorScheme = 0) {
-            const colors = [
-                { core: 'rgba(255, 200, 100, 0.4)', arms: 'rgba(255, 150, 200, 0.3)', wisps: 'rgba(200, 100, 255, 0.15)' },
-                { core: 'rgba(150, 200, 255, 0.4)', arms: 'rgba(100, 200, 255, 0.3)', wisps: 'rgba(200, 200, 255, 0.15)' },
-                { core: 'rgba(200, 100, 200, 0.4)', arms: 'rgba(150, 100, 255, 0.3)', wisps: 'rgba(150, 50, 255, 0.15)' },
-                { core: 'rgba(255, 150, 100, 0.4)', arms: 'rgba(255, 100, 50, 0.3)', wisps: 'rgba(255, 150, 100, 0.15)' }
-            ];
-            
-            const color = colors[colorScheme % colors.length];
-            
-            const texture = createCanvasTexture(512, 512, (ctx, w, h) => {
-                // Realistic galaxy with disk
-                const coreGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
-                coreGrad.addColorStop(0, color.core);
-                coreGrad.addColorStop(0.3, color.core.replace('0.4', '0.25'));
-                coreGrad.addColorStop(0.6, color.core.replace('0.4', '0.1'));
-                coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = coreGrad;
-                ctx.fillRect(0, 0, w, h);
-
-                // Realistic spiral arms
-                ctx.globalCompositeOperation = 'lighter';
-                for(let arm = 0; arm < 4; arm++) {
-                    for(let i = 0; i < 100; i++) {
-                        const t = i / 100;
-                        const angle = arm * Math.PI / 2 + t * Math.PI * 4;
-                        const r = t * w * 0.45;
-                        const x = w/2 + Math.cos(angle) * r;
-                        const y = h/2 + Math.sin(angle) * r;
-                        
-                        const opacity = (1 - t * 0.8);
-                        ctx.fillStyle = color.arms.replace(/[\d.]+\)$/, `${opacity * 0.3})`);
-                        ctx.beginPath();
-                        ctx.arc(x, y, 15 + t * 20, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-
-                // Dust lanes
-                ctx.globalCompositeOperation = 'multiply';
-                const dustGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
-                dustGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-                dustGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)');
-                dustGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = dustGrad;
-                ctx.fillRect(0, 0, w, h);
-
-                // Star clusters
-                ctx.globalCompositeOperation = 'screen';
-                for(let i = 0; i < 100; i++) {
-                    const x = Math.random() * w;
-                    const y = Math.random() * h;
-                    ctx.fillStyle = color.wisps.replace(/[\d.]+\)$/, `${Math.random() * 0.3})`);
-                    ctx.beginPath();
-                    ctx.arc(x, y, Math.random() * 3 + 1, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            });
-
-            const spriteMat = new THREE.SpriteMaterial({ 
-                map: texture, 
-                transparent: true, 
-                sizeAttenuation: true,
-                fog: true
-            });
-            const sprite = new THREE.Sprite(spriteMat);
-            sprite.scale.set(250, 250, 1);
-            return sprite;
-        }
 
         // Add realistic galaxies with varied colors
         const galaxyPositions = [
