@@ -1,21 +1,20 @@
 window.RESUME_DATA = {
     // ===== PERSONAL INFO =====
     name: "Nuruddinali (Nur) Dawoodani",
-    role: "Senior Business Analyst | Product, Systems & Delivery",
+    role: "Lead Business Analyst",
     profileImage: "profile.jpg",
     contact: {
         email: "nurrali786@gmail.com",
         phone: "+1 (236) 508-4786",
+        website: "www.",
         linkedin: "linkedin.com/in/nur786",
-        location: "Vancouver, Canada"
+        location: "Port Coquitlam, BC"
     },
-    summary: "Business Analyst with 18 years of experience working across retail, banking, and enterprise platforms. Strong at turning complex business problems into clear, actionable solutions. Known for bridging the gap between business, product, and engineering teams, and for delivering real, shipped products at scale. Comfortable operating in Agile / SAFe environments, navigating ambiguity, and improving systems that impact millions of users.",
-    pdfSummary: "Senior Business Analyst with over 18 years of experience driving business performance through strategic data analysis and insightful decision-making. Proven ability to manage complex projects, streamline operations, and improve service delivery. Adept at collaborating with stakeholders, interpreting patterns, and integrating best business practices. Expert in Agile and SAFe frameworks, with a strong focus on delivering scalable, user-centric solutions in retail and banking sectors. Committed to bridging the gap between technical and business teams to deliver high-quality products.",
+    summary: "Lead Business Analyst with 18+ years of experience specialized in digital transformation for high-scale retail and banking platforms. Proven track record of bridging technical architecture with multi-million dollar business value. Expert at leading cross-functional teams in SAFe environments to deliver guest-facing products that impact millions",
+    pdfSummary: "Strategic Lead Business Analyst with nearly two decades of experience driving operational excellence and digital innovation. Adept at navigating complex technical landscapes to deliver high-visibility projects, including architecture revamps and AI-driven personalization. A results-oriented leader focused on translating complex business needs into scalable, high-performance technical solutions within Agile and SAFe frameworks.",
+    spaceSummary: "LEAD MISSION SPECIALIST with 18 years of flight heritage navigating complex enterprise constellations. Expert in calculating optimal trajectories for business system architectures and aligning disparate planetary stakeholders. Proven capability in establishing high-fidelity communication links between Mission Control (Business) and Engineering Crews. Track record of deploying high-velocity, mission-critical payloads that maintain peak performance across the guest-facing universe.",
     certifications: [
-        "Certified SAFe 5 Agilist",
-        "Certified Scrum Product Owner (CSPO)",
-        "Certified Business Analysis Professional (CBAP) - In Progress",
-        "Professional Scrum Master I (PSM I)"
+        "Certified Business Analysis Professional (CBAP) - IIBA - Expired"
     ],
     
     // ===== PLANETS (RESUME SECTIONS) =====
@@ -24,12 +23,12 @@ window.RESUME_DATA = {
         // ===== 1. EXPERIENCE PLANET (Jupiter-sized anchor) =====
         {
             name: "Experience",
-            size: 10,
-            distance: 60,
+            size: 15,
+            distance: 70,
             speed: 0.002,
             type: "planet",
-            color: 0xe74c3c,
-            texture: "drawRed",
+            color: 0xdcdca6,
+            texture: "drawEarth",
             description: "18 years of delivered impact across retail, banking, and enterprise platforms",
             
             // Experience Moons (Individual Jobs)
@@ -40,25 +39,25 @@ window.RESUME_DATA = {
                     distance: 16,
                     speed: 0.010,
                     color: 0xc0392b,
-                    details: "2020-Present | SAFe Framework | Web, iOS, Services | Collaborative product teams",
+                    details: "2020-Present | Lead BA | Architectural Revamp | AI-Driven Highlights | SAFe Delivery",
                     pdfDetails: {
                         company: "LULULEMON ATHLETICA",
-                        role: "Senior Business Analyst",
-                        duration: "March 2020 - Present",
+                        role: "Lead Business Analyst",
+                        duration: "03/2020 – Present",
                         location: "Vancouver, Canada",
                         industry: "Retail / E-commerce / Athleisure",
                         achievements: [
-                            "Authored clear, actionable user stories for Web, iOS, and Services teams within a SAFe environment, ensuring alignment with business objectives and customer needs.",
-                            "Partnered closely with Product Owners, Scrum Masters, Developers, QA, Solution Architects, and UX Designers to deliver customer-facing initiatives on time.",
-                            "Collaborated with SEO, Analytics, Content, Program, and Product teams to ensure cross-functional alignment and shared success metrics.",
-                            "Contributed to multiple high-visibility, customer-facing initiatives including Sweatlife Stories, Stores Upgrade, and Olympic partnerships."
+                            "Architectural Revamp Leadership: Served as Lead BA for an Accelerated Development project to revamp the architecture across all guest-facing pages, ensuring scalability and performance.",
+                            "Governance & Standardization: Guided the project team in following consistent patterns for Epic writing, User Story writing, and rigorous Backlog management.",
+                            "AI-Driven Product Highlights: Led the 'Product Highlights' initiative, using AI to dynamically feature trending, new, and most-gifted products, resulting in a multi-million dollar revenue impact.",
+                            "Home & Story Page Revamp: Developed new components to educate guests on popular categories and upcoming products, enhancing the 'Community Sweatlife Stories' hub.",
+                            "Strategic Partnerships: Played a key role in high-profile initiatives including the Lululemon x Olympics Team Canada Partnership and the Holiday Gift Guide revamp.",
+                            "SAFe Delivery: Authored Agile/Scrum User Stories for Web, iOS, and Services within the Scaled Agile Framework (SAFe)."
                         ],
                         responsibilities: [
-                            "Lead requirements gathering and documentation for new feature development",
-                            "Facilitate backlog refinement and sprint planning sessions",
-                            "Create user stories, acceptance criteria, and detailed functional specifications",
-                            "Conduct gap analysis between current and future state processes",
-                            "Manage stakeholder expectations and communicate progress across teams"
+                            "Lead cross-functional teams in Agile/SAFe environment",
+                            "Drive digital transformation and business performance",
+                            "Bridge gap between technical architecture and business value"
                         ],
                         products: [
                             "Community Sweatlife Stories - User engagement platform",
@@ -66,6 +65,25 @@ window.RESUME_DATA = {
                             "Ambassadors Web App - Brand ambassador empowerment tool",
                             "Lululemon x Olympics Team Canada - National partnership activation",
                             "Holiday Gift Guide Revamp - Seasonal experience enhancement"
+                        ]
+                    },
+                    spaceDetails: {
+                        company: "LULULEMON ATHLETICA // SECTOR: RETAIL",
+                        role: "Lead Mission Specialist",
+                        duration: "Mission Cycle: 2020 - Present",
+                        location: "Vancouver Outpost, Earth",
+                        achievements: [
+                            "Systems Architecture Reconfiguration: Directed the structural overhaul of all guest-facing interface modules to ensure maximum scalability during high-load launch windows.",
+                            "SOP Alignment: Enforced rigorous documentation standards for Epic/Story transmission and Backlog trajectory, ensuring zero ambiguity in flight plans.",
+                            "Autonomous Targeting Algorithms: Deployed neural net logic to identify and highlight mission-critical payloads, resulting in a multi-million credit yield.",
+                            "Crew Interface Enhancement: Re-engineered the 'Sweatlife' habitation module to improve crew engagement and morale.",
+                            "Strategic Docking Maneuvers: Executed high-priority docking sequences with Team Canada and Holiday supply drops, ensuring seamless payload delivery.",
+                            "Agile Flight Paths: Authored precise flight vectors for Web, iOS, and Services modules within Scaled Agile parameters."
+                        ],
+                        responsibilities: [
+                            "Command cross-functional engineering crews",
+                            "Execute high-scale mission-critical features",
+                            "Translate orbital architecture to business value"
                         ]
                     }
                 },
@@ -75,27 +93,36 @@ window.RESUME_DATA = {
                     distance: 22,
                     speed: 0.008,
                     color: 0xd35400,
-                    details: "2019-2020 | Banking Migration | Integration Requirements | Scaled Agile Teams",
+                    details: "2019-2020 | System Migration | Stakeholder Management | Gap Analysis",
                     pdfDetails: {
                         company: "VANCITY",
                         role: "Business Analyst",
-                        duration: "March 2019 - February 2020",
+                        duration: "03/2019 – 02/2020",
                         location: "Vancouver, Canada",
                         industry: "Banking / Credit Union / Financial Services",
                         achievements: [
-                            "Worked within Scaled Agile team structure for new Commercial Banking system migration, ensuring smooth transition and minimal disruption.",
-                            "Resolved integration solution issues between different internal and external stakeholders, facilitating effective communication and problem-solving.",
-                            "Conducted thorough analysis of existing system vs new system to identify gaps, risks, and opportunities for process improvement."
+                            "System Migration: Acted as BA within a Scaled Agile structure for a major Commercial Banking system migration for staff and members.",
+                            "Stakeholder Management: Collaborated with internal teams and external vendors to elicit integration requirements and formulate user stories.",
+                            "Gap Analysis: Conducted thorough analysis of existing systems to understand behavior and identify critical gaps."
                         ],
                         responsibilities: [
-                            "Collaborate with internal stakeholders (Product Owner, Front End Developers, Services Developers, Solution Architects, Designers, QA, and other BAs)",
-                            "Work with external stakeholders (vendor system development team, other credit unions, backend development team)",
-                            "Elicit integration requirements and formulate user stories",
-                            "Assist in developing test cases and test data for end-to-end testing",
-                            "Document current state and future state business processes"
+                            "Commercial Banking system migration",
+                            "Integration requirements elicitation",
+                            "System behavior analysis"
                         ],
                         products: [
                             "Commercial Banking System Migration - Core banking platform transition"
+                        ]
+                    },
+                    spaceDetails: {
+                        company: "VANCITY // SECTOR: FINANCIAL",
+                        role: "Migration Flight Director",
+                        duration: "Mission Cycle: 2019 - 2020",
+                        location: "Vancouver Outpost, Earth",
+                        achievements: [
+                            "Core Systems Migration: Executed mass transfer of Commercial Banking data cores to new hosting environments with zero data loss.",
+                            "External Docking Protocols: Aligned internal command frequencies with external vendor systems for seamless integration.",
+                            "System Gap Analysis: Conducted deep-scan diagnostics of legacy systems to identify hull breaches and operational voids."
                         ]
                     }
                 },
@@ -105,31 +132,36 @@ window.RESUME_DATA = {
                     distance: 28,
                     speed: 0.006,
                     color: 0xe67e22,
-                    details: "2016-2019 | Digital Platform | Business Analysis | UAT & Operational readiness",
+                    details: "2016-2019 | Digital Transformation | Process Improvement",
                     pdfDetails: {
                         company: "HSBC CANADA",
                         role: "Business Analyst",
-                        duration: "October 2016 - March 2019",
+                        duration: "10/2011 – 03/2019",
                         location: "Vancouver, Canada",
                         industry: "Banking / Financial Services / Digital Transformation",
                         achievements: [
-                            "Delivered digital platform for customer communication resulting in sustainable cost savings and reduced carbon footprint through paperless initiatives.",
-                            "Improved business processes for Lending System (Mortgage and Loans), reducing processing time by implementing streamlined workflows.",
-                            "Enhanced Credit Application Process and Mortgage Renewal Process, improving customer satisfaction and operational efficiency.",
-                            "Successfully launched customer-facing digital communications platform used by millions of customers."
+                            "Digital Transformation: Delivered a digital communication platform for large customer segments, achieving sustainable cost savings and a reduced carbon footprint.",
+                            "Process Improvement: Optimized business processes for Lending Systems, specifically the Credit Application and Mortgage Renewal processes."
                         ],
                         responsibilities: [
-                            "Collaborate with internal stakeholders (Product Owners, Branch staff, Contact Center staff, Project Management staff)",
-                            "Work with external vendors (Print and Mail Vendors, Document Storage Vendors)",
-                            "Create Business Requirement Documents, Epics/User Stories, and Change Request Documents",
-                            "Support development by reviewing design documents and responding to business queries",
-                            "Assist in UAT, create manuals and business procedures, conduct system demos, provide staff training"
+                            "Digital communication platform delivery",
+                            "Lending System optimization"
                         ],
                         products: [
                             "Digital Customer Communication Platform - Paperless banking initiative",
                             "Lending System Enhancement - Mortgage and loan processing improvements",
                             "Credit Application Process Optimization - Faster approval workflows",
                             "Mortgage Renewal Automation - Self-service renewal portal"
+                        ]
+                    },
+                    spaceDetails: {
+                        company: "HSBC CANADA // SECTOR: BANKING",
+                        role: "Digital Systems Engineer",
+                        duration: "Mission Cycle: 2016 - 2019",
+                        location: "Vancouver Outpost, Earth",
+                        achievements: [
+                            "Telemetry Array Deployment: Established high-bandwidth digital communication array, reducing physical mass (paper) and carbon output.",
+                            "Latency Reduction: Optimized Lending and Credit docking procedures, significantly reducing processing time for mission-critical workflows."
                         ]
                     }
                 },
@@ -139,30 +171,32 @@ window.RESUME_DATA = {
                     distance: 34,
                     speed: 0.005,
                     color: 0xb86b2b,
-                    details: "2015-2016 | Test Strategy | QA Leadership | Multiple project delivery",
+                    details: "2015-2016 | QA Leadership | Test Strategy | UFT Automation",
                     pdfDetails: {
                         company: "HSBC CANADA",
                         role: "ITQA Test Lead",
-                        duration: "October 2015 - September 2016",
+                        duration: "10/2011 – 03/2019",
                         location: "Vancouver, Canada",
                         industry: "Banking / Financial Services / Regulatory Compliance",
                         achievements: [
-                            "Led multiple projects to deliver high-quality software products, ensuring compliance with regulatory requirements and internal quality standards.",
-                            "Worked on FATCA Reporting to CRA and internal Finance Transactions Reporting, ensuring accurate and timely regulatory submissions.",
-                            "Conducted manual and automated System Integration Testing using UFT (Unified Functional Testing), reducing testing time by 40%.",
-                            "Mentored junior QA team members and established best practices for test documentation."
+                            "QA Leadership: Created Test Strategies and Plans, leading manual and automated System Integration Testing (UFT) for core banking systems."
                         ],
                         responsibilities: [
-                            "Create Test Strategy, Test Plans, and Test Matrix",
-                            "Maintain and track Test Schedule based on overall Project schedule",
-                            "Collaborate with Offshore teams on multiple projects",
-                            "Conduct defect review meetings with IT and Business Teams",
-                            "Assist in UAT and staff training, create user flow manuals",
-                            "Identify, log, and track defects through resolution"
+                            "Test Strategy creation",
+                            "Automated System Integration Testing (UFT)"
                         ],
                         products: [
                             "FATCA Reporting System - Regulatory compliance automation",
                             "Finance Transactions Reporting - Internal reporting platform"
+                        ]
+                    },
+                    spaceDetails: {
+                        company: "HSBC CANADA // SECTOR: QA",
+                        role: "Flight Readiness Commander",
+                        duration: "Mission Cycle: 2015 - 2016",
+                        location: "Vancouver Outpost, Earth",
+                        achievements: [
+                            "Flight Readiness Verification: Directed automated testing drones (UFT) to verify core banking system stability prior to launch."
                         ]
                     }
                 },
@@ -172,29 +206,34 @@ window.RESUME_DATA = {
                     distance: 40,
                     speed: 0.004,
                     color: 0x9b5d2b,
-                    details: "2011-2015 | BA responsibilities | Regulatory & integration projects",
+                    details: "2011-2015 | Core Banking | Regulatory Compliance",
                     pdfDetails: {
                         company: "HSBC CANADA",
                         role: "Business Analyst",
-                        duration: "March 2011 - September 2015",
+                        duration: "10/2011 – 03/2019",
                         location: "Burnaby, Canada",
                         industry: "Banking / Financial Services / Core Banking",
                         achievements: [
-                            "Led multiple projects to deliver high-quality software products across retail banking operations.",
-                            "Worked on FATCA Reporting to CRA and internal Finance Transactions Reporting, demonstrating expertise in regulatory compliance.",
-                            "Worked on projects involving in-house Core Banking systems, gaining deep understanding of banking technology infrastructure.",
-                            "Successfully managed requirements for system enhancements affecting customer-facing and back-office operations."
+                            "Core Banking: Managed requirements for system enhancements affecting customer-facing and back-office operations.",
+                            "Regulatory Compliance: Worked on FATCA Reporting and Finance Transactions Reporting."
                         ],
                         responsibilities: [
-                            "Elicit, analyze, document, and validate business requirements",
-                            "Create detailed functional specifications and use cases",
-                            "Collaborate with development teams to ensure accurate implementation",
-                            "Conduct stakeholder interviews and facilitate requirements workshops",
-                            "Support UAT and coordinate with business users for sign-off"
+                            "Requirements management",
+                            "Regulatory reporting"
                         ],
                         products: [
                             "Core Banking System Enhancements - In-house platform improvements",
                             "Regulatory Reporting Tools - Compliance automation"
+                        ]
+                    },
+                    spaceDetails: {
+                        company: "HSBC CANADA // SECTOR: CORE",
+                        role: "Core Systems Analyst",
+                        duration: "Mission Cycle: 2011 - 2015",
+                        location: "Burnaby Outpost, Earth",
+                        achievements: [
+                            "Mainframe Propulsion Upgrade: Directed multiple sorties to enhance Core Banking mainframe infrastructure.",
+                            "Regulatory Telemetry: Managed compliance data transmission for FATCA and Transaction Reporting protocols."
                         ]
                     }
                 },
@@ -204,30 +243,35 @@ window.RESUME_DATA = {
                     distance: 60,
                     speed: 0.002,
                     color: 0x8b7a57,
-                    details: "2005-2011 | Senior Software Engineer (SME) | Mainframe & Systems | Banking platforms",
+                    details: "2005-2011 | System Development | Modernization | Mainframe/zOS",
                     pdfDetails: {
                         company: "HSBC GLOBAL TECHNOLOGY",
                         role: "Senior Software Engineer - Subject Matter Expert",
-                        duration: "August 2005 - March 2011",
+                        duration: "08/2005 – 03/2011",
                         location: "Pune, India and Burnaby, Canada",
                         industry: "Banking / Financial Services / Enterprise Technology",
                         achievements: [
-                            "Contributed to development of Retail Banking Systems (Customer Relationship Management and Transaction Processing System), serving millions of customers.",
-                            "Successfully delivered crucial transitional products facilitating shift from outdated technology to market-relevant solutions.",
-                            "Led diverse teams towards successful execution of numerous maintenance projects, improving system reliability and performance.",
-                            "Specialized in Banking systems on mainframe or zOS platforms, becoming go-to expert for complex technical issues."
+                            "System Development: Specialized in Retail Banking Systems (CRM and Transaction Processing) on mainframe/zOS platforms for HSBC UK.",
+                            "Modernization: Delivered crucial transitional products to shift from legacy technology to future-proof, market-relevant solutions."
                         ],
                         responsibilities: [
-                            "Specialize in Banking systems on mainframe or zOS platforms",
-                            "Integrate HSBC UK Bank's systems with internal and external entities including Credit Bureaus",
-                            "Enhance system functionality, performance, and overall user experience",
-                            "Code, test, and deploy software changes for banking applications",
-                            "Provide technical leadership and mentorship to junior developers"
+                            "Retail Banking Systems development",
+                            "Legacy technology modernization"
                         ],
                         products: [
                             "Customer Relationship Management (CRM) System - Customer data and interaction platform",
                             "Transaction Processing System - Core banking transaction engine",
                             "Credit Bureau Integration - Automated credit reporting"
+                        ]
+                    },
+                    spaceDetails: {
+                        company: "HSBC GLOBAL // SECTOR: TECH",
+                        role: "Senior Propulsion Engineer",
+                        duration: "Mission Cycle: 2005 - 2011",
+                        location: "Pune & Burnaby Sectors",
+                        achievements: [
+                            "Subsystem Engineering: Constructed Retail Banking subsystems on zOS heavy-lift platforms.",
+                            "Legacy Retrofit: Retrofitted legacy engines with modern propulsion capabilities to extend mission viability."
                         ]
                     }
                 }
@@ -255,17 +299,22 @@ window.RESUME_DATA = {
                     speed: 0.015,
                     color: 0x27ae60,
                     pdfDetails: {
-                        title: "PRODUCT & ANALYSIS",
-                        description: "Core competencies in product delivery and business analysis",
+                        title: "LEADERSHIP",
+                        description: "Leadership and Governance",
                         skills: [
-                            "User story writing and backlog refinement",
-                            "Requirements elicitation and documentation",
-                            "Business process improvement and optimization",
-                            "Stakeholder management and communication",
-                            "UAT planning and execution support",
-                            "Strategic and systems thinking",
-                            "Product roadmap alignment",
-                            "Feature prioritization and MVP definition"
+                            "BA Mentorship",
+                            "Backlog Management",
+                            "Governance",
+                            "Stakeholder Collaboration"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "MISSION CONTROL PROTOCOLS",
+                        skills: [
+                            "Crew Training & Development",
+                            "Trajectory Analysis & Correction",
+                            "Mission Governance",
+                            "Cross-Functional Communication"
                         ]
                     }
                 },
@@ -276,17 +325,20 @@ window.RESUME_DATA = {
                     speed: 0.012,
                     color: 0x16a085,
                     pdfDetails: {
-                        title: "TECHNICAL SKILLS",
-                        description: "Technical capabilities supporting BA work",
+                        title: "FUNCTIONAL",
+                        description: "Functional Capabilities",
                         skills: [
-                            "System integrations and APIs",
-                            "Data analysis and visualization",
-                            "SQL and database queries",
-                            "Python programming",
-                            "CMS and analytics platforms",
-                            "Technical documentation",
-                            "Basic programming concepts",
-                            "System architecture understanding"
+                            "Data Analysis",
+                            "Business Process Improvement",
+                            "Strategic Planning"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "SYSTEMS ENGINEERING",
+                        skills: [
+                            "Data Telemetry Analysis",
+                            "Process Optimization Algorithms",
+                            "Strategic Roadmap Planning"
                         ]
                     }
                 },
@@ -297,16 +349,26 @@ window.RESUME_DATA = {
                     speed: 0.010,
                     color: 0x3498db,
                     pdfDetails: {
-                        title: "COLLABORATION & COMMUNICATION",
-                        description: "Skills for effective team collaboration",
+                        title: "TECHNICAL",
+                        description: "Technical Tools",
                         skills: [
-                            "Jira project management",
-                            "Confluence documentation",
-                            "Clear communication between technical and non-technical teams",
-                            "Cross-functional team facilitation",
-                            "Problem solving and decision support",
-                            "Agile ceremony facilitation",
-                            "Vendor and stakeholder negotiations"
+                            "JIRA",
+                            "Confluence",
+                            "SQL",
+                            "Microsoft 365",
+                            "Power Automate",
+                            "Microsoft Azure",
+                            "Figma"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "FLIGHT INSTRUMENTATION",
+                        skills: [
+                            "JIRA Tracking Systems",
+                            "Confluence Database",
+                            "SQL Querying",
+                            "Azure Cloud Infrastructure",
+                            "Figma Schematics"
                         ]
                     }
                 }
@@ -352,6 +414,16 @@ window.RESUME_DATA = {
                             "Content discovery and search",
                             "Integration with marketing automation"
                         ]
+                    },
+                    spaceDetails: {
+                        title: "MISSION: SWEATLIFE",
+                        description: "Crew Engagement Interface enabling user-generated content transmission and brand connection.",
+                        impact: [
+                            "10,000+ active units sharing stories",
+                            "2,000,000+ impressions across social channels",
+                            "Increased community engagement by 45%",
+                            "Deployed autonomous content moderation algorithms"
+                        ]
                     }
                 },
                 { 
@@ -378,6 +450,16 @@ window.RESUME_DATA = {
                             "Customer preference management",
                             "Secure document viewing portal",
                             "Regulatory compliance tracking"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "MISSION: DIGI-COMMS",
+                        description: "Digital Transmission Array for personalized customer communication, replacing physical media.",
+                        impact: [
+                            "Eliminated 2+ million physical units annually",
+                            "Reduced transmission latency from 14 days to 24 hours",
+                            "Sustainable resource savings > $500K/cycle",
+                            "Improved satisfaction metrics by 15%"
                         ]
                     }
                 },
@@ -406,6 +488,16 @@ window.RESUME_DATA = {
                             "Customer profile access",
                             "Omnichannel fulfillment"
                         ]
+                    },
+                    spaceDetails: {
+                        title: "MISSION: OUTPOST UPGRADE",
+                        description: "Outpost Systems Modernization initiative improving station efficiency and user experience.",
+                        impact: [
+                            "Transaction latency reduced by 30%",
+                            "Inventory accuracy calibrated to 99.5%",
+                            "Enhanced crew productivity instrumentation",
+                            "Seamless omnichannel data integration"
+                        ]
                     }
                 },
                 { 
@@ -433,6 +525,16 @@ window.RESUME_DATA = {
                             "Staff training and change management",
                             "Go-live support and hypercare"
                         ]
+                    },
+                    spaceDetails: {
+                        title: "MISSION: CORE TRANSFER",
+                        description: "Large-scale transfer of commercial banking services to new core platform with zero downtime.",
+                        impact: [
+                            "Successful transfer with 0% data loss",
+                            "Operational continuity maintained",
+                            "Improved system stability and performance",
+                            "Enhanced reporting telemetry resolution"
+                        ]
                     }
                 },
                 { 
@@ -459,6 +561,16 @@ window.RESUME_DATA = {
                             "Social media integration",
                             "User engagement tracking",
                             "Merchandise integration"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "MISSION: OLYMPUS",
+                        description: "Digital activation supporting partnership with Team Canada for planetary games event.",
+                        impact: [
+                            "500,000+ reach during campaign window",
+                            "50,000+ user interactions recorded",
+                            "Strong alliance alignment achieved",
+                            "Successful content delivery vectors"
                         ]
                     }
                 }
@@ -874,10 +986,15 @@ window.RESUME_DATA = {
             texture: "drawBlue",
             description: "Academic foundation and ongoing learning",
             pdfDetails: {
-                degree: "Bachelor of Engineering - Computer Science",
+                degree: "Bachelor of Engineering - Computer Science (2005)",
                 institution: "Vivekanand Education Society's Institute of Technology (V.E.S.I.T)",
-                university: "Mumbai University, India",
-                duration: "2001 - 2005"
+                university: "Mumbai University, India"
+            },
+            spaceDetails: {
+                degree: "B.Eng. Computer Science // Core Systems",
+                institution: "V.E.S.I.T // Mumbai Sector",
+                university: "Mumbai University",
+                duration: "Flight Academy Certification: 2005"
             },
             moons: [
                 {
@@ -889,10 +1006,13 @@ window.RESUME_DATA = {
                     pdfDetails: {
                         title: "CERTIFICATIONS",
                         items: [
-                            "Certified SAFe 5 Agilist",
-                            "Certified Scrum Product Owner (CSPO)",
-                            "Professional Scrum Master I (PSM I)",
-                            "Certified Business Analysis Professional (CBAP) - In Progress"
+                            "Certified Business Analysis Professional (CBAP) - Expired"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "FLIGHT CERTIFICATIONS",
+                        skills: [
+                            "CBAP (Expired)"
                         ]
                     }
                 }
@@ -974,7 +1094,7 @@ window.RESUME_DATA = {
                     color: 0x3498db,
                     pdfDetails: {
                         method: "LOCATION",
-                        value: "Vancouver, Canada"
+                        value: "Port Coquitlam, BC"
                     }
                 },
                 { 

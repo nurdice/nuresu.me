@@ -1085,7 +1085,7 @@
             const doc = new jsPDF();
             const PAGE_WIDTH = doc.internal.pageSize.getWidth();
             const PAGE_HEIGHT = doc.internal.pageSize.getHeight();
-            const margin = 20;
+            const margin = 25;
             const contentWidth = PAGE_WIDTH - (margin * 2);
             
             // Helper to strip emojis and non-standard chars to prevent junk characters
@@ -1118,11 +1118,11 @@
             // Theme Config
             const isSpace = theme === 'space';
             const colors = isSpace ? {
-                bg: [10, 15, 30], // Dark blue
-                text: [220, 230, 255],
-                accent: [0, 200, 255], // Cyan
-                secondary: [150, 170, 200],
-                line: [50, 80, 120]
+                bg: [5, 5, 12], // Deep Space
+                text: [240, 240, 255],
+                accent: [56, 189, 248], // Cyan
+                secondary: [148, 163, 184],
+                line: [30, 41, 59]
             } : {
                 bg: [255, 255, 255],
                 text: [40, 40, 40],
@@ -1131,17 +1131,86 @@
                 line: [200, 200, 200]
             };
 
-            // Background
-            doc.setFillColor(...colors.bg);
-            doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT, 'F');
+            const titles = isSpace ? {
+                summary: "MISSION OBJECTIVE & PROFILE",
+                experience: "FLIGHT LOG & MISSION HISTORY",
+                skills: "OPERATIONAL SUBSYSTEMS",
+                projects: "DEPLOYED MISSION PAYLOADS",
+                education: "ACADEMIC & TRAINING DATA"
+            } : {
+                summary: "SUMMARY",
+                experience: "PROFESSIONAL EXPERIENCE",
+                skills: "SKILLS & COMPETENCIES",
+                projects: "KEY PROJECTS",
+                education: "EDUCATION"
+            };
+
+            // Helper to draw background
+            const drawBackground = () => {
+                doc.setFillColor(...colors.bg);
+                doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT, 'F');
+
+                // Page Border
+                doc.setDrawColor(...colors.line);
+                doc.setLineWidth(0.5);
+                doc.rect(15, 15, PAGE_WIDTH - 30, PAGE_HEIGHT - 30, 'S');
+
+                if (isSpace) {
+                    // Stars
+                    for (let i = 0; i < 150; i++) {
+                        const x = Math.random() * PAGE_WIDTH;
+                        const y = Math.random() * PAGE_HEIGHT;
+                        const r = Math.random() * 0.3 + 0.1;
+                        const brightness = Math.floor(Math.random() * 100) + 155;
+                        doc.setFillColor(brightness, brightness, brightness);
+                        doc.circle(x, y, r, 'F');
+                    }
+
+                    // Webb Spikes (Bright Stars)
+                    for (let i = 0; i < 6; i++) {
+                        const x = Math.random() * PAGE_WIDTH;
+                        const y = Math.random() * PAGE_HEIGHT;
+                        doc.setDrawColor(255, 255, 255);
+                        doc.setLineWidth(0.1);
+                        const size = 2 + Math.random() * 2;
+                        doc.line(x - size, y, x + size, y);
+                        doc.line(x, y - size, x, y + size);
+                        doc.line(x - size*0.7, y - size*0.7, x + size*0.7, y + size*0.7);
+                        doc.line(x - size*0.7, y + size*0.7, x + size*0.7, y - size*0.7);
+                    }
+                    
+                    // Nebulae
+                    const nebulaColors = [[255, 100, 100], [100, 200, 255], [200, 100, 255]];
+                    for (let n = 0; n < 3; n++) {
+                        const cx = Math.random() * PAGE_WIDTH;
+                        const cy = Math.random() * PAGE_HEIGHT;
+                        const color = nebulaColors[Math.floor(Math.random() * nebulaColors.length)];
+                        doc.setFillColor(...color);
+                        for (let p = 0; p < 40; p++) {
+                            const angle = Math.random() * Math.PI * 2;
+                            const dist = Math.random() * 30 * Math.random();
+                            const px = cx + Math.cos(angle) * dist;
+                            const py = cy + Math.sin(angle) * dist;
+                            if (px > 0 && px < PAGE_WIDTH && py > 0 && py < PAGE_HEIGHT) {
+                                doc.circle(px, py, Math.random() * 0.5, 'F');
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Initial Background
+            drawBackground();
 
             let y = margin;
 
             // === HEADER ===
             // Image
+            let headerTextWidth = contentWidth;
             if (profileImg) {
                 const imgSize = 30;
                 const imgX = PAGE_WIDTH - margin - imgSize;
+                headerTextWidth = contentWidth - imgSize - 5;
                 try {
                     doc.addImage(profileImg, 'JPEG', imgX, y, imgSize, imgSize);
                     doc.setDrawColor(...colors.accent);
@@ -1156,12 +1225,16 @@
             doc.setFont(isSpace ? "courier" : "helvetica", "bold");
             doc.setFontSize(24);
             doc.setTextColor(...colors.accent);
-            doc.text(safeText(RESUME_DATA.name).toUpperCase(), margin, y + 8);
+            
+            const nameLines = doc.splitTextToSize(safeText(RESUME_DATA.name).toUpperCase(), headerTextWidth);
+            doc.text(nameLines, margin, y + 8);
+            const nameHeight = nameLines.length * 8;
             
             doc.setFont(isSpace ? "courier" : "helvetica", "normal");
             doc.setFontSize(12);
             doc.setTextColor(...colors.text);
-            doc.text(safeText(RESUME_DATA.role), margin, y + 16);
+            const roleLines = doc.splitTextToSize(safeText(RESUME_DATA.role), headerTextWidth);
+            doc.text(roleLines, margin, y + 8 + nameHeight);
 
             // Contact Info
             y += 25;
@@ -1190,13 +1263,13 @@
                 doc.setFont(isSpace ? "courier" : "helvetica", "bold");
                 doc.setFontSize(11);
                 doc.setTextColor(...colors.accent);
-                doc.text("SUMMARY", margin, y);
+                doc.text(titles.summary, margin, y);
                 y += 5;
                 
                 doc.setFont(isSpace ? "courier" : "helvetica", "normal");
                 doc.setFontSize(10);
                 doc.setTextColor(...colors.text);
-                const summaryText = safeText(RESUME_DATA.pdfSummary || RESUME_DATA.summary);
+                const summaryText = safeText(isSpace ? (RESUME_DATA.spaceSummary || RESUME_DATA.pdfSummary) : (RESUME_DATA.pdfSummary || RESUME_DATA.summary));
                 const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
                 doc.text(splitSummary, margin, y);
                 y += splitSummary.length * 4.5 + 5;
@@ -1206,9 +1279,8 @@
             const checkPageBreak = (currentY, needed) => {
                 if (currentY + needed > PAGE_HEIGHT - margin) {
                     doc.addPage();
-                    doc.setFillColor(...colors.bg);
-                    doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT, 'F');
-                    return margin + 10;
+                    drawBackground();
+                    return margin;
                 }
                 return currentY;
             };
@@ -1231,10 +1303,10 @@
             // EXPERIENCE
             const expPlanet = RESUME_DATA.planets.find(p => p.name === "Experience");
             if (expPlanet && expPlanet.moons) {
-                y = renderSectionTitle("Professional Experience", y);
+                y = renderSectionTitle(titles.experience, y);
                 
                 expPlanet.moons.forEach(job => {
-                    const details = job.pdfDetails || job.moonDetails || {};
+                    const details = isSpace ? (job.spaceDetails || job.pdfDetails || job.moonDetails || {}) : (job.pdfDetails || job.moonDetails || {});
                     const company = safeText(details.company || job.name);
                     const role = safeText(details.role || "");
                     const duration = safeText(details.duration || "");
@@ -1242,24 +1314,30 @@
 
                     y = checkPageBreak(y, 15);
 
-                    // Header line: Company - Role
+                    // Line 1: Company (Left) | Location (Right)
                     doc.setFont(isSpace ? "courier" : "helvetica", "bold");
                     doc.setFontSize(11);
                     doc.setTextColor(...colors.text);
                     doc.text(company, margin, y);
                     
-                    const roleWidth = doc.getTextWidth(company);
-                    doc.setFont(undefined, "normal");
-                    doc.text(` - ${role}`, margin + roleWidth + 2, y);
-
-                    // Right aligned date
                     doc.setFontSize(9);
                     doc.setTextColor(...colors.secondary);
-                    const dateText = `${location} | ${duration}`;
-                    const dateWidth = doc.getTextWidth(dateText);
-                    doc.text(dateText, PAGE_WIDTH - margin - dateWidth, y);
+                    doc.text(location, PAGE_WIDTH - margin, y, { align: "right" });
                     
                     y += 5;
+
+                    // Line 2: Role (Left) | Duration (Right)
+                    doc.setFont(isSpace ? "courier" : "helvetica", "italic");
+                    doc.setFontSize(10);
+                    doc.setTextColor(...colors.text);
+                    doc.text(role, margin, y);
+
+                    doc.setFont(isSpace ? "courier" : "helvetica", "normal");
+                    doc.setFontSize(9);
+                    doc.setTextColor(...colors.secondary);
+                    doc.text(duration, PAGE_WIDTH - margin, y, { align: "right" });
+                    
+                    y += 6;
 
                     // Achievements / Responsibilities
                     doc.setFontSize(10);
@@ -1281,13 +1359,14 @@
                         const indent = 5;
                         const textWidth = contentWidth - indent;
                         const splitText = doc.splitTextToSize(cleanItem, textWidth);
+                        const blockHeight = splitText.length * 4.5;
                         
-                        y = checkPageBreak(y, splitText.length * 4);
+                        y = checkPageBreak(y, blockHeight);
                         doc.text(bullet, margin, y);
                         doc.text(splitText, margin + indent, y);
-                        y += splitText.length * 4 + 1;
+                        y += blockHeight + 1;
                     });
-                    y += 3;
+                    y += 4;
                 });
             }
 
@@ -1295,26 +1374,32 @@
             const skillsPlanet = RESUME_DATA.planets.find(p => p.name === "Skills");
             if (skillsPlanet) {
                 y += 2;
-                y = renderSectionTitle("Skills & Competencies", y);
+                y = renderSectionTitle(titles.skills, y);
                 
                 doc.setFontSize(10);
                 doc.setTextColor(...colors.text);
                 
                 if (skillsPlanet.moons) {
                     skillsPlanet.moons.forEach(cat => {
-                        const details = cat.pdfDetails || cat.moonDetails || {};
+                        const details = isSpace ? (cat.spaceDetails || cat.pdfDetails || cat.moonDetails || {}) : (cat.pdfDetails || cat.moonDetails || {});
                         const catTitle = safeText(details.title || cat.name);
-                        const skills = (details.skills || []).map(s => safeText(s)).join(", ");
                         
                         y = checkPageBreak(y, 10);
                         doc.setFont(undefined, "bold");
-                        doc.text(catTitle + ":", margin, y);
+                        doc.text(catTitle, margin, y);
+                        y += 5;
                         
                         doc.setFont(undefined, "normal");
-                        const titleWidth = doc.getTextWidth(catTitle + ": ");
-                        const splitSkills = doc.splitTextToSize(skills, contentWidth - titleWidth - 2);
-                        doc.text(splitSkills, margin + titleWidth + 2, y);
-                        y += splitSkills.length * 4.5;
+                        const skills = details.skills || [];
+                        skills.forEach(skill => {
+                            const cleanSkill = safeText(skill);
+                            const splitSkill = doc.splitTextToSize(cleanSkill, contentWidth - 10);
+                            y = checkPageBreak(y, splitSkill.length * 4.5);
+                            doc.text("•", margin + 3, y);
+                            doc.text(splitSkill, margin + 8, y);
+                            y += splitSkill.length * 4.5 + 1;
+                        });
+                        y += 3;
                     });
                 }
                 y += 5;
@@ -1323,10 +1408,10 @@
             // PROJECTS
             const projPlanet = RESUME_DATA.planets.find(p => p.name === "Projects");
             if (projPlanet && projPlanet.moons) {
-                y = renderSectionTitle("Key Projects", y);
+                y = renderSectionTitle(titles.projects, y);
                 
                 projPlanet.moons.forEach(proj => {
-                    const details = proj.pdfDetails || proj.moonDetails || {};
+                    const details = isSpace ? (proj.spaceDetails || proj.pdfDetails || proj.moonDetails || {}) : (proj.pdfDetails || proj.moonDetails || {});
                     const title = safeText(details.title || proj.name);
                     const desc = safeText(details.description || "");
                     const impact = details.impact ? details.impact.map(i => safeText(i)).join(". ") : "";
@@ -1349,15 +1434,20 @@
             // EDUCATION
             const eduPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
             if (eduPlanet) {
-                y = renderSectionTitle("Education", y);
-                const d = eduPlanet.pdfDetails || eduPlanet.details || {};
+                y = renderSectionTitle(titles.education, y);
+                const d = isSpace ? (eduPlanet.spaceDetails || eduPlanet.pdfDetails || eduPlanet.details || {}) : (eduPlanet.pdfDetails || eduPlanet.details || {});
                 
                 y = checkPageBreak(y, 10);
                 doc.setFont(undefined, "bold");
-                doc.text(safeText(d.degree || ""), margin, y);
-                y += 5;
+                
+                const degreeLines = doc.splitTextToSize(safeText(d.degree || ""), contentWidth);
+                doc.text(degreeLines, margin, y);
+                y += degreeLines.length * 5;
+                
                 doc.setFont(undefined, "normal");
-                doc.text(`${safeText(d.institution || "")}, ${safeText(d.location || "")} | ${safeText(d.duration || "")}`, margin, y);
+                const eduInfo = `${safeText(d.institution || "")}, ${safeText(d.location || "")} | ${safeText(d.duration || "")}`;
+                const eduLines = doc.splitTextToSize(eduInfo, contentWidth);
+                doc.text(eduLines, margin, y);
             }
 
             // Save
@@ -1711,6 +1801,7 @@
             planet.userData = { ...data, isPlanet: true };
 
             const planetPivot = new THREE.Group();
+            planetPivot.rotation.y = Math.random() * Math.PI * 2; // Randomize initial orbit position
             planetPivot.add(planet);
             planet.position.x = config.distance;
             orbitGroup.add(planetPivot);
