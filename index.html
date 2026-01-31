@@ -13,7 +13,6 @@
             background-color: #000;
             font-family: 'Poppins', sans-serif;
             user-select: none;
-            touch-action: none;
         }
 
         #canvas-container {
@@ -23,7 +22,6 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            touch-action: none;
         }
 
         #ui-layer {
@@ -182,8 +180,7 @@
 
         @media (max-width: 768px) {
             #overlay-panel { width: 100%; }
-            .hud-btn { padding: 10px 20px; font-size: 13px; margin: 4px; }
-            #controls { bottom: 50px; width: 100%; justify-content: center; }
+            .hud-btn { padding: 8px 16px; font-size: 12px; }
         }
 
         #sky-details {
@@ -307,7 +304,7 @@
         const { jsPDF } = window.jspdf;
 
         // === STATE VARIABLES (MUST BE DECLARED FIRST) ===
-        const tourStops = []; 
+        const tourStops = [];
         const objects = [];
         const clickableObjects = [];
         const labels = [];
@@ -322,21 +319,19 @@
         const lasers = [];
 
         // === SETUP THREE.JS (BEFORE ANYTHING ELSE) ===
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 900;
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
         scene.fog = new THREE.FogExp2(0x000000, 0.0008);
 
-        const initialCamY = window.innerWidth < 768 ? 80 : 60;
-        const initialCamZ = window.innerWidth < 768 ? 380 : 250;
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-        camera.position.set(0, initialCamY, initialCamZ);
+        camera.position.set(0, 60, 250);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = !isMobile;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFShadowShadowMap;
         container.appendChild(renderer.domElement);
 
@@ -357,11 +352,9 @@
         
         const sunLight = new THREE.PointLight(0xffffff, 6, 2000);
         sunLight.position.set(0, 0, 0);
-        if (!isMobile) {
-            sunLight.castShadow = true;
-            sunLight.shadow.mapSize.width = 2048;
-            sunLight.shadow.mapSize.height = 2048;
-        }
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 4096;
+        sunLight.shadow.mapSize.height = 4096;
         scene.remove(sunLight);
         scene.add(sunLight);
 
@@ -1556,7 +1549,7 @@
         }
 
         // === BRIGHTER SUN WITH YELLOW-ORANGE GRADIENT ===
-        const sunGeo = new THREE.SphereGeometry(25, isMobile ? 32 : 64, isMobile ? 32 : 64);
+        const sunGeo = new THREE.SphereGeometry(25, 256, 256);
         const sunGradient = document.createElement('canvas');
         sunGradient.width = 256;
         sunGradient.height = 256;
@@ -1603,7 +1596,7 @@
 
         // === IMPROVED STARFIELD WITH CIRCULAR STARS ===
         const starsGeo = new THREE.BufferGeometry();
-        const starsCount = isMobile ? 1500 : 10000;
+        const starsCount = 10000;
         const starPositions = new Float32Array(starsCount * 3);
         const starColors = new Float32Array(starsCount * 3);
         const starSizes = new Float32Array(starsCount);
@@ -1790,10 +1783,8 @@
             const path = new THREE.Line(pathGeo, pathMat);
             orbitGroup.add(path);
 
-            const segs = isMobile ? 32 : 128;
-            const geometry = new THREE.SphereGeometry(config.size, segs, segs);
-            const texSize = isMobile ? 512 : 2048;
-            const texture = createCanvasTexture(texSize, texSize / 2, config.texture);
+            const geometry = new THREE.SphereGeometry(config.size, 128, 128);
+            const texture = createCanvasTexture(2048, 1024, config.texture);
             
             const material = new THREE.MeshPhongMaterial({
                 map: texture,
@@ -1805,10 +1796,8 @@
             });
 
             const planet = new THREE.Mesh(geometry, material);
-            if (!isMobile) {
-                planet.castShadow = true;
-                planet.receiveShadow = true;
-            }
+            planet.castShadow = true;
+            planet.receiveShadow = true;
             planet.userData = { ...data, isPlanet: true };
 
             const planetPivot = new THREE.Group();
@@ -1844,24 +1833,22 @@
             // Moons
             if (data.moons) {
                 data.moons.forEach((moonData, moonIdx) => {
-                    const moonSegs = isMobile ? 16 : 64;
-                    const moonGeo = new THREE.SphereGeometry(moonData.size, moonSegs, moonSegs);
+                    const moonGeo = new THREE.SphereGeometry(moonData.size, 64, 64);
                     
                     // Determine moon texture based on planet and moon type
                     let moonTexture;
-                    const mTexSize = isMobile ? 256 : 1024;
-                    if (data.name === "Skills") { // Skills planet - Analytics/Management colors
+                    if (idx === 1) { // Skills planet - Analytics/Management colors
                         moonTexture = moonIdx % 2 === 0 ? 
-                            createCanvasTexture(mTexSize, mTexSize, drawYellow) : 
-                            createCanvasTexture(mTexSize, mTexSize, drawTeal);
-                    } else if (data.name === "Education") { // Education planet - Contact info surfaces
+                            createCanvasTexture(1024, 1024, drawYellow) : 
+                            createCanvasTexture(1024, 1024, drawTeal);
+                    } else if (idx === 3) { // Education planet - Contact info surfaces
                         moonTexture = moonIdx % 3 === 0 ? 
-                            createCanvasTexture(mTexSize, mTexSize, drawEmailSurface) : 
+                            createCanvasTexture(1024, 1024, drawEmailSurface) : 
                             moonIdx % 3 === 1 ?
-                            createCanvasTexture(mTexSize, mTexSize, drawPhoneSurface) :
-                            createCanvasTexture(mTexSize, mTexSize, drawLocationSurface);
+                            createCanvasTexture(1024, 1024, drawPhoneSurface) :
+                            createCanvasTexture(1024, 1024, drawLocationSurface);
                     } else {
-                        moonTexture = createCanvasTexture(mTexSize, mTexSize, drawRocky);
+                        moonTexture = createCanvasTexture(1024, 1024, drawRocky);
                     }
 
                     const moonMat = new THREE.MeshPhongMaterial({
@@ -1872,10 +1859,8 @@
                         side: THREE.FrontSide
                     });
                     const moon = new THREE.Mesh(moonGeo, moonMat);
-                    if (!isMobile) {
-                        moon.castShadow = true;
-                        moon.receiveShadow = true;
-                    }
+                    moon.castShadow = true;
+                    moon.receiveShadow = true;
                     moon.userData = { 
                         ...moonData, 
                         isMoon: true, 
@@ -2052,9 +2037,7 @@
         	focusedObject = null;
         	controls.target.set(0, 0, 0);
             document.getElementById('sky-details').style.display = 'none';
-            const resetY = window.innerWidth < 768 ? 80 : 60;
-            const resetZ = window.innerWidth < 768 ? 380 : 250;
-        	gsap.to(camera.position, { x: 0, y: resetY, z: resetZ, duration: 0.8 });
+        	gsap.to(camera.position, { x: 0, y: 60, z: 250, duration: 0.8 });
             closeOverlay();
         }
 
@@ -2095,17 +2078,11 @@
         // === ANIMATION LOOP ===
         const clock = new THREE.Clock();
 
-        // Reusable geometries/materials to prevent memory leaks
-        const cometGeo = new THREE.SphereGeometry(1.5, 8, 8);
-        const cometMat = new THREE.MeshBasicMaterial({ color: 0xaaddff });
-        const laserGeo = new THREE.CylinderGeometry(0.2, 0.2, 10, 8);
-        laserGeo.rotateX(Math.PI / 2);
-        const laserMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
         function spawnComet() {
-            if (comets.length > 10) return; // Limit active comets
+            const geo = new THREE.SphereGeometry(1.5, 8, 8);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xaaddff });
+            const mesh = new THREE.Mesh(geo, mat);
             
-            const mesh = new THREE.Mesh(cometGeo, cometMat);
             const x = (Math.random() - 0.5) * 800;
             const y = (Math.random() - 0.5) * 400;
             const z = (Math.random() - 0.5) * 800;
@@ -2126,6 +2103,10 @@
             ship.getWorldPosition(pos);
             const quat = new THREE.Quaternion();
             ship.getWorldQuaternion(quat);
+            
+            const laserGeo = new THREE.CylinderGeometry(0.2, 0.2, 10, 8);
+            laserGeo.rotateX(Math.PI / 2);
+            const laserMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             
             const l1 = new THREE.Mesh(laserGeo, laserMat);
             const l2 = new THREE.Mesh(laserGeo, laserMat);
@@ -2169,7 +2150,7 @@
                 c.mesh.position.add(c.velocity);
                 
                 // Spawn particles
-                if (!isMobile && c.life % 2 === 0) {
+                if (c.life % 2 === 0) {
                     const pGeo = new THREE.BufferGeometry();
                     pGeo.setAttribute('position', new THREE.Float32BufferAttribute([c.mesh.position.x, c.mesh.position.y, c.mesh.position.z], 3));
                     const pMat = new THREE.PointsMaterial({ color: 0xaaddff, size: 0.5, transparent: true });
@@ -2226,37 +2207,6 @@
                     item.div.style.display = 'block';
                     item.div.style.left = `${x}px`;
                     item.div.style.top = `${y}px`;
-                }
-            });
-
-            if (focusedObject) {
-                const targetPos = new THREE.Vector3();
-                focusedObject.getWorldPosition(targetPos);
-                controls.target.lerp(targetPos, 0.05);
-            }
-
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        // === RESIZE ===
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-        
-        // === INITIALIZATION ===
-        setTimeout(() => {
-            document.getElementById('loading').style.opacity = 0;
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-                animate();
-            }, 1000);
-        }, 1000);
-    </script>
-</body>
-</html>             item.div.style.top = `${y}px`;
                 }
             });
 
