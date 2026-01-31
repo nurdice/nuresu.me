@@ -239,7 +239,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            min-height: 100%;
+            height: 100%;
             background-color: #05050c;
             color: #f0f0ff;
             padding: 20px;
@@ -247,14 +247,30 @@
             font-family: 'Courier New', Courier, monospace;
             overflow-y: auto;
             z-index: 2000; /* Above loading screen initially */
+            padding-bottom: 100px;
         }
         .mobile-header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #1e293b; padding-bottom: 20px; }
         .mobile-header h1 { color: #38bdf8; font-size: 24px; margin: 0 0 10px 0; }
         .mobile-header h2 { font-size: 16px; color: #94a3b8; margin: 0 0 15px 0; }
         .mobile-contact { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
         .mobile-contact a { color: #38bdf8; text-decoration: none; }
-        .mobile-buttons { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+        .mobile-buttons { 
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex; 
+            flex-direction: row; 
+            gap: 10px; 
+            justify-content: center; 
+            padding: 15px;
+            background: rgba(5, 5, 12, 0.95);
+            border-top: 1px solid #1e293b;
+            box-sizing: border-box;
+            z-index: 2001;
+        }
         .mobile-buttons button {
+            flex: 1;
             background: linear-gradient(135deg, #38bdf8, #818cf8);
             border: none;
             padding: 12px;
@@ -686,54 +702,153 @@
             const container = document.getElementById('mobile-view');
             container.style.display = 'block';
             
-            let html = `
-                <div class="mobile-header">
-                    <h1>${RESUME_DATA.name.toUpperCase()}</h1>
-                    <h2>${RESUME_DATA.role}</h2>
-                    <div class="mobile-contact">
-                        ${RESUME_DATA.contact.email} | ${RESUME_DATA.contact.phone}<br>
-                        ${RESUME_DATA.contact.location} | <a href="https://${RESUME_DATA.contact.website}" target="_blank">${RESUME_DATA.contact.website}</a>
+            window.renderMobileView = (theme) => {
+                const isSpace = theme === 'space';
+                
+                // Theme Styles
+                container.style.backgroundColor = isSpace ? '#05050c' : '#ffffff';
+                container.style.color = isSpace ? '#f0f0ff' : '#1e293b';
+                container.style.fontFamily = isSpace ? "'Courier New', Courier, monospace" : "'Poppins', sans-serif";
+                
+                // Background effect for space
+                if (isSpace) {
+                    container.style.backgroundImage = "radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px), radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px)";
+                    container.style.backgroundSize = "550px 550px, 350px 350px, 250px 250px";
+                    container.style.backgroundPosition = "0 0, 40px 60px, 130px 270px";
+                } else {
+                    container.style.backgroundImage = "none";
+                }
+
+                const titles = isSpace ? {
+                    summary: "MISSION OBJECTIVE & PROFILE",
+                    experience: "FLIGHT LOG & MISSION HISTORY",
+                    skills: "OPERATIONAL SUBSYSTEMS",
+                    projects: "DEPLOYED PAYLOADS",
+                    education: "ACADEMIC & TRAINING DATA"
+                } : {
+                    summary: "SUMMARY",
+                    experience: "PROFESSIONAL EXPERIENCE",
+                    skills: "SKILLS & COMPETENCIES",
+                    projects: "KEY PROJECTS",
+                    education: "EDUCATION"
+                };
+                
+                const linkColor = isSpace ? '#38bdf8' : '#2563eb';
+                const borderColor = isSpace ? '#1e293b' : '#e2e8f0';
+                const headerColor = isSpace ? '#38bdf8' : '#0f172a';
+                const subHeaderColor = isSpace ? '#94a3b8' : '#64748b';
+                const sectionTitleColor = isSpace ? '#38bdf8' : '#0f172a';
+                const itemTitleColor = isSpace ? '#e2e8f0' : '#334155';
+
+                let html = `
+                    <div class="mobile-header" style="border-bottom: 1px solid ${borderColor}">
+                        <div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
+                            <button onclick="renderMobileView('${isSpace ? 'professional' : 'space'}')" style="
+                                background: ${isSpace ? 'rgba(255,255,255,0.1)' : '#f1f5f9'}; 
+                                border: 1px solid ${borderColor}; 
+                                color: ${isSpace ? '#f0f0ff' : '#0f172a'}; 
+                                padding: 8px 16px; 
+                                border-radius: 20px; 
+                                font-size: 12px; 
+                                font-family: inherit;
+                                cursor: pointer;
+                                display: flex;
+                                align-items: center;
+                                gap: 6px;
+                            ">
+                                ${isSpace ? '☀️ View Professional' : '🚀 View Space Theme'}
+                            </button>
+                        </div>
+                        <h1 style="color:${headerColor}">${RESUME_DATA.name.toUpperCase()}</h1>
+                        <h2 style="color:${subHeaderColor}">${RESUME_DATA.role}</h2>
+                        <div class="mobile-contact" style="color:${subHeaderColor}">
+                            ${RESUME_DATA.contact.email} | ${RESUME_DATA.contact.phone}<br>
+                            ${RESUME_DATA.contact.location} | <a href="https://${RESUME_DATA.contact.website}" target="_blank" style="color:${linkColor}">${RESUME_DATA.contact.website}</a>
+                        </div>
                     </div>
-                    <div class="mobile-buttons">
-                        <button onclick="generatePDF('professional')">Download Professional PDF</button>
-                        <button onclick="generatePDF('space')">Download Space PDF</button>
-                    </div>
-                </div>
-            `;
+                `;
 
-            html += `<section><h3>MISSION OBJECTIVE</h3><p>${RESUME_DATA.spaceSummary || RESUME_DATA.summary}</p></section>`;
+                // Summary
+                const summaryText = isSpace ? (RESUME_DATA.spaceSummary || RESUME_DATA.summary) : (RESUME_DATA.pdfSummary || RESUME_DATA.summary);
+                html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.summary}</h3><p>${summaryText}</p></section>`;
 
-            const exp = RESUME_DATA.planets.find(p => p.name === "Experience");
-            if (exp) {
-                html += `<section><h3>FLIGHT LOG</h3>`;
-                exp.moons.forEach(job => {
-                    const d = job.spaceDetails || job.pdfDetails || {};
-                    html += `<div class="job-block"><h4>${d.company || job.name}</h4><div class="job-meta">${d.role} | ${d.duration}</div><ul>${(d.achievements || []).map(a => `<li>${a}</li>`).join('')}</ul></div>`;
-                });
-                html += `</section>`;
-            }
+                // Experience
+                const exp = RESUME_DATA.planets.find(p => p.name === "Experience");
+                if (exp) {
+                    html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.experience}</h3>`;
+                    exp.moons.forEach(job => {
+                        const d = isSpace ? (job.spaceDetails || job.pdfDetails || {}) : (job.pdfDetails || job.moonDetails || {});
+                        html += `<div class="job-block">
+                            <h4 style="color:${itemTitleColor}">${d.company || job.name}</h4>
+                            <div class="job-meta" style="color:${subHeaderColor}">${d.role} | ${d.duration}</div>
+                            <ul>${(d.achievements || []).map(a => `<li>${a}</li>`).join('')}</ul>
+                        </div>`;
+                    });
+                    html += `</section>`;
+                }
 
-            const skills = RESUME_DATA.planets.find(p => p.name === "Skills");
-            if (skills) {
-                html += `<section><h3>OPERATIONAL SUBSYSTEMS</h3>`;
-                skills.moons.forEach(cat => {
-                    const d = cat.spaceDetails || cat.pdfDetails || {};
-                    html += `<div class="skill-block"><h4>${d.title || cat.name}</h4><p>${(d.skills || []).join(', ')}</p></div>`;
-                });
-                html += `</section>`;
-            }
+                // Skills
+                const skills = RESUME_DATA.planets.find(p => p.name === "Skills");
+                if (skills) {
+                    html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.skills}</h3>`;
+                    skills.moons.forEach(cat => {
+                        const d = isSpace ? (cat.spaceDetails || cat.pdfDetails || {}) : (cat.pdfDetails || cat.moonDetails || {});
+                        html += `<div class="skill-block"><h4 style="color:${itemTitleColor}">${d.title || cat.name}</h4><p>${(d.skills || []).join(', ')}</p></div>`;
+                    });
+                    html += `</section>`;
+                }
 
-            const projects = RESUME_DATA.planets.find(p => p.name === "Shipped Products") || RESUME_DATA.planets.find(p => p.name === "Projects");
-            if (projects) {
-                html += `<section><h3>DEPLOYED PAYLOADS</h3>`;
-                projects.moons.forEach(p => {
-                    const d = p.spaceDetails || p.pdfDetails || {};
-                    html += `<div class="project-block"><h4>${d.title || p.name}</h4><p>${d.description}</p><p><strong>Impact:</strong> ${(d.impact || []).join('. ')}</p></div>`;
-                });
-                html += `</section>`;
-            }
+                // Projects
+                const projects = RESUME_DATA.planets.find(p => p.name === "Shipped Products") || RESUME_DATA.planets.find(p => p.name === "Projects");
+                if (projects) {
+                    html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.projects}</h3>`;
+                    projects.moons.forEach(p => {
+                        const d = isSpace ? (p.spaceDetails || p.pdfDetails || {}) : (p.pdfDetails || p.moonDetails || {});
+                        html += `<div class="project-block"><h4 style="color:${itemTitleColor}">${d.title || p.name}</h4><p>${d.description}</p><p><strong>Impact:</strong> ${(d.impact || []).join('. ')}</p></div>`;
+                    });
+                    html += `</section>`;
+                }
+                
+                // Education
+                const eduPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
+                if (eduPlanet) {
+                    html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.education}</h3>`;
+                    const d = isSpace ? (eduPlanet.spaceDetails || eduPlanet.pdfDetails || eduPlanet.details || {}) : (eduPlanet.pdfDetails || eduPlanet.details || {});
+                    const items = d.items || [d];
+                    items.forEach(item => {
+                        let eduInfo = item.institution || "";
+                        if (item.university) eduInfo += ` - ${item.university}`;
+                        if (item.year || item.duration) eduInfo += ` (${item.year || item.duration})`;
+                        html += `<div class="edu-block"><h4 style="color:${itemTitleColor}">${item.degree}</h4><p>${eduInfo}</p></div>`;
+                    });
+                    
+                    if (eduPlanet.moons) {
+                        eduPlanet.moons.forEach(moon => {
+                            const details = isSpace ? (moon.spaceDetails || moon.pdfDetails || {}) : (moon.pdfDetails || {});
+                            if (details.items || details.skills) {
+                                html += `<div class="edu-block"><h4 style="color:${itemTitleColor}">${details.title || moon.name}</h4><ul>`;
+                                const list = details.items || details.skills || [];
+                                list.forEach(item => {
+                                    html += `<li>${item}</li>`;
+                                });
+                                html += `</ul></div>`;
+                            }
+                        });
+                    }
+                    html += `</section>`;
+                }
 
-            container.innerHTML = html;
+                html += `<div class="mobile-buttons" style="background:${isSpace ? 'rgba(5, 5, 12, 0.95)' : 'rgba(255, 255, 255, 0.95)'}; border-top: 1px solid ${borderColor}">
+                    <button onclick="generatePDF('professional')">Download Professional PDF</button>
+                    <button onclick="generatePDF('space')">Download Space PDF</button>
+                </div>`;
+
+                container.innerHTML = html;
+            };
+
+            // Initial render - Professional (Light) by default
+            renderMobileView('professional');
+            
             // Stop execution for mobile
             throw new Error("Mobile view initialized - stopping 3D execution"); 
         }
