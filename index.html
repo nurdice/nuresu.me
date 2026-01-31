@@ -334,7 +334,7 @@
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFShadowShadowMap;
         container.appendChild(renderer.domElement);
@@ -356,9 +356,11 @@
         
         const sunLight = new THREE.PointLight(0xffffff, 6, 2000);
         sunLight.position.set(0, 0, 0);
-        sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 4096;
-        sunLight.shadow.mapSize.height = 4096;
+        if (!isMobile) {
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 4096;
+            sunLight.shadow.mapSize.height = 4096;
+        }
         scene.remove(sunLight);
         scene.add(sunLight);
 
@@ -1553,7 +1555,7 @@
         }
 
         // === BRIGHTER SUN WITH YELLOW-ORANGE GRADIENT ===
-        const sunGeo = new THREE.SphereGeometry(25, 256, 256);
+        const sunGeo = new THREE.SphereGeometry(25, isMobile ? 32 : 64, isMobile ? 32 : 64);
         const sunGradient = document.createElement('canvas');
         sunGradient.width = 256;
         sunGradient.height = 256;
@@ -1600,7 +1602,7 @@
 
         // === IMPROVED STARFIELD WITH CIRCULAR STARS ===
         const starsGeo = new THREE.BufferGeometry();
-        const starsCount = 10000;
+        const starsCount = isMobile ? 3000 : 10000;
         const starPositions = new Float32Array(starsCount * 3);
         const starColors = new Float32Array(starsCount * 3);
         const starSizes = new Float32Array(starsCount);
@@ -1787,8 +1789,10 @@
             const path = new THREE.Line(pathGeo, pathMat);
             orbitGroup.add(path);
 
-            const geometry = new THREE.SphereGeometry(config.size, 128, 128);
-            const texture = createCanvasTexture(2048, 1024, config.texture);
+            const segs = isMobile ? 32 : 128;
+            const geometry = new THREE.SphereGeometry(config.size, segs, segs);
+            const texSize = isMobile ? 512 : 2048;
+            const texture = createCanvasTexture(texSize, texSize / 2, config.texture);
             
             const material = new THREE.MeshPhongMaterial({
                 map: texture,
@@ -1800,8 +1804,10 @@
             });
 
             const planet = new THREE.Mesh(geometry, material);
-            planet.castShadow = true;
-            planet.receiveShadow = true;
+            if (!isMobile) {
+                planet.castShadow = true;
+                planet.receiveShadow = true;
+            }
             planet.userData = { ...data, isPlanet: true };
 
             const planetPivot = new THREE.Group();
@@ -1837,22 +1843,24 @@
             // Moons
             if (data.moons) {
                 data.moons.forEach((moonData, moonIdx) => {
-                    const moonGeo = new THREE.SphereGeometry(moonData.size, 64, 64);
+                    const moonSegs = isMobile ? 16 : 64;
+                    const moonGeo = new THREE.SphereGeometry(moonData.size, moonSegs, moonSegs);
                     
                     // Determine moon texture based on planet and moon type
                     let moonTexture;
-                    if (idx === 1) { // Skills planet - Analytics/Management colors
+                    const mTexSize = isMobile ? 256 : 1024;
+                    if (data.name === "Skills") { // Skills planet - Analytics/Management colors
                         moonTexture = moonIdx % 2 === 0 ? 
-                            createCanvasTexture(1024, 1024, drawYellow) : 
-                            createCanvasTexture(1024, 1024, drawTeal);
-                    } else if (idx === 3) { // Education planet - Contact info surfaces
+                            createCanvasTexture(mTexSize, mTexSize, drawYellow) : 
+                            createCanvasTexture(mTexSize, mTexSize, drawTeal);
+                    } else if (data.name === "Education") { // Education planet - Contact info surfaces
                         moonTexture = moonIdx % 3 === 0 ? 
-                            createCanvasTexture(1024, 1024, drawEmailSurface) : 
+                            createCanvasTexture(mTexSize, mTexSize, drawEmailSurface) : 
                             moonIdx % 3 === 1 ?
-                            createCanvasTexture(1024, 1024, drawPhoneSurface) :
-                            createCanvasTexture(1024, 1024, drawLocationSurface);
+                            createCanvasTexture(mTexSize, mTexSize, drawPhoneSurface) :
+                            createCanvasTexture(mTexSize, mTexSize, drawLocationSurface);
                     } else {
-                        moonTexture = createCanvasTexture(1024, 1024, drawRocky);
+                        moonTexture = createCanvasTexture(mTexSize, mTexSize, drawRocky);
                     }
 
                     const moonMat = new THREE.MeshPhongMaterial({
@@ -1863,8 +1871,10 @@
                         side: THREE.FrontSide
                     });
                     const moon = new THREE.Mesh(moonGeo, moonMat);
-                    moon.castShadow = true;
-                    moon.receiveShadow = true;
+                    if (!isMobile) {
+                        moon.castShadow = true;
+                        moon.receiveShadow = true;
+                    }
                     moon.userData = { 
                         ...moonData, 
                         isMoon: true, 
@@ -2213,6 +2223,37 @@
                     item.div.style.display = 'block';
                     item.div.style.left = `${x}px`;
                     item.div.style.top = `${y}px`;
+                }
+            });
+
+            if (focusedObject) {
+                const targetPos = new THREE.Vector3();
+                focusedObject.getWorldPosition(targetPos);
+                controls.target.lerp(targetPos, 0.05);
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // === RESIZE ===
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // === INITIALIZATION ===
+        setTimeout(() => {
+            document.getElementById('loading').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                animate();
+            }, 1000);
+        }, 1000);
+    </script>
+</body>
+</html>             item.div.style.top = `${y}px`;
                 }
             });
 
