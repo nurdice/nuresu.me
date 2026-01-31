@@ -13,7 +13,6 @@
             background-color: #000;
             font-family: 'Poppins', sans-serif;
             user-select: none;
-            touch-action: none;
         }
 
         #canvas-container {
@@ -23,7 +22,6 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            touch-action: none;
         }
 
         #ui-layer {
@@ -182,8 +180,7 @@
 
         @media (max-width: 768px) {
             #overlay-panel { width: 100%; }
-            .hud-btn { padding: 10px 20px; font-size: 13px; margin: 4px; }
-            #controls { bottom: 50px; width: 100%; justify-content: center; }
+            .hud-btn { padding: 8px 16px; font-size: 12px; }
         }
 
         #sky-details {
@@ -307,7 +304,7 @@
         const { jsPDF } = window.jspdf;
 
         // === STATE VARIABLES (MUST BE DECLARED FIRST) ===
-        const tourStops = []; 
+        const tourStops = [];
         const objects = [];
         const clickableObjects = [];
         const labels = [];
@@ -322,20 +319,18 @@
         const lasers = [];
 
         // === SETUP THREE.JS (BEFORE ANYTHING ELSE) ===
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 900;
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
         scene.fog = new THREE.FogExp2(0x000000, 0.0008);
 
-        const initialCamY = window.innerWidth < 768 ? 80 : 60;
-        const initialCamZ = window.innerWidth < 768 ? 380 : 250;
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-        camera.position.set(0, initialCamY, initialCamZ);
+        camera.position.set(0, 60, 250);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFShadowShadowMap;
         container.appendChild(renderer.domElement);
@@ -345,10 +340,9 @@
         controls.dampingFactor = 0.05;
         controls.minDistance = 5;
         controls.maxDistance = 500;
-        
         if (isMobile) {
-            // Mobile specific controls setup will happen in initMobileScene
-            controls.enabled = false; 
+            controls.enablePan = false;
+            controls.rotateSpeed = 0.5;
         }
 
         // === LIGHTING ===
@@ -358,11 +352,9 @@
         
         const sunLight = new THREE.PointLight(0xffffff, 6, 2000);
         sunLight.position.set(0, 0, 0);
-        
         sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 2048;
-        sunLight.shadow.mapSize.height = 2048;
-        
+        sunLight.shadow.mapSize.width = 4096;
+        sunLight.shadow.mapSize.height = 4096;
         scene.remove(sunLight);
         scene.add(sunLight);
 
@@ -1546,27 +1538,6 @@
                         html += `<p>${data.value}</p>`;
                     }
                 }
-            } else if (moon.userData.isPlanet && isMobile) {
-                // Mobile Section View (Planet Summary)
-                html = `<p>${moon.userData.description}</p>`;
-                if (moon.userData.moons) {
-                    html += `<h3>Contents</h3><div style="display:flex;flex-direction:column;gap:15px;">`;
-                    moon.userData.moons.forEach(m => {
-                        const details = m.pdfDetails || m.moonDetails || {};
-                        const name = m.name;
-                        const role = details.role || details.title || "";
-                        // Simple list item
-                        html += `<div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
-                            <strong style="color:#38bdf8; font-size:1.1em;">${name}</strong>
-                            ${role ? `<br><span style="font-size:0.9em;color:#94a3b8">${role}</span>` : ''}
-                        </div>`;
-                    });
-                    html += `</div>`;
-                }
-            } else if (moon.userData.isPerson) {
-                // Profile is handled by specific click logic usually, but fallback here
-                html = `<p>${moon.userData.summary}</p>`;
-                // Contact info is added in the click handler usually, but we can rely on that.
             } else {
                 // Fallback for string data
                 html = `<p>${data || "No details available."}</p>`;
@@ -1577,12 +1548,117 @@
             document.getElementById('overlay-panel').classList.remove('active');
         }
 
-        // === INITIALIZATION BRANCHING ===
-        if (isMobile) {
-            initMobileScene();
-        } else {
-            initDesktopScene();
+        // === BRIGHTER SUN WITH YELLOW-ORANGE GRADIENT ===
+        const sunGeo = new THREE.SphereGeometry(25, 256, 256);
+        const sunGradient = document.createElement('canvas');
+        sunGradient.width = 256;
+        sunGradient.height = 256;
+        const sunCtx = sunGradient.getContext('2d');
+        const sunGrad = sunCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
+        sunGrad.addColorStop(0, '#ffff99');
+        sunGrad.addColorStop(0.3, '#ffeb66');
+        sunGrad.addColorStop(0.65, '#ffd933');
+        sunGrad.addColorStop(1, '#ff9900');
+        sunCtx.fillStyle = sunGrad;
+        sunCtx.fillRect(0, 0, 256, 256);
+        const sunTexture = new THREE.CanvasTexture(sunGradient);
+        
+        const sunMat = new THREE.MeshBasicMaterial({ 
+            map: sunTexture,
+            toneMapped: false
+        });
+        const sun = new THREE.Mesh(sunGeo, sunMat);
+        sun.userData = {
+            name: RESUME_DATA.name,
+            role: RESUME_DATA.role,
+            summary: RESUME_DATA.summary,
+            isSun: true
+        };
+        scene.add(sun);
+        
+        // Make Sun clickable
+        clickableObjects.push(sun);
+
+        // Brighter triple-color sun lights
+        const sunYellowLight = new THREE.PointLight(0xffff00, 5, 700);
+        sunYellowLight.position.set(0, 0, 0);
+        scene.add(sunYellowLight);
+
+        const sunGoldenLight = new THREE.PointLight(0xffcc00, 3, 600);
+        sunGoldenLight.position.set(0, 0, 0);
+        scene.add(sunGoldenLight);
+
+        const sunOrangeLight = new THREE.PointLight(0xff9900, 2, 500);
+        sunOrangeLight.position.set(0, 0, 0);
+        scene.add(sunOrangeLight);
+
+        createLabel("Nur Dawoodani", sun, true);
+
+        // === IMPROVED STARFIELD WITH CIRCULAR STARS ===
+        const starsGeo = new THREE.BufferGeometry();
+        const starsCount = 10000;
+        const starPositions = new Float32Array(starsCount * 3);
+        const starColors = new Float32Array(starsCount * 3);
+        const starSizes = new Float32Array(starsCount);
+
+        const starColorChoices = [
+            new THREE.Color(0xffffff),   // white
+            new THREE.Color(0xffffcc),   // yellow
+            new THREE.Color(0xccccff),   // blue
+            new THREE.Color(0xffcccc),   // red
+            new THREE.Color(0xccffcc),   // green
+            new THREE.Color(0xffccdd),   // pink
+            new THREE.Color(0xccffff),   // cyan
+            new THREE.Color(0xffffaa)    // pale yellow
+        ];
+
+        for(let i = 0; i < starsCount; i++) {
+            starPositions[i * 3] = (Math.random() - 0.5) * 2000;
+            starPositions[i * 3 + 1] = (Math.random() - 0.5) * 2000;
+            starPositions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
+
+            const col = starColorChoices[Math.floor(Math.random() * starColorChoices.length)];
+            starColors[i * 3] = col.r;
+            starColors[i * 3 + 1] = col.g;
+            starColors[i * 3 + 2] = col.b;
+
+            starSizes[i] = Math.random() * 2.5 + 0.8;
         }
+
+        starsGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        starsGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+        starsGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+
+        const starsMat = new THREE.PointsMaterial({
+            size: 2,
+            vertexColors: true,
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.9,
+            fog: false,
+            alphaTest: 0.5
+        });
+
+        const starTexture = new THREE.CanvasTexture((() => {
+            const cvs = document.createElement('canvas');
+            cvs.width = 64;
+            cvs.height = 64;
+            const ctx = cvs.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(32, 32, 28, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.beginPath();
+            ctx.arc(32, 32, 20, 0, Math.PI * 2);
+            ctx.fill();
+            return cvs;
+        })());
+
+        starsMat.map = starTexture;
+        const starMesh = new THREE.Points(starsGeo, starsMat);
+        starMesh.layers.set(0);
+        scene.add(starMesh);
 
         // === IMPROVED REALISTIC GALAXIES WITH VARIED COLORS ===
         function createGalaxy(colorScheme = 0) {
@@ -1655,122 +1731,6 @@
             return sprite;
         }
 
-        // ==========================================
-        // DESKTOP SCENE SETUP (SOLAR SYSTEM)
-        // ==========================================
-        function initDesktopScene() {
-        // === BRIGHTER SUN WITH YELLOW-ORANGE GRADIENT ===
-        const sunGeo = new THREE.SphereGeometry(25, isMobile ? 32 : 64, isMobile ? 32 : 64);
-        const sunGradient = document.createElement('canvas');
-        sunGradient.width = 256;
-        sunGradient.height = 256;
-        const sunCtx = sunGradient.getContext('2d');
-        const sunGrad = sunCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
-        sunGrad.addColorStop(0, '#ffff99');
-        sunGrad.addColorStop(0.3, '#ffeb66');
-        sunGrad.addColorStop(0.65, '#ffd933');
-        sunGrad.addColorStop(1, '#ff9900');
-        sunCtx.fillStyle = sunGrad;
-        sunCtx.fillRect(0, 0, 256, 256);
-        const sunTexture = new THREE.CanvasTexture(sunGradient);
-        
-        const sunMat = new THREE.MeshBasicMaterial({ 
-            map: sunTexture,
-            toneMapped: false
-        });
-        const sun = new THREE.Mesh(sunGeo, sunMat);
-        sun.userData = {
-            name: RESUME_DATA.name,
-            role: RESUME_DATA.role,
-            summary: RESUME_DATA.summary,
-            isSun: true
-        };
-        scene.add(sun);
-        
-        // Make Sun clickable
-        clickableObjects.push(sun);
-
-        // Brighter triple-color sun lights
-        const sunYellowLight = new THREE.PointLight(0xffff00, 5, 700);
-        sunYellowLight.position.set(0, 0, 0);
-        scene.add(sunYellowLight);
-
-        const sunGoldenLight = new THREE.PointLight(0xffcc00, 3, 600);
-        sunGoldenLight.position.set(0, 0, 0);
-        scene.add(sunGoldenLight);
-
-        const sunOrangeLight = new THREE.PointLight(0xff9900, 2, 500);
-        sunOrangeLight.position.set(0, 0, 0);
-        scene.add(sunOrangeLight);
-
-        createLabel("Nur Dawoodani", sun, true);
-
-        // === IMPROVED STARFIELD WITH CIRCULAR STARS ===
-        const starsGeo = new THREE.BufferGeometry();
-        const starsCount = isMobile ? 1500 : 10000;
-        const starPositions = new Float32Array(starsCount * 3);
-        const starColors = new Float32Array(starsCount * 3);
-        const starSizes = new Float32Array(starsCount);
-
-        const starColorChoices = [
-            new THREE.Color(0xffffff),   // white
-            new THREE.Color(0xffffcc),   // yellow
-            new THREE.Color(0xccccff),   // blue
-            new THREE.Color(0xffcccc),   // red
-            new THREE.Color(0xccffcc),   // green
-            new THREE.Color(0xffccdd),   // pink
-            new THREE.Color(0xccffff),   // cyan
-            new THREE.Color(0xffffaa)    // pale yellow
-        ];
-
-        for(let i = 0; i < starsCount; i++) {
-            starPositions[i * 3] = (Math.random() - 0.5) * 2000;
-            starPositions[i * 3 + 1] = (Math.random() - 0.5) * 2000;
-            starPositions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
-
-            const col = starColorChoices[Math.floor(Math.random() * starColorChoices.length)];
-            starColors[i * 3] = col.r;
-            starColors[i * 3 + 1] = col.g;
-            starColors[i * 3 + 2] = col.b;
-
-            starSizes[i] = Math.random() * 2.5 + 0.8;
-        }
-
-        starsGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-        starsGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-        starsGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
-
-        const starsMat = new THREE.PointsMaterial({
-            size: 2,
-            vertexColors: true,
-            sizeAttenuation: true,
-            transparent: true,
-            opacity: 0.9,
-            fog: false,
-            alphaTest: 0.5
-        });
-
-        const starTexture = new THREE.CanvasTexture((() => {
-            const cvs = document.createElement('canvas');
-            cvs.width = 64;
-            cvs.height = 64;
-            const ctx = cvs.getContext('2d');
-            ctx.fillStyle = 'white';
-            ctx.beginPath();
-            ctx.arc(32, 32, 28, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.beginPath();
-            ctx.arc(32, 32, 20, 0, Math.PI * 2);
-            ctx.fill();
-            return cvs;
-        })());
-
-        starsMat.map = starTexture;
-        const starMesh = new THREE.Points(starsGeo, starsMat);
-        starMesh.layers.set(0);
-        scene.add(starMesh);
-
         // Add realistic galaxies with varied colors
         const galaxyPositions = [
             { x: 600, y: 400, z: -1200, color: 0 },
@@ -1789,7 +1749,7 @@
         });
 
         // === CREATE PLANETS ===
-        RESUME_DATA.planets.forEach((data) => {
+        RESUME_DATA.planets.forEach((data, idx) => {
             const config = {
                 ...data,
                 texture: textureMap[data.texture] || drawRed,
@@ -1823,10 +1783,8 @@
             const path = new THREE.Line(pathGeo, pathMat);
             orbitGroup.add(path);
 
-            const segs = isMobile ? 32 : 128;
-            const geometry = new THREE.SphereGeometry(config.size, segs, segs);
-            const texSize = isMobile ? 512 : 2048;
-            const texture = createCanvasTexture(texSize, texSize / 2, config.texture);
+            const geometry = new THREE.SphereGeometry(config.size, 128, 128);
+            const texture = createCanvasTexture(2048, 1024, config.texture);
             
             const material = new THREE.MeshPhongMaterial({
                 map: texture,
@@ -1838,10 +1796,8 @@
             });
 
             const planet = new THREE.Mesh(geometry, material);
-            if (!isMobile) {
-                planet.castShadow = true;
-                planet.receiveShadow = true;
-            }
+            planet.castShadow = true;
+            planet.receiveShadow = true;
             planet.userData = { ...data, isPlanet: true };
 
             const planetPivot = new THREE.Group();
@@ -1877,24 +1833,22 @@
             // Moons
             if (data.moons) {
                 data.moons.forEach((moonData, moonIdx) => {
-                    const moonSegs = isMobile ? 16 : 64;
-                    const moonGeo = new THREE.SphereGeometry(moonData.size, moonSegs, moonSegs);
+                    const moonGeo = new THREE.SphereGeometry(moonData.size, 64, 64);
                     
                     // Determine moon texture based on planet and moon type
                     let moonTexture;
-                    const mTexSize = isMobile ? 256 : 1024;
-                    if (data.name === "Skills") { // Skills planet - Analytics/Management colors
+                    if (idx === 1) { // Skills planet - Analytics/Management colors
                         moonTexture = moonIdx % 2 === 0 ? 
-                            createCanvasTexture(mTexSize, mTexSize, drawYellow) : 
-                            createCanvasTexture(mTexSize, mTexSize, drawTeal);
-                    } else if (data.name === "Education") { // Education planet - Contact info surfaces
+                            createCanvasTexture(1024, 1024, drawYellow) : 
+                            createCanvasTexture(1024, 1024, drawTeal);
+                    } else if (idx === 3) { // Education planet - Contact info surfaces
                         moonTexture = moonIdx % 3 === 0 ? 
-                            createCanvasTexture(mTexSize, mTexSize, drawEmailSurface) : 
+                            createCanvasTexture(1024, 1024, drawEmailSurface) : 
                             moonIdx % 3 === 1 ?
-                            createCanvasTexture(mTexSize, mTexSize, drawPhoneSurface) :
-                            createCanvasTexture(mTexSize, mTexSize, drawLocationSurface);
+                            createCanvasTexture(1024, 1024, drawPhoneSurface) :
+                            createCanvasTexture(1024, 1024, drawLocationSurface);
                     } else {
-                        moonTexture = createCanvasTexture(mTexSize, mTexSize, drawRocky);
+                        moonTexture = createCanvasTexture(1024, 1024, drawRocky);
                     }
 
                     const moonMat = new THREE.MeshPhongMaterial({
@@ -1905,10 +1859,8 @@
                         side: THREE.FrontSide
                     });
                     const moon = new THREE.Mesh(moonGeo, moonMat);
-                    if (!isMobile) {
-                        moon.castShadow = true;
-                        moon.receiveShadow = true;
-                    }
+                    moon.castShadow = true;
+                    moon.receiveShadow = true;
                     moon.userData = { 
                         ...moonData, 
                         isMoon: true, 
@@ -1978,153 +1930,6 @@
                 objects.push({ mesh: shipOrbit, speed: 0.02, type: 'rotate' });
             }
         });
-        } // End initDesktopScene
-
-        // ==========================================
-        // MOBILE SCENE SETUP (LANDSCAPE)
-        // ==========================================
-        function initMobileScene() {
-            // 1. Scene Settings
-            scene.background = new THREE.Color(0x1a1a2e); // Twilight Blue
-            scene.fog = new THREE.Fog(0x1a1a2e, 10, 50);
-            
-            // Camera setup for landscape
-            camera.position.set(0, 4, 18);
-            camera.lookAt(0, 2, 0);
-            
-            // Controls: Horizontal panning only
-            controls.enabled = true;
-            controls.enableRotate = false;
-            controls.enableZoom = false;
-            controls.enablePan = true;
-            controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
-            controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
-            
-            // Lighting
-            scene.remove(sunLight); // Remove desktop sun
-            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
-            scene.add(hemiLight);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-            dirLight.position.set(10, 20, 10);
-            dirLight.castShadow = true;
-            scene.add(dirLight);
-
-            // 2. Ground
-            const groundGeo = new THREE.PlaneGeometry(200, 200, 32, 32);
-            // Add some noise to vertices for terrain look
-            const pos = groundGeo.attributes.position;
-            for(let i=0; i<pos.count; i++) {
-                pos.setZ(i, Math.random() * 0.5);
-            }
-            groundGeo.computeVertexNormals();
-            const groundMat = new THREE.MeshStandardMaterial({ 
-                color: 0x2d3436, roughness: 0.8, metalness: 0.2 
-            });
-            const ground = new THREE.Mesh(groundGeo, groundMat);
-            ground.rotation.x = -Math.PI / 2;
-            ground.position.y = -1;
-            ground.receiveShadow = true;
-            scene.add(ground);
-
-            // 3. Objects
-            
-            // A. PERSON (Profile) - Center (0,0)
-            const personGroup = new THREE.Group();
-            const headGeo = new THREE.SphereGeometry(0.8, 32, 32);
-            // Try to use profile texture
-            let headMat = new THREE.MeshStandardMaterial({ color: 0xffccaa });
-            const texLoader = new THREE.TextureLoader();
-            texLoader.load('Profile.jpg', (tex) => {
-                headMat.map = tex;
-                headMat.needsUpdate = true;
-            });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 1.8;
-            
-            const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.5, 32);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x3498db });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 0.75;
-            
-            personGroup.add(head);
-            personGroup.add(body);
-            personGroup.position.set(0, 0, 0);
-            personGroup.userData = { 
-                isPerson: true, 
-                name: RESUME_DATA.name, 
-                role: RESUME_DATA.role, 
-                summary: RESUME_DATA.summary 
-            };
-            scene.add(personGroup);
-            clickableObjects.push(personGroup);
-            createLabel("Me (Profile)", personGroup);
-
-            // B. ANCIENT TREE (Experience) - Left (-8)
-            const treeGroup = new THREE.Group();
-            const trunkGeo = new THREE.CylinderGeometry(0.6, 0.8, 3, 8);
-            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5d4037 });
-            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-            trunk.position.y = 1.5;
-            
-            const leavesGeo = new THREE.IcosahedronGeometry(2, 1);
-            const leavesMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, emissive: 0x554400, roughness: 0.8 }); // Golden leaves
-            const leaves = new THREE.Mesh(leavesGeo, leavesMat);
-            leaves.position.y = 3.5;
-            
-            treeGroup.add(trunk);
-            treeGroup.add(leaves);
-            treeGroup.position.set(-8, 0, 0);
-            const expData = RESUME_DATA.planets.find(p => p.name === "Experience");
-            treeGroup.userData = { ...expData, isPlanet: true };
-            scene.add(treeGroup);
-            clickableObjects.push(treeGroup);
-            createLabel("Experience Tree", treeGroup);
-
-            // C. MOUNTAIN (Projects) - Right (8)
-            const mtnGeo = new THREE.ConeGeometry(4, 6, 4);
-            const mtnMat = new THREE.MeshStandardMaterial({ color: 0x7f8c8d, flatShading: true });
-            const mountain = new THREE.Mesh(mtnGeo, mtnMat);
-            mountain.position.set(8, 2, 0);
-            const projData = RESUME_DATA.planets.find(p => p.name === "Shipped Products");
-            mountain.userData = { ...projData, isPlanet: true };
-            scene.add(mountain);
-            clickableObjects.push(mountain);
-            createLabel("Project Peak", mountain);
-
-            // D. FLOATING STONES (Skills) - Far Right (16)
-            const stonesGroup = new THREE.Group();
-            const stoneGeo = new THREE.OctahedronGeometry(0.8);
-            const stoneMat = new THREE.MeshStandardMaterial({ color: 0x2ecc71, emissive: 0x004400 });
-            
-            const s1 = new THREE.Mesh(stoneGeo, stoneMat); s1.position.set(0, 2, 0);
-            const s2 = new THREE.Mesh(stoneGeo, stoneMat); s2.position.set(-1.2, 1, 0.5);
-            const s3 = new THREE.Mesh(stoneGeo, stoneMat); s3.position.set(1.2, 3, -0.5);
-            
-            stonesGroup.add(s1, s2, s3);
-            stonesGroup.position.set(16, 0, 0);
-            const skillData = RESUME_DATA.planets.find(p => p.name === "Skills");
-            stonesGroup.userData = { ...skillData, isPlanet: true };
-            scene.add(stonesGroup);
-            clickableObjects.push(stonesGroup);
-            createLabel("Skill Stones", stonesGroup);
-
-            // E. MONOLITH (Education) - Far Left (-16)
-            const monoGeo = new THREE.BoxGeometry(1.5, 4, 0.5);
-            const monoMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.1, metalness: 0.8 });
-            const monolith = new THREE.Mesh(monoGeo, monoMat);
-            monolith.position.set(-16, 2, 0);
-            const eduData = RESUME_DATA.planets.find(p => p.name === "Education");
-            monolith.userData = { ...eduData, isPlanet: true };
-            scene.add(monolith);
-            clickableObjects.push(monolith);
-            createLabel("Knowledge Monolith", monolith);
-
-            // Add simple stars in background
-            const stars = createGalaxy(1); // Reuse galaxy function for background ambiance
-            stars.scale.set(50, 50, 1);
-            stars.position.set(0, 10, -30);
-            scene.add(stars);
-        }
 
         // === INTERACTION ===
         const raycaster = new THREE.Raycaster();
@@ -2148,31 +1953,10 @@
                 let target = intersects[0].object;
                 while(target.parent && !target.userData.isSpaceship && !target.userData.isPlanet && !target.userData.isMoon) { target = target.parent; }
                 
-                // Mobile specific check for Person group
-                if (isMobile) {
-                    while(target.parent && !target.userData.isPerson && !target.userData.isPlanet) { target = target.parent; }
-                }
-                
                 if (target.userData.isSpaceship) {
                     fireLasers(target);
                 } else {
-                    if (isMobile) {
-                        // On mobile, just show details, don't zoom camera wildly
-                        if (target.userData.isPerson) {
-                            // Show profile
-                            showMoonDetails({ userData: { ...target.userData, isSun: true } }); // Reuse Sun logic for profile
-                        } else {
-                            showMoonDetails(target);
-                        }
-                        
-                        // Simple camera nudge
-                        const targetPos = new THREE.Vector3();
-                        target.getWorldPosition(targetPos);
-                        gsap.to(camera.position, { x: targetPos.x, z: targetPos.z + 10, duration: 1 });
-                        controls.target.set(targetPos.x, 2, 0);
-                    } else {
-                        focusOnObject(target);
-                    }
+                    focusOnObject(target);
                 }
             } else {
                 // Clicked on empty space
@@ -2199,7 +1983,7 @@
         	// also ensure controls target will follow (animate a bit)
         	if (object) {
         		// if the clicked object is a mesh inside a pivot, use world position
-        		const targetPos = new THREE.Vector3(); 
+        		const targetPos = new THREE.Vector3();
         		object.getWorldPosition(targetPos);
         		controls.target.copy(targetPos);
                 
@@ -2218,10 +2002,6 @@
             const title = document.getElementById('panel-title');
             const subtitle = document.getElementById('panel-subtitle');
             const content = document.getElementById('panel-content');
-
-            if (moon.userData.isPerson) {
-                // Handled in specific logic below, but just in case
-            }
 
             const moonName = (moon.userData && moon.userData.name) || moon.name || 'Moon';
             const parentName = (moon.userData && moon.userData.parentPlanet && moon.userData.parentPlanet.userData && moon.userData.parentPlanet.userData.name) || '';
@@ -2257,9 +2037,7 @@
         	focusedObject = null;
         	controls.target.set(0, 0, 0);
             document.getElementById('sky-details').style.display = 'none';
-            const resetY = window.innerWidth < 768 ? 80 : 60;
-            const resetZ = window.innerWidth < 768 ? 380 : 250;
-        	gsap.to(camera.position, { x: 0, y: resetY, z: resetZ, duration: 0.8 });
+        	gsap.to(camera.position, { x: 0, y: 60, z: 250, duration: 0.8 });
             closeOverlay();
         }
 
@@ -2300,17 +2078,11 @@
         // === ANIMATION LOOP ===
         const clock = new THREE.Clock();
 
-        // Reusable geometries/materials to prevent memory leaks
-        const cometGeo = new THREE.SphereGeometry(1.5, 8, 8);
-        const cometMat = new THREE.MeshBasicMaterial({ color: 0xaaddff });
-        const laserGeo = new THREE.CylinderGeometry(0.2, 0.2, 10, 8);
-        laserGeo.rotateX(Math.PI / 2);
-        const laserMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
         function spawnComet() {
-            if (comets.length > 10) return; // Limit active comets
+            const geo = new THREE.SphereGeometry(1.5, 8, 8);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xaaddff });
+            const mesh = new THREE.Mesh(geo, mat);
             
-            const mesh = new THREE.Mesh(cometGeo, cometMat);
             const x = (Math.random() - 0.5) * 800;
             const y = (Math.random() - 0.5) * 400;
             const z = (Math.random() - 0.5) * 800;
@@ -2331,6 +2103,10 @@
             ship.getWorldPosition(pos);
             const quat = new THREE.Quaternion();
             ship.getWorldQuaternion(quat);
+            
+            const laserGeo = new THREE.CylinderGeometry(0.2, 0.2, 10, 8);
+            laserGeo.rotateX(Math.PI / 2);
+            const laserMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             
             const l1 = new THREE.Mesh(laserGeo, laserMat);
             const l2 = new THREE.Mesh(laserGeo, laserMat);
@@ -2353,24 +2129,6 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            if (isMobile) {
-                // Mobile Animation
-                controls.update();
-                renderer.render(scene, camera);
-                // Gentle floating for stones
-                const time = Date.now() * 0.001;
-                scene.children.forEach(c => {
-                    if (c.userData.name === "Skills") {
-                        c.children.forEach((stone, i) => {
-                            stone.position.y += Math.sin(time + i) * 0.005;
-                            stone.rotation.y += 0.01;
-                        });
-                    }
-                });
-                return;
-            }
-
-            // Desktop Animation
             // Sun Pulse
             const time = Date.now() * 0.001;
             sun.scale.setScalar(1 + Math.sin(time * 2) * 0.02);
@@ -2392,7 +2150,7 @@
                 c.mesh.position.add(c.velocity);
                 
                 // Spawn particles
-                if (!isMobile && c.life % 2 === 0) {
+                if (c.life % 2 === 0) {
                     const pGeo = new THREE.BufferGeometry();
                     pGeo.setAttribute('position', new THREE.Float32BufferAttribute([c.mesh.position.x, c.mesh.position.y, c.mesh.position.z], 3));
                     const pMat = new THREE.PointsMaterial({ color: 0xaaddff, size: 0.5, transparent: true });
@@ -2449,37 +2207,6 @@
                     item.div.style.display = 'block';
                     item.div.style.left = `${x}px`;
                     item.div.style.top = `${y}px`;
-                }
-            });
-
-            if (focusedObject) {
-                const targetPos = new THREE.Vector3();
-                focusedObject.getWorldPosition(targetPos);
-                controls.target.lerp(targetPos, 0.05);
-            }
-
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        // === RESIZE ===
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-        
-        // === INITIALIZATION ===
-        setTimeout(() => {
-            document.getElementById('loading').style.opacity = 0;
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-                animate();
-            }, 1000);
-        }, 1000);
-    </script>
-</body>
-</html>             item.div.style.top = `${y}px`;
                 }
             });
 
