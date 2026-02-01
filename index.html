@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Nur's Solar System Resume</title>
+    <meta name="theme-color" content="#000000">
+    <title>Nur | Mission Control</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         
@@ -50,6 +51,7 @@
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(4px);
+            text-align: center;
         }
 
         .label:hover {
@@ -185,7 +187,7 @@
 
         #sky-details {
             position: fixed;
-            top: 15%;
+            top: 10%;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -205,15 +207,16 @@
             text-transform: uppercase;
             letter-spacing: 3px;
         }
-        #sky-details p {
-            font-size: 22px;
-            line-height: 1.8;
+        #sky-content {
+            font-size: 16px;
+            line-height: 1.5;
             background: rgba(15, 23, 42, 0.7);
-            padding: 30px;
+            padding: 25px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
             white-space: pre-wrap;
+            pointer-events: auto;
         }
         #sky-close {
             position: absolute;
@@ -228,6 +231,7 @@
             justify-content: center;
             cursor: pointer;
             transition: background 0.3s;
+            pointer-events: auto;
         }
         #sky-close:hover { background: rgba(255, 255, 255, 0.3); }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -306,7 +310,7 @@
     <div id="sky-details">
         <div id="sky-close" onclick="resetView()">✕</div>
         <h1 id="sky-title">Moon Title</h1>
-        <p id="sky-content">Details go here...</p>
+        <div id="sky-content">Details go here...</div>
     </div>
 
     <div id="pdf-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:100; justify-content:center; align-items:center;">
@@ -345,7 +349,6 @@
 
     <div id="controls">
         <button class="hud-btn" onclick="resetView()">⊙ Reset View</button>
-        <button class="hud-btn" onclick="startTour()">🚀 Tour</button>
         <button class="hud-btn" onclick="toggleSound()" id="sound-btn">🔇 Sound Off</button>
         <button class="hud-btn" onclick="document.getElementById('pdf-modal').style.display='flex'">📄 PDF Resume</button>
     </div>
@@ -370,14 +373,11 @@
 
 
         // === STATE VARIABLES (MUST BE DECLARED FIRST) ===
-        const tourStops = [];
         const objects = [];
         const clickableObjects = [];
         const labels = [];
         let focusedObject = null;
-        let tourActive = false;
-        let tourIndex = -1;
-        let tourTimer = null;
+        let isSunView = false;
         let soundEnabled = false;
         let backgroundAudio = null;
         const comets = [];
@@ -453,7 +453,7 @@
                                 align-items: center;
                                 gap: 6px;
                             ">
-                                ${isSpace ? '☀️ View Professional' : '🚀 View Space Theme'}
+                                ${isSpace ? '☀️ View Professional' : '🪐 View Space Theme'}
                             </button>
                         </div>
                         <img src="${profileImg}" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; border: 3px solid ${borderColor}; object-fit: cover; display: block; margin-left: auto; margin-right: auto;">
@@ -1210,7 +1210,7 @@
         function createLabel(text, object, isMajor = false) {
             const div = document.createElement('div');
             div.className = isMajor ? 'label major' : 'label';
-            div.textContent = text;
+            div.innerHTML = text;
             div.onclick = (e) => {
                 e.stopPropagation();
                 focusOnObject(object);
@@ -1821,7 +1821,7 @@
         sunOrangeLight.position.set(0, 0, 0);
         scene.add(sunOrangeLight);
 
-        createLabel("Nur Dawoodani", sun, true);
+        createLabel("NUR<br><span style='font-size:0.6em; opacity:0.8'>BA</span>", sun, true);
 
         // === IMPROVED STARFIELD WITH CIRCULAR STARS ===
         const starsGeo = new THREE.BufferGeometry();
@@ -2039,7 +2039,6 @@
             objects.push({ mesh: planet, speed: 0.003, type: 'rotate' });
             clickableObjects.push(planet);
             createLabel(data.name, planet);
-            tourStops.push(planet);
 
             // Rings for Saturn
             if (config.hasRings) {
@@ -2114,7 +2113,6 @@
                     objects.push({ mesh: moon, speed: 0.005, type: 'rotate' });
                     clickableObjects.push(moon);
                     createLabel(moonData.name, moon);
-                    tourStops.push(moon);
                 });
             }
 
@@ -2172,7 +2170,6 @@
         window.addEventListener('click', onMouseClick);
 
         function onMouseClick() {
-            stopTour();
             raycaster.setFromCamera(mouse, camera);
             // Recursive true to hit parts of the spaceship group
             const intersects = raycaster.intersectObjects(clickableObjects, true);
@@ -2196,8 +2193,22 @@
         // === INTERACTION HELPERS & OVERLAY ===
         // add focus / overlay functions (show moon surface + details)
         function focusOnObject(object) {
+        	if (object && object.userData && object.userData.isSun) {
+                focusedObject = null; // Disable auto-tracking for Sun view
+                showSunProfile();
+                
+                isSunView = true;
+                controls.enableZoom = false;
+                controls.maxDistance = 20; // Keep inside Sun (radius 25)
+                controls.minDistance = 0.1;
+
+                // Move camera inside the sun
+                gsap.to(camera.position, { x: 0, y: 0, z: 1, duration: 1.5 });
+                gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.5 });
+                return;
+            }
+
         	focusedObject = object;
-        	// if it's a moon, show detailed surface panel
         	if (object && object.userData && (object.userData.isMoon || object.userData.isPlanet)) {
         		landOnMoon(object);
         	} else {
@@ -2223,6 +2234,35 @@
                     gsap.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: 1.5 });
                 }
         	}
+        }
+
+        function showSunProfile() {
+            const skyDetails = document.getElementById('sky-details');
+            const titleEl = document.getElementById('sky-title');
+            const contentEl = document.getElementById('sky-content');
+            
+            titleEl.textContent = RESUME_DATA.name;
+            
+            const aboutText = "Lead Business Analyst with 18+ years of experience driving digital transformation and business performance. Expert in leading cross-functional teams within Agile/ SAFe environments to deliver high-scale guest-facing features. Proven track record of bridging the gap between complex technical architecture and multi-million dollar business value.";
+            
+            let html = `
+                <div style="text-align: left; max-width: 600px; margin: 0 auto; font-size: 15px; white-space: normal;">
+                    <h3 style="color: #38bdf8; margin-top: 0; text-align: center;">${RESUME_DATA.role}</h3>
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                        <p style="margin: 5px 0;"><strong>📧 Email:</strong> <a href="mailto:${RESUME_DATA.contact.email}" style="color: #fff; text-decoration: none;">${RESUME_DATA.contact.email}</a></p>
+                        <p style="margin: 5px 0;"><strong>📱 Phone:</strong> ${RESUME_DATA.contact.phone}</p>
+                        <p style="margin: 5px 0;"><strong>📍 Location:</strong> ${RESUME_DATA.contact.location}</p>
+                        <p style="margin: 5px 0;"><strong>🔗 LinkedIn:</strong> <a href="https://${RESUME_DATA.contact.linkedin}" target="_blank" style="color: #38bdf8; text-decoration: none;">${RESUME_DATA.contact.linkedin}</a></p>
+                        <p style="margin: 5px 0;"><strong>🌐 Website:</strong> <a href="https://${RESUME_DATA.contact.website}" target="_blank" style="color: #38bdf8; text-decoration: none;">${RESUME_DATA.contact.website}</a></p>
+                    </div>
+                    <h4 style="color: #e2e8f0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; margin-bottom: 15px;">About Me</h4>
+                    <p style="line-height: 1.6; color: #cbd5e1;">${aboutText}</p>
+                </div>
+            `;
+            
+            contentEl.innerHTML = html;
+            skyDetails.style.display = 'block';
+            document.getElementById('overlay-panel').classList.remove('active');
         }
 
         // show moon UI panel with surface image and text
@@ -2263,34 +2303,19 @@
 
         // basic helpers to avoid missing-function errors
         function resetView() {
+            if (isSunView) {
+                isSunView = false;
+                controls.enableZoom = true;
+                controls.maxDistance = 500;
+                controls.minDistance = 5;
+                camera.fov = 60;
+                camera.updateProjectionMatrix();
+            }
         	focusedObject = null;
         	controls.target.set(0, 0, 0);
             document.getElementById('sky-details').style.display = 'none';
         	gsap.to(camera.position, { x: 0, y: 60, z: 250, duration: 0.8 });
             closeOverlay();
-        }
-
-        // simple tour implementation
-        function startTour() {
-        	if (tourActive) return;
-        	tourActive = true;
-        	tourIndex = -1;
-        	stopTour();
-        	tourTimer = setInterval(() => {
-        		tourIndex = (tourIndex + 1) % tourStops.length;
-        		const t = tourStops[tourIndex];
-        		if (t) {
-        			focusOnObject(t);
-        		}
-        	}, 3500);
-        }
-
-        function stopTour() {
-        	if (tourTimer) {
-        		clearInterval(tourTimer);
-        		tourTimer = null;
-        	}
-        	tourActive = false;
         }
 
         // small html-escape helper
@@ -2303,6 +2328,16 @@
         		.replace(/"/g, '&quot;')
         		.replace(/'/g, '&#039;');
         }
+
+        window.addEventListener('wheel', (e) => {
+            if (isSunView) {
+                // Telescope zoom (FOV)
+                let newFov = camera.fov + (e.deltaY * 0.05);
+                newFov = Math.max(10, Math.min(60, newFov));
+                camera.fov = newFov;
+                camera.updateProjectionMatrix();
+            }
+        });
 
         // === ANIMATION LOOP ===
         const clock = new THREE.Clock();
@@ -2430,6 +2465,12 @@
                 const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
                 const y = (pos.y * -0.5 + 0.5) * window.innerHeight;
                 
+                // Hide Sun label if camera is inside/very close to Sun
+                if (item.object.userData.isSun && camera.position.length() < 20) {
+                    item.div.style.display = 'none';
+                    return;
+                }
+
                 if (pos.z > 1) {
                     item.div.style.display = 'none';
                 } else {
