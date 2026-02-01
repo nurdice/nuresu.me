@@ -686,9 +686,10 @@
 
                 const backToTopStyle = isSpace ? spaceBtnStyle : profBtnStyle;
                 const btnTop = errorMessage ? '90px' : '20px';
+                const btnRight = isMobile ? '20px' : '180px';
                 const themeBtnStyle = isSpace 
-                    ? `position: fixed; top: ${btnTop}; right: 20px; z-index: 2002; padding: 10px 16px; border-radius: 30px; font-size: 12px; ${spaceBtnStyle}`
-                    : `position: fixed; top: ${btnTop}; right: 20px; z-index: 2002; padding: 10px 16px; border-radius: 30px; font-size: 12px; ${profBtnStyle}`;
+                    ? `position: fixed; top: ${btnTop}; right: ${btnRight}; z-index: 2002; padding: 10px 16px; border-radius: 30px; font-size: 12px; ${spaceBtnStyle}`
+                    : `position: fixed; top: ${btnTop}; right: ${btnRight}; z-index: 2002; padding: 10px 16px; border-radius: 30px; font-size: 12px; ${profBtnStyle}`;
 
                 const downloadBtnStyle = isSpace 
                     ? spaceBtnStyle 
