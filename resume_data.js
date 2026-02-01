@@ -25,6 +25,10 @@ window.RESUME_DATA = {
         // ===== 1. EXPERIENCE PLANET (Jupiter-sized anchor) =====
         {
             name: "Experience",
+            title: "Professional Experience",
+            section: "main",
+            order: 1,
+            renderType: "experience",
             size: 15,
             distance: 70,
             speed: 0.002,
@@ -283,6 +287,10 @@ window.RESUME_DATA = {
         // ===== 2. SKILLS PLANET (Inner planet - core capabilities) =====
         {
             name: "Skills",
+            title: "Skills & Competencies",
+            section: "sidebar",
+            order: 1,
+            renderType: "list",
             size: 8,
             distance: 90,
             speed: 0.0015,
@@ -380,6 +388,10 @@ window.RESUME_DATA = {
         // ===== 3. SHIPPED PRODUCTS PLANET (NEW - Saturn-sized) =====
         {
             name: "Shipped Products",
+            title: "Key Projects",
+            section: "main",
+            order: 2,
+            renderType: "projects",
             size: 9,
             distance: 130,
             speed: 0.0013,
@@ -582,6 +594,10 @@ window.RESUME_DATA = {
         // ===== 4. PROBLEM DOMAINS PLANET (NEW - Neptune) =====
         {
             name: "Problem Domains",
+            title: "Problem Domains",
+            section: "main",
+            order: 3,
+            renderType: "text-list",
             size: 8,
             distance: 170,
             speed: 0.0012,
@@ -713,6 +729,10 @@ window.RESUME_DATA = {
         // ===== 5. WAYS OF WORKING PLANET (NEW - Uranus) =====
         {
             name: "Ways of Working",
+            title: "Ways of Working",
+            section: "main",
+            order: 4,
+            renderType: "text-list",
             size: 7,
             distance: 210,
             speed: 0.0010,
@@ -806,6 +826,10 @@ window.RESUME_DATA = {
 // ===== 6. IMPACT & OUTCOMES PLANET (NEW - Mars) =====
         {
             name: "Impact & Outcomes",
+            title: "Impact & Outcomes",
+            section: "main",
+            order: 5,
+            renderType: "list",
             size: 7,
             distance: 250,
             speed: 0.0009,
@@ -901,6 +925,10 @@ window.RESUME_DATA = {
         // ===== 7. TOOLS & PLATFORMS PLANET (NEW - Earth) =====
         {
             name: "Tools & Platforms",
+            title: "Tools & Platforms",
+            section: "sidebar",
+            order: 2,
+            renderType: "list",
             size: 6,
             distance: 290,
             speed: 0.0008,
@@ -981,6 +1009,10 @@ window.RESUME_DATA = {
         // ===== 8. EDUCATION PLANET (Small, calm) =====
         {
             name: "Education",
+            title: "Education",
+            section: "sidebar",
+            order: 3,
+            renderType: "education",
             size: 5,
             distance: 330,
             speed: 0.0006,
@@ -1024,6 +1056,10 @@ window.RESUME_DATA = {
         // ===== 9. LANGUAGES PLANET (Optional, subtle) =====
         {
             name: "Languages",
+            title: "Languages",
+            section: "sidebar",
+            order: 4,
+            renderType: "languages",
             size: 4,
             distance: 365,
             speed: 0.0005,
@@ -1044,6 +1080,7 @@ window.RESUME_DATA = {
         // ===== 10. CONTACT STATION (Orbital, not planet) =====
         {
             name: "Contact Station",
+            section: "none",
             size: 4,
             distance: 400,
             speed: 0.0003,
