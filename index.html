@@ -235,6 +235,7 @@
         }
         #sky-close:hover { background: rgba(255, 255, 255, 0.3); }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        @keyframes simpleFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Mobile View Styles */
         #mobile-view {
@@ -246,59 +247,140 @@
             height: 100%;
             background-color: #05050c;
             color: #f0f0ff;
-            padding: 20px;
+            padding: 0;
             box-sizing: border-box;
             font-family: 'Courier New', Courier, monospace;
             overflow-y: auto;
             z-index: 2000; /* Above loading screen initially */
-            padding-bottom: 100px;
         }
         .mobile-header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #1e293b; padding-bottom: 20px; }
         .mobile-header h1 { color: #38bdf8; font-size: 24px; margin: 0 0 10px 0; }
         .mobile-header h2 { font-size: 16px; color: #94a3b8; margin: 0 0 15px 0; }
-        .mobile-contact { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+        .mobile-contact { 
+            font-size: 14px; 
+            color: #94a3b8; 
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
         .mobile-contact a { color: #38bdf8; text-decoration: none; }
+        .contact-separator { display: none; }
         .mobile-buttons { 
             position: fixed;
-            bottom: 0;
+            bottom: 20px;
             left: 0;
             width: 100%;
             display: flex; 
             flex-direction: row; 
-            gap: 10px; 
+            gap: 15px; 
             justify-content: center; 
-            padding: 15px;
-            background: rgba(5, 5, 12, 0.95);
-            border-top: 1px solid #1e293b;
+            padding: 0 20px;
+            background: transparent;
+            border: none;
             box-sizing: border-box;
             z-index: 2001;
+            pointer-events: none;
         }
         .mobile-buttons button {
             flex: 1;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
+            max-width: 250px;
+            padding: 14px;
+            border-radius: 30px;
             color: white;
             font-family: inherit;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s;
         }
+        .mobile-buttons button:active { transform: scale(0.96); }
         #mobile-view section { margin-bottom: 30px; }
         #mobile-view h3 {
-            color: #38bdf8;
             border-bottom: 1px solid #1e293b;
             padding-bottom: 5px;
             margin-bottom: 15px;
-            font-size: 18px;
+            font-size: 20px;
+            letter-spacing: 1px;
         }
         .job-block, .project-block, .edu-block, .skill-block { margin-bottom: 20px; }
-        #mobile-view h4 { color: #e2e8f0; margin: 0 0 5px 0; font-size: 16px; }
-        .job-meta { color: #94a3b8; font-size: 12px; margin-bottom: 10px; font-style: italic; }
+        #mobile-view h4 { margin: 0 0 5px 0; font-size: 18px; }
+        .job-meta { font-size: 14px; margin-bottom: 10px; font-style: italic; }
         #mobile-view ul { margin: 0; padding-left: 20px; }
-        #mobile-view li { margin-bottom: 5px; font-size: 13px; line-height: 1.4; }
-        #mobile-view p { font-size: 13px; line-height: 1.4; margin: 0 0 10px 0; }
+        #mobile-view li { margin-bottom: 8px; font-size: 16px; line-height: 1.6; }
+        #mobile-view p { font-size: 16px; line-height: 1.6; margin: 0 0 15px 0; }
+
+        /* Desktop Fallback Layout */
+        .resume-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 1px 120px 1px;
+            animation: simpleFadeIn 0.8s ease-out;
+        }
+        .resume-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        
+        @media (min-width: 900px) {
+            .resume-grid {
+                display: grid;
+                grid-template-columns: 320px 1fr;
+                gap: 40px;
+                align-items: start;
+            }
+            .resume-sidebar {
+                border-right: 1px solid var(--border-color);
+                padding-right: 30px;
+            }
+            .mobile-header {
+                display: grid;
+                grid-template-columns: 320px 1fr;
+                gap: 40px;
+                align-items: center;
+                text-align: left !important;
+            }
+            .header-image-container {
+                text-align: right;
+                padding-right: 30px;
+            }
+            .mobile-contact {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 12px;
+                align-items: center;
+            }
+            .contact-separator { display: inline; opacity: 0.4; }
+        }
+
+        @media print {
+            .mobile-buttons, #controls, .hud-btn, #sky-details, #ui-layer, #loading, .mobile-header button {
+                display: none !important;
+            }
+            #mobile-view {
+                position: relative;
+                height: auto;
+                overflow: visible;
+                background: white !important;
+                color: black !important;
+            }
+            .resume-container {
+                width: 100%;
+                max-width: none;
+                padding: 0;
+                margin: 0;
+            }
+            body {
+                background: white !important;
+                overflow: visible;
+            }
+        }
     </style>
 </head>
 <body>
@@ -387,8 +469,7 @@
         // === SETUP THREE.JS (BEFORE ANYTHING ELSE) ===
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        if (isMobile) {
-            // === MOBILE VIEW LOGIC ===
+        function startFallbackMode(errorMessage = null) {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('canvas-container').style.display = 'none';
             document.getElementById('ui-layer').style.display = 'none';
@@ -400,10 +481,18 @@
             window.renderMobileView = (theme) => {
                 const isSpace = theme === 'space';
                 
+                const linkColor = isSpace ? '#38bdf8' : '#2563eb';
+                const borderColor = isSpace ? '#1e293b' : '#e2e8f0';
+                const headerColor = isSpace ? '#38bdf8' : '#0f172a';
+                const subHeaderColor = isSpace ? '#94a3b8' : '#64748b';
+                const sectionTitleColor = isSpace ? '#38bdf8' : '#0f172a';
+                const itemTitleColor = isSpace ? '#e2e8f0' : '#334155';
+
                 // Theme Styles
                 container.style.backgroundColor = isSpace ? '#05050c' : '#ffffff';
                 container.style.color = isSpace ? '#f0f0ff' : '#1e293b';
                 container.style.fontFamily = isSpace ? "'Courier New', Courier, monospace" : "'Poppins', sans-serif";
+                container.style.setProperty('--border-color', borderColor);
                 
                 // Background effect for space
                 if (isSpace) {
@@ -427,118 +516,139 @@
                     projects: "KEY PROJECTS",
                     education: "EDUCATION"
                 };
-                
-                const linkColor = isSpace ? '#38bdf8' : '#2563eb';
-                const borderColor = isSpace ? '#1e293b' : '#e2e8f0';
-                const headerColor = isSpace ? '#38bdf8' : '#0f172a';
-                const subHeaderColor = isSpace ? '#94a3b8' : '#64748b';
-                const sectionTitleColor = isSpace ? '#38bdf8' : '#0f172a';
-                const itemTitleColor = isSpace ? '#e2e8f0' : '#334155';
 
                 const profileImg = isSpace ? (RESUME_DATA.profileImageDark || RESUME_DATA.profileImage) : (RESUME_DATA.profileImageLight || RESUME_DATA.profileImage);
 
                 let html = `
+                    ${errorMessage ? `<div style="position: sticky; top: 0; z-index: 3000; background: rgba(220, 38, 38, 0.4); color: white; padding: 8px 10px; text-align: center; font-family: sans-serif; font-size: 11px; margin: 0; border-bottom: 1px solid rgba(255, 100, 100, 0.3); backdrop-filter: blur(12px); line-height: 1.3;">
+                        <strong style="display:block; font-size:13px; margin-bottom:2px;">⚠️ 3D View Unavailable</strong>
+                        ${errorMessage}
+                    </div>` : ''}
+
+                    <div class="resume-container">
+                    
+                    <!-- Header -->
                     <div class="mobile-header" style="border-bottom: 1px solid ${borderColor}">
-                        <div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
-                            <button onclick="renderMobileView('${isSpace ? 'professional' : 'space'}')" style="
-                                background: ${isSpace ? 'rgba(255,255,255,0.1)' : '#f1f5f9'}; 
-                                border: 1px solid ${borderColor}; 
-                                color: ${isSpace ? '#f0f0ff' : '#0f172a'}; 
-                                padding: 8px 16px; 
-                                border-radius: 20px; 
-                                font-size: 12px; 
-                                font-family: inherit;
-                                cursor: pointer;
-                                display: flex;
-                                align-items: center;
-                                gap: 6px;
-                            ">
-                                ${isSpace ? '☀️ View Professional' : '🪐 View Space Theme'}
-                            </button>
+                        <div class="header-image-container">
+                            <img src="${profileImg}" style="width: 160px; height: 160px; border-radius: 50%; border: 4px solid ${borderColor}; object-fit: cover;">
                         </div>
-                        <img src="${profileImg}" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; border: 3px solid ${borderColor}; object-fit: cover; display: block; margin-left: auto; margin-right: auto;">
-                        <h1 style="color:${headerColor}">${RESUME_DATA.name.toUpperCase()}</h1>
-                        <h2 style="color:${subHeaderColor}">${RESUME_DATA.role}</h2>
-                        <div class="mobile-contact" style="color:${subHeaderColor}">
-                            ${RESUME_DATA.contact.email} | ${RESUME_DATA.contact.phone}<br>
-                            ${RESUME_DATA.contact.location} | <a href="https://${RESUME_DATA.contact.website}" target="_blank" style="color:${linkColor}">${RESUME_DATA.contact.website}</a>
+                        <div class="header-content">
+                            <h1 style="color:${headerColor}; font-size: 32px; margin: 0 0 20px 0; line-height: 1.2;">${RESUME_DATA.name.toUpperCase()}</h1>
+                            <h2 style="color:${subHeaderColor}; font-size: 20px; margin: 0 0 20px 0;">${RESUME_DATA.role}</h2>
+                            <div class="mobile-contact" style="color:${subHeaderColor}">
+                                <span>📧 ${RESUME_DATA.contact.email}</span>
+                                <span class="contact-separator">|</span>
+                                <span>📱 ${RESUME_DATA.contact.phone}</span>
+                                <span class="contact-separator">|</span>
+                                <span>📍 ${RESUME_DATA.contact.location}</span>
+                                <span class="contact-separator">|</span>
+                                <span>🔗 <a href="https://${RESUME_DATA.contact.linkedin}" target="_blank" style="color:${linkColor}">LinkedIn</a></span>
+                                <span class="contact-separator">|</span>
+                                <span>🌐 <a href="https://${RESUME_DATA.contact.website}" target="_blank" style="color:${linkColor}">Website</a></span>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="resume-grid">
+                        <!-- Sidebar (Skills, Education) -->
+                        <div class="resume-sidebar">
                 `;
+
+                // --- SIDEBAR CONTENT ---
+                let sidebarHtml = "";
+                
+                // Skills
+                const skills = RESUME_DATA.planets.find(p => p.name === "Skills");
+                if (skills) {
+                    sidebarHtml += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.skills}</h3>`;
+                    skills.moons.forEach(cat => {
+                        const d = isSpace ? (cat.spaceDetails || cat.pdfDetails || {}) : (cat.pdfDetails || cat.moonDetails || {});
+                        sidebarHtml += `<div class="skill-block"><h4 style="color:${itemTitleColor}">${d.title || cat.name}</h4><p>${(d.skills || []).join(', ')}</p></div>`;
+                    });
+                    sidebarHtml += `</section>`;
+                }
+
+                // Education
+                const eduPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
+                if (eduPlanet) {
+                    sidebarHtml += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.education}</h3>`;
+                    const d = isSpace ? (eduPlanet.spaceDetails || eduPlanet.pdfDetails || eduPlanet.details || {}) : (eduPlanet.pdfDetails || eduPlanet.details || {});
+                    const items = d.items || [d];
+                    items.forEach(item => {
+                        let eduInfo = item.institution || "";
+                        if (item.university) eduInfo += `<br>${item.university}`;
+                        if (item.year || item.duration) eduInfo += `<br><span style="font-size:0.9em; opacity:0.8">${item.year || item.duration}</span>`;
+                        sidebarHtml += `<div class="edu-block"><h4 style="color:${itemTitleColor}">${item.degree}</h4><p>${eduInfo}</p></div>`;
+                    });
+                    sidebarHtml += `</section>`;
+                }
+
+                html += sidebarHtml + `</div> <!-- End Sidebar -->
+
+                        <!-- Main Content (Summary, Experience, Projects) -->
+                        <div class="resume-main">
+                `;
+
+                // --- MAIN CONTENT ---
+                let mainHtml = "";
 
                 // Summary
                 const summaryText = isSpace ? (RESUME_DATA.spaceSummary || RESUME_DATA.summary) : (RESUME_DATA.pdfSummary || RESUME_DATA.summary);
-                html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.summary}</h3><p>${summaryText}</p></section>`;
+                mainHtml += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.summary}</h3><p>${summaryText}</p></section>`;
 
                 // Experience
                 const exp = RESUME_DATA.planets.find(p => p.name === "Experience");
                 if (exp) {
-                    html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.experience}</h3>`;
+                    mainHtml += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.experience}</h3>`;
                     exp.moons.forEach(job => {
                         const d = isSpace ? (job.spaceDetails || job.pdfDetails || {}) : (job.pdfDetails || job.moonDetails || {});
-                        html += `<div class="job-block">
+                        mainHtml += `<div class="job-block">
                             <h4 style="color:${itemTitleColor}">${d.company || job.name}</h4>
                             <div class="job-meta" style="color:${subHeaderColor}">${d.role} | ${d.duration}</div>
                             <ul>${(d.achievements || []).map(a => `<li>${a}</li>`).join('')}</ul>
                         </div>`;
                     });
-                    html += `</section>`;
-                }
-
-                // Skills
-                const skills = RESUME_DATA.planets.find(p => p.name === "Skills");
-                if (skills) {
-                    html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.skills}</h3>`;
-                    skills.moons.forEach(cat => {
-                        const d = isSpace ? (cat.spaceDetails || cat.pdfDetails || {}) : (cat.pdfDetails || cat.moonDetails || {});
-                        html += `<div class="skill-block"><h4 style="color:${itemTitleColor}">${d.title || cat.name}</h4><p>${(d.skills || []).join(', ')}</p></div>`;
-                    });
-                    html += `</section>`;
+                    mainHtml += `</section>`;
                 }
 
                 // Projects
                 const projects = RESUME_DATA.planets.find(p => p.name === "Shipped Products") || RESUME_DATA.planets.find(p => p.name === "Projects");
                 if (projects) {
-                    html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.projects}</h3>`;
+                    mainHtml += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.projects}</h3>`;
                     projects.moons.forEach(p => {
                         const d = isSpace ? (p.spaceDetails || p.pdfDetails || {}) : (p.pdfDetails || p.moonDetails || {});
-                        html += `<div class="project-block"><h4 style="color:${itemTitleColor}">${d.title || p.name}</h4><p>${d.description}</p><p><strong>Impact:</strong> ${(d.impact || []).join('. ')}</p></div>`;
+                        mainHtml += `<div class="project-block"><h4 style="color:${itemTitleColor}">${d.title || p.name}</h4><p>${d.description}</p><p><strong>Impact:</strong> ${(d.impact || []).join('. ')}</p></div>`;
                     });
-                    html += `</section>`;
+                    mainHtml += `</section>`;
                 }
                 
-                // Education
-                const eduPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
-                if (eduPlanet) {
-                    html += `<section><h3 style="color:${sectionTitleColor}; border-bottom: 1px solid ${borderColor}">${titles.education}</h3>`;
-                    const d = isSpace ? (eduPlanet.spaceDetails || eduPlanet.pdfDetails || eduPlanet.details || {}) : (eduPlanet.pdfDetails || eduPlanet.details || {});
-                    const items = d.items || [d];
-                    items.forEach(item => {
-                        let eduInfo = item.institution || "";
-                        if (item.university) eduInfo += ` - ${item.university}`;
-                        if (item.year || item.duration) eduInfo += ` (${item.year || item.duration})`;
-                        html += `<div class="edu-block"><h4 style="color:${itemTitleColor}">${item.degree}</h4><p>${eduInfo}</p></div>`;
-                    });
-                    
-                    if (eduPlanet.moons) {
-                        eduPlanet.moons.forEach(moon => {
-                            const details = isSpace ? (moon.spaceDetails || moon.pdfDetails || {}) : (moon.pdfDetails || {});
-                            if (details.items || details.skills) {
-                                html += `<div class="edu-block"><h4 style="color:${itemTitleColor}">${details.title || moon.name}</h4><ul>`;
-                                const list = details.items || details.skills || [];
-                                list.forEach(item => {
-                                    html += `<li>${item}</li>`;
-                                });
-                                html += `</ul></div>`;
-                            }
-                        });
-                    }
-                    html += `</section>`;
-                }
+                html += mainHtml + `</div> <!-- End Main -->
+                    </div> <!-- End Grid -->
+                </div> <!-- End Container -->`;
 
-                html += `<div class="mobile-buttons" style="background:${isSpace ? 'rgba(5, 5, 12, 0.95)' : 'rgba(255, 255, 255, 0.95)'}; border-top: 1px solid ${borderColor}">
-                    <button onclick="generatePDF('professional')">Download Professional PDF</button>
-                    <button onclick="generatePDF('space')">Download Space PDF</button>
+                // Button Styles
+                const commonBtnStyle = "cursor: pointer; font-family: inherit; font-weight: bold; transition: transform 0.2s; backdrop-filter: blur(5px);";
+                const spaceBtnStyle = `background: rgba(56, 189, 248, 0.25); border: 1px solid rgba(56, 189, 248, 0.4); color: #e0f2fe; box-shadow: 0 4px 15px rgba(0,0,0,0.3); ${commonBtnStyle}`;
+                const profBtnStyle = `background: rgba(241, 245, 249, 0.75); border: 1px solid rgba(226, 232, 240, 0.6); color: #0f172a; box-shadow: 0 2px 5px rgba(0,0,0,0.05); ${commonBtnStyle}`;
+
+                const btnTop = errorMessage ? '90px' : '20px';
+                const themeBtnStyle = isSpace 
+                    ? `position: fixed; top: ${btnTop}; right: 20px; z-index: 2002; padding: 10px 16px; border-radius: 30px; font-size: 12px; ${spaceBtnStyle}`
+                    : `position: fixed; top: ${btnTop}; right: 20px; z-index: 2002; padding: 10px 16px; border-radius: 30px; font-size: 12px; ${profBtnStyle}`;
+
+                const downloadBtnStyle = isSpace 
+                    ? spaceBtnStyle 
+                    : profBtnStyle;
+
+                // Add Floating Theme Button
+                html += `<button onclick="renderMobileView('${isSpace ? 'professional' : 'space'}')" style="${themeBtnStyle}">
+                    ${isSpace ? '☀️ View Professional' : '🪐 View Space Theme'}
+                </button>`;
+
+                html += `<div class="mobile-buttons">
+                    ${!isMobile ? `<button onclick="window.print()" style="${downloadBtnStyle}">🖨️ Print</button>` : ''}
+                    <button onclick="generatePDF('professional')" style="${downloadBtnStyle}">📄 Professional PDF</button>
+                    <button onclick="generatePDF('space')" style="${downloadBtnStyle}">🚀 Space PDF</button>
                 </div>`;
 
                 container.innerHTML = html;
@@ -547,6 +657,10 @@
             // Initial render - Professional (Light) by default
             renderMobileView('professional');
             
+        }
+
+        if (isMobile) {
+            startFallbackMode();
         } else {
 
         const container = document.getElementById('canvas-container');
@@ -557,14 +671,21 @@
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
         camera.position.set(0, 60, 250);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFShadowShadowMap;
-        container.appendChild(renderer.domElement);
+        let webGLRenderer;
+        try {
+            webGLRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        } catch (e) {
+            console.warn("WebGL failed, falling back to static view.");
+            startFallbackMode("Hardware Acceleration is disabled or not supported. To see the interactive 3D solar system, please enable <strong>'Use graphics acceleration when available'</strong> in your browser settings and reload the page.");
+            throw new Error("WebGL Fallback");
+        }
+        webGLRenderer.setSize(window.innerWidth, window.innerHeight);
+        webGLRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        webGLRenderer.shadowMap.enabled = true;
+        webGLRenderer.shadowMap.type = THREE.PCFShadowShadowMap;
+        container.appendChild(webGLRenderer.domElement);
 
-        const controls = new OrbitControls(camera, renderer.domElement);
+        const controls = new OrbitControls(camera, webGLRenderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.minDistance = 5;
@@ -2487,14 +2608,14 @@
             }
 
             controls.update();
-            renderer.render(scene, camera);
+            webGLRenderer.render(scene, camera);
         }
 
         // === RESIZE ===
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            webGLRenderer.setSize(window.innerWidth, window.innerHeight);
         });
         
         // === INITIALIZATION ===
@@ -2508,4 +2629,6 @@
         }
     </script>
 </body>
+
+
 </html>
