@@ -265,7 +265,14 @@
             gap: 5px;
         }
         .mobile-contact a { color: #38bdf8; text-decoration: none; }
-        .contact-separator { display: none; }
+        .contact-separator { display: inline; opacity: 0.4; }
+        .contact-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            align-items: center;
+        }
         .mobile-buttons { 
             position: fixed;
             bottom: 20px;
@@ -319,7 +326,7 @@
         .resume-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px 1px 120px 1px;
+            padding: 80px 20px 120px 20px;
             animation: simpleFadeIn 0.8s ease-out;
         }
         .resume-grid {
@@ -329,6 +336,9 @@
         }
         
         @media (min-width: 900px) {
+            .resume-container {
+                padding: 40px 40px 120px 40px;
+            }
             .resume-grid {
                 display: grid;
                 grid-template-columns: 320px 1fr;
@@ -338,6 +348,10 @@
             .resume-sidebar {
                 border-right: 1px solid var(--border-color);
                 padding-right: 30px;
+                order: 0;
+            }
+            .resume-main {
+                order: 0;
             }
             .mobile-header {
                 display: grid;
@@ -356,7 +370,17 @@
                 gap: 12px;
                 align-items: center;
             }
-            .contact-separator { display: inline; opacity: 0.4; }
+            .contact-group { display: contents; }
+        }
+        
+        @media (max-width: 899px) {
+            .resume-sidebar {
+                order: 2;
+                margin-top: 40px;
+            }
+            .resume-main {
+                order: 1;
+            }
         }
 
         @media print {
@@ -525,7 +549,7 @@
                         ${errorMessage}
                     </div>` : ''}
 
-                    <div class="resume-container">
+                    <div class="resume-container" style="padding-top: ${errorMessage ? '140px' : '80px'}">
                     
                     <!-- Header -->
                     <div class="mobile-header" style="border-bottom: 1px solid ${borderColor}">
@@ -536,15 +560,18 @@
                             <h1 style="color:${headerColor}; font-size: 32px; margin: 0 0 20px 0; line-height: 1.2;">${RESUME_DATA.name.toUpperCase()}</h1>
                             <h2 style="color:${subHeaderColor}; font-size: 20px; margin: 0 0 20px 0;">${RESUME_DATA.role}</h2>
                             <div class="mobile-contact" style="color:${subHeaderColor}">
-                                <span>📧 ${RESUME_DATA.contact.email}</span>
-                                <span class="contact-separator">|</span>
-                                <span>📱 ${RESUME_DATA.contact.phone}</span>
-                                <span class="contact-separator">|</span>
-                                <span>📍 ${RESUME_DATA.contact.location}</span>
-                                <span class="contact-separator">|</span>
-                                <span>🔗 <a href="https://${RESUME_DATA.contact.linkedin}" target="_blank" style="color:${linkColor}">LinkedIn</a></span>
-                                <span class="contact-separator">|</span>
-                                <span>🌐 <a href="https://${RESUME_DATA.contact.website}" target="_blank" style="color:${linkColor}">Website</a></span>
+                                <div class="contact-group">
+                                    <span>📧 ${RESUME_DATA.contact.email}</span>
+                                    <span class="contact-separator">|</span>
+                                    <span>📱 ${RESUME_DATA.contact.phone}</span>
+                                </div>
+                                <div class="contact-group">
+                                    <span>📍 ${RESUME_DATA.contact.location}</span>
+                                    <span class="contact-separator">|</span>
+                                    <span>🔗 <a href="https://${RESUME_DATA.contact.linkedin}" target="_blank" style="color:${linkColor}">LinkedIn</a></span>
+                                    <span class="contact-separator">|</span>
+                                    <span>🌐 <a href="https://${RESUME_DATA.contact.website}" target="_blank" style="color:${linkColor}">Website</a></span>
+                                </div>
                             </div>
                         </div>
                     </div>
