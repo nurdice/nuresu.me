@@ -368,311 +368,6 @@
         const RESUME_DATA = window.RESUME_DATA;
         const { jsPDF } = window.jspdf;
 
-        // === PDF GENERATION (Moved to top for Mobile View access) ===
-        window.generatePDF = async (theme) => {
-            const modal = document.getElementById('pdf-modal');
-            if (modal) {
-                const originalText = modal.innerHTML;
-                modal.innerHTML = '<div style="color:white;text-align:center">Generating PDF...<br>Please wait.</div>';
-                // Allow UI to update
-                await new Promise(r => setTimeout(r, 100));
-            } else {
-                // Mobile view might not have modal visible, show simple alert or loading
-                const btn = event.target;
-                if(btn) btn.textContent = "Generating...";
-                await new Promise(r => setTimeout(r, 100));
-            }
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const PAGE_WIDTH = doc.internal.pageSize.getWidth();
-            const PAGE_HEIGHT = doc.internal.pageSize.getHeight();
-            const margin = 25;
-            const contentWidth = PAGE_WIDTH - (margin * 2);
-            
-            const safeText = (text) => {
-                if (!text) return "";
-                return text.replace(/[\u{1F600}-\u{1F6FF}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F004}\u{1F0CF}\u{1F170}-\u{1F251}\u{1F000}-\u{1F02F}]/gu, '')
-                           .replace(/[^\x00-\x7F\u0080-\u00FF\u2010-\u2015\u2022]/g, " ")
-                           .replace(/\s+/g, ' ')
-                           .trim();
-            };
-
-            let profileImg = null;
-            try {
-                profileImg = await new Promise((resolve) => {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.onload = () => resolve(img);
-                    img.onerror = () => resolve(null);
-                    img.src = 'Profile.jpg';
-                });
-            } catch (e) {}
-
-            const isSpace = theme === 'space';
-            const colors = isSpace ? {
-                bg: [5, 5, 12], text: [240, 240, 255], accent: [56, 189, 248], secondary: [148, 163, 184], line: [30, 41, 59]
-            } : {
-                bg: [255, 255, 255], text: [40, 40, 40], accent: [41, 128, 185], secondary: [80, 80, 80], line: [200, 200, 200]
-            };
-
-            const titles = isSpace ? {
-                summary: "MISSION OBJECTIVE & PROFILE", experience: "FLIGHT LOG & MISSION HISTORY", skills: "OPERATIONAL SUBSYSTEMS", projects: "DEPLOYED MISSION PAYLOADS", education: "ACADEMIC & TRAINING DATA"
-            } : {
-                summary: "SUMMARY", experience: "PROFESSIONAL EXPERIENCE", skills: "SKILLS & COMPETENCIES", projects: "KEY PROJECTS", education: "EDUCATION"
-            };
-
-            const drawBackground = () => {
-                doc.setFillColor(...colors.bg);
-                doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT, 'F');
-                doc.setDrawColor(...colors.line);
-                doc.setLineWidth(0.5);
-                doc.rect(15, 15, PAGE_WIDTH - 30, PAGE_HEIGHT - 30, 'S');
-
-                if (isSpace) {
-                    for (let i = 0; i < 150; i++) {
-                        const x = Math.random() * PAGE_WIDTH;
-                        const y = Math.random() * PAGE_HEIGHT;
-                        const r = Math.random() * 0.3 + 0.1;
-                        const brightness = Math.floor(Math.random() * 100) + 155;
-                        doc.setFillColor(brightness, brightness, brightness);
-                        doc.circle(x, y, r, 'F');
-                    }
-                }
-            };
-
-            drawBackground();
-            let y = margin;
-
-            let headerTextWidth = contentWidth;
-            if (profileImg) {
-                const imgSize = 30;
-                const imgX = PAGE_WIDTH - margin - imgSize;
-                headerTextWidth = contentWidth - imgSize - 5;
-                try {
-                    doc.addImage(profileImg, 'JPEG', imgX, y, imgSize, imgSize);
-                    doc.setDrawColor(...colors.accent);
-                    doc.setLineWidth(0.5);
-                    doc.rect(imgX, y, imgSize, imgSize);
-                } catch (e) {}
-            }
-
-            doc.setFont(isSpace ? "courier" : "helvetica", "bold");
-            doc.setFontSize(24);
-            doc.setTextColor(...colors.accent);
-            const nameLines = doc.splitTextToSize(safeText(RESUME_DATA.name).toUpperCase(), headerTextWidth);
-            doc.text(nameLines, margin, y + 8);
-            const nameHeight = nameLines.length * 8;
-            
-            doc.setFont(isSpace ? "courier" : "helvetica", "normal");
-            doc.setFontSize(12);
-            doc.setTextColor(...colors.text);
-            const roleLines = doc.splitTextToSize(safeText(RESUME_DATA.role), headerTextWidth);
-            doc.text(roleLines, margin, y + 8 + nameHeight);
-
-            y += 25;
-            doc.setFontSize(9);
-            doc.setTextColor(...colors.secondary);
-            const contactPlanet = RESUME_DATA.planets.find(p => p.name === "Contact");
-            let contactItems = [];
-            if (contactPlanet && contactPlanet.moons) {
-                contactPlanet.moons.forEach(m => {
-                    let val = m.moonDetails.value || m.name;
-                    let label = (m.moonDetails.method || m.name).toUpperCase();
-                    contactItems.push(`${label}: ${val}`);
-                });
-            }
-            doc.text(contactItems.join("   |   "), margin, y);
-
-            y += 5;
-            doc.setDrawColor(...colors.line);
-            doc.setLineWidth(0.5);
-            doc.line(margin, y, PAGE_WIDTH - margin, y);
-            y += 8;
-
-            if (RESUME_DATA.pdfSummary || RESUME_DATA.summary) {
-                doc.setFont(isSpace ? "courier" : "helvetica", "bold");
-                doc.setFontSize(11);
-                doc.setTextColor(...colors.accent);
-                doc.text(titles.summary, margin, y);
-                y += 5;
-                doc.setFont(isSpace ? "courier" : "helvetica", "normal");
-                doc.setFontSize(10);
-                doc.setTextColor(...colors.text);
-                const summaryText = safeText(isSpace ? (RESUME_DATA.spaceSummary || RESUME_DATA.pdfSummary) : (RESUME_DATA.pdfSummary || RESUME_DATA.summary));
-                const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
-                doc.text(splitSummary, margin, y);
-                y += splitSummary.length * 4.5 + 5;
-            }
-
-            const checkPageBreak = (currentY, needed) => {
-                if (currentY + needed > PAGE_HEIGHT - margin) {
-                    doc.addPage();
-                    drawBackground();
-                    return margin;
-                }
-                return currentY;
-            };
-
-            const renderSectionTitle = (title, currentY) => {
-                currentY = checkPageBreak(currentY, 15);
-                doc.setFont(isSpace ? "courier" : "helvetica", "bold");
-                doc.setFontSize(12);
-                doc.setTextColor(...colors.accent);
-                if (!isSpace) {
-                    doc.setFillColor(240, 240, 240);
-                    doc.rect(margin, currentY - 4, contentWidth, 6, 'F');
-                }
-                doc.text(title.toUpperCase(), margin, currentY);
-                return currentY + 8;
-            };
-            
-            const expPlanet = RESUME_DATA.planets.find(p => p.name === "Experience");
-            if (expPlanet && expPlanet.moons) {
-                y = renderSectionTitle(titles.experience, y);
-                expPlanet.moons.forEach(job => {
-                    const details = isSpace ? (job.spaceDetails || job.pdfDetails || job.moonDetails || {}) : (job.pdfDetails || job.moonDetails || {});
-                    const company = safeText(details.company || job.name);
-                    const role = safeText(details.role || "");
-                    const duration = safeText(details.duration || "");
-                    const location = safeText(details.location || "");
-                    y = checkPageBreak(y, 15);
-                    doc.setFont(isSpace ? "courier" : "helvetica", "bold");
-                    doc.setFontSize(11);
-                    doc.setTextColor(...colors.text);
-                    doc.text(company, margin, y);
-                    doc.setFontSize(9);
-                    doc.setTextColor(...colors.secondary);
-                    doc.text(location, PAGE_WIDTH - margin, y, { align: "right" });
-                    y += 5;
-                    doc.setFont(isSpace ? "courier" : "helvetica", "italic");
-                    doc.setFontSize(10);
-                    doc.setTextColor(...colors.text);
-                    doc.text(role, margin, y);
-                    doc.setFont(isSpace ? "courier" : "helvetica", "normal");
-                    doc.setFontSize(9);
-                    doc.setTextColor(...colors.secondary);
-                    doc.text(duration, PAGE_WIDTH - margin, y, { align: "right" });
-                    y += 6;
-                    doc.setFontSize(10);
-                    doc.setTextColor(...colors.text);
-                    const items = [...(details.achievements || []), ...(details.responsibilities || [])];
-                    if (items.length === 0 && job.details) items.push(...job.details.split('\n').slice(1));
-                    else if (items.length === 0 && details.description) items.push(details.description);
-                    items.forEach(item => {
-                        if (!item) return;
-                        const cleanItem = safeText(item.replace(/^•\s*/, ''));
-                        if (!cleanItem) return;
-                        const splitText = doc.splitTextToSize(cleanItem, contentWidth - 5);
-                        const blockHeight = splitText.length * 4.5;
-                        y = checkPageBreak(y, blockHeight);
-                        doc.text("•", margin, y);
-                        doc.text(splitText, margin + 5, y);
-                        y += blockHeight + 1;
-                    });
-                    y += 4;
-                });
-            }
-
-            const skillsPlanet = RESUME_DATA.planets.find(p => p.name === "Skills");
-            if (skillsPlanet) {
-                y += 2;
-                y = renderSectionTitle(titles.skills, y);
-                doc.setFontSize(10);
-                doc.setTextColor(...colors.text);
-                if (skillsPlanet.moons) {
-                    skillsPlanet.moons.forEach(cat => {
-                        const details = isSpace ? (cat.spaceDetails || cat.pdfDetails || cat.moonDetails || {}) : (cat.pdfDetails || cat.moonDetails || {});
-                        const catTitle = safeText(details.title || cat.name);
-                        y = checkPageBreak(y, 10);
-                        doc.setFont(undefined, "bold");
-                        doc.text(catTitle, margin, y);
-                        y += 5;
-                        doc.setFont(undefined, "normal");
-                        const skills = details.skills || [];
-                        skills.forEach(skill => {
-                            const cleanSkill = safeText(skill);
-                            const splitSkill = doc.splitTextToSize(cleanSkill, contentWidth - 10);
-                            y = checkPageBreak(y, splitSkill.length * 4.5);
-                            doc.text("•", margin + 3, y);
-                            doc.text(splitSkill, margin + 8, y);
-                            y += splitSkill.length * 4.5 + 1;
-                        });
-                        y += 3;
-                    });
-                }
-                y += 5;
-            }
-
-            const projPlanet = RESUME_DATA.planets.find(p => p.name === "Shipped Products") || RESUME_DATA.planets.find(p => p.name === "Projects");
-            if (projPlanet && projPlanet.moons) {
-                y = renderSectionTitle(titles.projects, y);
-                projPlanet.moons.forEach(proj => {
-                    const details = isSpace ? (proj.spaceDetails || proj.pdfDetails || proj.moonDetails || {}) : (proj.pdfDetails || proj.moonDetails || {});
-                    const title = safeText(details.title || proj.name);
-                    const desc = safeText(details.description || "");
-                    const impact = details.impact ? details.impact.map(i => safeText(i)).join(". ") : "";
-                    y = checkPageBreak(y, 15);
-                    doc.setFont(undefined, "bold");
-                    doc.text(title, margin, y);
-                    doc.setFont(undefined, "normal");
-                    const fullText = `${desc} Impact: ${impact}`;
-                    const split = doc.splitTextToSize(fullText, contentWidth);
-                    y += 4;
-                    doc.text(split, margin, y);
-                    y += split.length * 4 + 3;
-                });
-                y += 5;
-            }
-
-            const eduPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
-            if (eduPlanet) {
-                y = renderSectionTitle(titles.education, y);
-                const d = isSpace ? (eduPlanet.spaceDetails || eduPlanet.pdfDetails || eduPlanet.details || {}) : (eduPlanet.pdfDetails || eduPlanet.details || {});
-                y = checkPageBreak(y, 10);
-                doc.setFont(undefined, "bold");
-                const items = d.items || [d];
-                items.forEach(item => {
-                    const degreeLines = doc.splitTextToSize(safeText(item.degree || ""), contentWidth);
-                    doc.text(degreeLines, margin, y);
-                    y += degreeLines.length * 5;
-                    doc.setFont(undefined, "normal");
-                    let eduInfo = safeText(item.institution || "");
-                    if (item.university) eduInfo += ` - ${safeText(item.university)}`;
-                    if (item.year || item.duration) eduInfo += ` (${safeText(item.year || item.duration)})`;
-                    const eduLines = doc.splitTextToSize(eduInfo, contentWidth);
-                    doc.text(eduLines, margin, y);
-                    y += eduLines.length * 5 + 3;
-                });
-                if (eduPlanet.moons) {
-                    eduPlanet.moons.forEach(moon => {
-                        const details = isSpace ? (moon.spaceDetails || moon.pdfDetails || {}) : (moon.pdfDetails || {});
-                        if (details.items || details.skills) {
-                            y = checkPageBreak(y, 10);
-                            doc.setFont(undefined, "bold");
-                            doc.text(safeText(details.title || moon.name), margin, y);
-                            y += 5;
-                            doc.setFont(undefined, "normal");
-                            const list = details.items || details.skills || [];
-                            list.forEach(item => {
-                                doc.text(`• ${safeText(item)}`, margin + 5, y);
-                                y += 5;
-                            });
-                            y += 5;
-                        }
-                    });
-                }
-            }
-
-            doc.save(`Nur_Dawoodani_Resume_${theme}.pdf`);
-            if (modal) {
-                modal.innerHTML = originalText;
-                modal.style.display = 'none';
-            } else {
-                const btn = event.target;
-                if(btn) btn.textContent = theme === 'space' ? "Download Space PDF" : "Download Professional PDF";
-            }
-        };
 
         // === STATE VARIABLES (MUST BE DECLARED FIRST) ===
         const tourStops = [];
@@ -740,6 +435,8 @@
                 const sectionTitleColor = isSpace ? '#38bdf8' : '#0f172a';
                 const itemTitleColor = isSpace ? '#e2e8f0' : '#334155';
 
+                const profileImg = isSpace ? (RESUME_DATA.profileImageDark || RESUME_DATA.profileImage) : (RESUME_DATA.profileImageLight || RESUME_DATA.profileImage);
+
                 let html = `
                     <div class="mobile-header" style="border-bottom: 1px solid ${borderColor}">
                         <div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
@@ -759,6 +456,7 @@
                                 ${isSpace ? '☀️ View Professional' : '🚀 View Space Theme'}
                             </button>
                         </div>
+                        <img src="${profileImg}" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; border: 3px solid ${borderColor}; object-fit: cover; display: block; margin-left: auto; margin-right: auto;">
                         <h1 style="color:${headerColor}">${RESUME_DATA.name.toUpperCase()}</h1>
                         <h2 style="color:${subHeaderColor}">${RESUME_DATA.role}</h2>
                         <div class="mobile-contact" style="color:${subHeaderColor}">
@@ -1772,15 +1470,15 @@
             doc.setFontSize(9);
             doc.setTextColor(...colors.secondary);
             
-            const contactPlanet = RESUME_DATA.planets.find(p => p.name === "Contact");
-            let contactItems = [];
-            if (contactPlanet && contactPlanet.moons) {
-                contactPlanet.moons.forEach(m => {
-                    let val = m.moonDetails.value || m.name;
-                    let label = (m.moonDetails.method || m.name).toUpperCase();
-                    contactItems.push(`${label}: ${val}`);
-                });
-            }
+            const c = RESUME_DATA.contact;
+            const contactItems = [
+                c.email ? `EMAIL: ${c.email}` : null,
+                c.phone ? `PHONE: ${c.phone}` : null,
+                c.location ? `LOC: ${c.location}` : null,
+                c.website ? `WEB: ${c.website}` : null,
+                c.linkedin ? `IN: ${c.linkedin.replace(/^https?:\/\//, '')}` : null
+            ].filter(Boolean);
+
             doc.text(contactItems.join("   |   "), margin, y);
 
             y += 5;

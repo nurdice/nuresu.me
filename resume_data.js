@@ -2,7 +2,9 @@ window.RESUME_DATA = {
     // ===== PERSONAL INFO =====
     name: "Nuruddinali (Nur) Dawoodani",
     role: "Lead Business Analyst",
-    profileImage: "profile.jpg",
+    profileImage: "Profile.jpg",
+    profileImageDark: "Profile.jpg",
+    profileImageLight: "Profile.jpg",
     contact: {
         email: "nurrali786@gmail.com",
         phone: "+1 (236) 508-4786",
