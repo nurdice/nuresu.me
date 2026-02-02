@@ -22,7 +22,185 @@ window.RESUME_DATA = {
     // ===== PLANETS (RESUME SECTIONS) =====
     // Solar System Metaphor: Each planet represents a different aspect of professional identity
     planets: [
-        // ===== 1. EXPERIENCE PLANET (Jupiter-sized anchor) =====
+        // ===== 1. EDUCATION PLANET (Mercury-like, 1st) =====
+        {
+            name: "Education",
+            title: "Education & Languages",
+            section: "sidebar",
+            order: 0,
+            renderType: "education",
+            size: 4,
+            distance: 150,
+            speed: 0.001,
+            type: "planet",
+            inclination: 0.2,
+            node: 0,
+            eccentricity: 0.205,
+            tilt: 0.01,
+            color: 0xa5a5a5,
+            texture: "drawMercury",
+            description: "Academic foundation and communication capabilities",
+            pdfDetails: {
+                degree: "Bachelor of Engineering - Computer Science (2005)",
+                institution: "Vivekanand Education Society's Institute of Technology (V.E.S.I.T)",
+                university: "Mumbai University, India"
+            },
+            spaceDetails: {
+                degree: "B.Eng. Computer Science // Core Systems",
+                institution: "V.E.S.I.T // Mumbai Sector",
+                university: "Mumbai University",
+                duration: "Flight Academy Certification: 2005"
+            },
+            moons: [
+                {
+                    name: "English",
+                    size: 1.0,
+                    distance: 6,
+                    speed: 0.005,
+                    color: 0xffffff,
+                    texture: "drawWhite",
+                    viewType: "center",
+                    details: "Professional Level"
+                },
+                {
+                    name: "Hindi",
+                    size: 1.0,
+                    distance: 9,
+                    speed: 0.004,
+                    color: 0xff9900,
+                    texture: "drawOrange",
+                    viewType: "center",
+                    details: "Native"
+                },
+                {
+                    name: "Gujarati",
+                    size: 1.0,
+                    distance: 12,
+                    speed: 0.003,
+                    color: 0x2ecc71,
+                    texture: "drawGreenOrange",
+                    viewType: "center",
+                    details: "Basic"
+                },
+                {
+                    name: "Marathi",
+                    size: 1.0,
+                    distance: 15,
+                    speed: 0.002,
+                    color: 0x1abc9c,
+                    texture: "drawBluishGreen",
+                    viewType: "center",
+                    details: "Basic"
+                }
+            ]
+        },
+
+        // ===== 2. SKILLS PLANET (Venus-like, 2nd) =====
+        {
+            name: "Skills",
+            title: "Skills & Competencies",
+            section: "sidebar",
+            order: 1,
+            renderType: "list",
+            size: 8,
+            distance: 210,
+            speed: 0.0005,
+            type: "planet",
+            inclination: -0.15,
+            node: 1.5,
+            eccentricity: 0.007,
+            tilt: 3.09,
+            color: 0x2ecc71,
+            texture: "drawVenus",
+            rings: { inner: 10, outer: 16 },
+            description: "Technical and analytical capabilities that power delivery",
+            
+            // Skills Moons (Skill Categories)
+            moons: [
+                { 
+                    name: "Product & Analysis", 
+                    size: 1.8, 
+                    distance: 12, 
+                    speed: 0.004,
+                    color: 0x27ae60,
+                    pdfDetails: {
+                        title: "LEADERSHIP",
+                        description: "Leadership and Governance",
+                        skills: [
+                            "BA Mentorship",
+                            "Backlog Management",
+                            "Governance",
+                            "Stakeholder Collaboration"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "MISSION CONTROL PROTOCOLS",
+                        skills: [
+                            "Crew Training & Development",
+                            "Trajectory Analysis & Correction",
+                            "Mission Governance",
+                            "Cross-Functional Communication"
+                        ]
+                    }
+                },
+                { 
+                    name: "Technical Skills", 
+                    size: 1.6, 
+                    distance: 18, 
+                    speed: 0.003,
+                    color: 0x16a085,
+                    pdfDetails: {
+                        title: "FUNCTIONAL",
+                        description: "Functional Capabilities",
+                        skills: [
+                            "Data Analysis",
+                            "Business Process Improvement",
+                            "Strategic Planning"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "SYSTEMS ENGINEERING",
+                        skills: [
+                            "Data Telemetry Analysis",
+                            "Process Optimization Algorithms",
+                            "Strategic Roadmap Planning"
+                        ]
+                    }
+                },
+                { 
+                    name: "Collaboration", 
+                    size: 1.4, 
+                    distance: 24, 
+                    speed: 0.002,
+                    color: 0x3498db,
+                    pdfDetails: {
+                        title: "TECHNICAL",
+                        description: "Technical Tools",
+                        skills: [
+                            "JIRA",
+                            "Confluence",
+                            "SQL",
+                            "Microsoft 365",
+                            "Power Automate",
+                            "Microsoft Azure",
+                            "Figma"
+                        ]
+                    },
+                    spaceDetails: {
+                        title: "FLIGHT INSTRUMENTATION",
+                        skills: [
+                            "JIRA Tracking Systems",
+                            "Confluence Database",
+                            "SQL Querying",
+                            "Azure Cloud Infrastructure",
+                            "Figma Schematics"
+                        ]
+                    }
+                }
+            ]
+        },
+        
+        // ===== 3. EXPERIENCE PLANET (Jupiter-sized anchor, 3rd) =====
         {
             name: "Experience",
             title: "Professional Experience",
@@ -30,9 +208,13 @@ window.RESUME_DATA = {
             order: 1,
             renderType: "experience",
             size: 15,
-            distance: 70,
-            speed: 0.002,
+            distance: 330,
+            speed: 0.0008,
             type: "planet",
+            inclination: 0.05,
+            node: 3.0,
+            eccentricity: 0.017,
+            tilt: 0.41,
             color: 0xdcdca6,
             texture: "drawEarth",
             description: "18 years of delivered impact across retail, banking, and enterprise platforms",
@@ -42,8 +224,8 @@ window.RESUME_DATA = {
                 {
                     name: "lululemon athletica",
                     size: 3.0,
-                    distance: 16,
-                    speed: 0.010,
+                    distance: 28,
+                    speed: 0.003,
                     color: 0xc0392b,
                     details: "2020-Present | Lead BA | Architectural Revamp | AI-Driven Highlights | SAFe Delivery",
                     pdfDetails: {
@@ -96,8 +278,8 @@ window.RESUME_DATA = {
                 {
                     name: "Vancity",
                     size: 2.6,
-                    distance: 22,
-                    speed: 0.008,
+                    distance: 36,
+                    speed: 0.0025,
                     color: 0xd35400,
                     details: "2019-2020 | System Migration | Stakeholder Management | Gap Analysis",
                     pdfDetails: {
@@ -135,8 +317,8 @@ window.RESUME_DATA = {
                 {
                     name: "HSBC — Digital Platform",
                     size: 2.8,
-                    distance: 28,
-                    speed: 0.006,
+                    distance: 44,
+                    speed: 0.002,
                     color: 0xe67e22,
                     details: "2016-2019 | Digital Transformation | Process Improvement",
                     pdfDetails: {
@@ -174,8 +356,8 @@ window.RESUME_DATA = {
                 {
                     name: "HSBC — ITQA Test Lead",
                     size: 2.4,
-                    distance: 34,
-                    speed: 0.005,
+                    distance: 52,
+                    speed: 0.0015,
                     color: 0xb86b2b,
                     details: "2015-2016 | QA Leadership | Test Strategy | UFT Automation",
                     pdfDetails: {
@@ -209,8 +391,8 @@ window.RESUME_DATA = {
                 {
                     name: "HSBC — Business Analysis",
                     size: 2.2,
-                    distance: 40,
-                    speed: 0.004,
+                    distance: 60,
+                    speed: 0.0012,
                     color: 0x9b5d2b,
                     details: "2011-2015 | Core Banking | Regulatory Compliance",
                     pdfDetails: {
@@ -246,8 +428,8 @@ window.RESUME_DATA = {
                 {
                     name: "HSBC Global Technology",
                     size: 3.4,
-                    distance: 60,
-                    speed: 0.002,
+                    distance: 80,
+                    speed: 0.0008,
                     color: 0x8b7a57,
                     details: "2005-2011 | System Development | Modernization | Mainframe/zOS",
                     pdfDetails: {
@@ -283,109 +465,8 @@ window.RESUME_DATA = {
                 }
             ]
         },
-        
-        // ===== 2. SKILLS PLANET (Inner planet - core capabilities) =====
-        {
-            name: "Skills",
-            title: "Skills & Competencies",
-            section: "sidebar",
-            order: 1,
-            renderType: "list",
-            size: 8,
-            distance: 90,
-            speed: 0.0015,
-            type: "planet",
-            color: 0x2ecc71,
-            texture: "drawVenus",
-            rings: { inner: 10, outer: 16 },
-            description: "Technical and analytical capabilities that power delivery",
-            
-            // Skills Moons (Skill Categories)
-            moons: [
-                { 
-                    name: "Product & Analysis", 
-                    size: 1.8, 
-                    distance: 12, 
-                    speed: 0.015,
-                    color: 0x27ae60,
-                    pdfDetails: {
-                        title: "LEADERSHIP",
-                        description: "Leadership and Governance",
-                        skills: [
-                            "BA Mentorship",
-                            "Backlog Management",
-                            "Governance",
-                            "Stakeholder Collaboration"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "MISSION CONTROL PROTOCOLS",
-                        skills: [
-                            "Crew Training & Development",
-                            "Trajectory Analysis & Correction",
-                            "Mission Governance",
-                            "Cross-Functional Communication"
-                        ]
-                    }
-                },
-                { 
-                    name: "Technical Skills", 
-                    size: 1.6, 
-                    distance: 18, 
-                    speed: 0.012,
-                    color: 0x16a085,
-                    pdfDetails: {
-                        title: "FUNCTIONAL",
-                        description: "Functional Capabilities",
-                        skills: [
-                            "Data Analysis",
-                            "Business Process Improvement",
-                            "Strategic Planning"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "SYSTEMS ENGINEERING",
-                        skills: [
-                            "Data Telemetry Analysis",
-                            "Process Optimization Algorithms",
-                            "Strategic Roadmap Planning"
-                        ]
-                    }
-                },
-                { 
-                    name: "Collaboration", 
-                    size: 1.4, 
-                    distance: 24, 
-                    speed: 0.010,
-                    color: 0x3498db,
-                    pdfDetails: {
-                        title: "TECHNICAL",
-                        description: "Technical Tools",
-                        skills: [
-                            "JIRA",
-                            "Confluence",
-                            "SQL",
-                            "Microsoft 365",
-                            "Power Automate",
-                            "Microsoft Azure",
-                            "Figma"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "FLIGHT INSTRUMENTATION",
-                        skills: [
-                            "JIRA Tracking Systems",
-                            "Confluence Database",
-                            "SQL Querying",
-                            "Azure Cloud Infrastructure",
-                            "Figma Schematics"
-                        ]
-                    }
-                }
-            ]
-        },
-        
-        // ===== 3. SHIPPED PRODUCTS PLANET (NEW - Saturn-sized) =====
+
+        // ===== 4. SHIPPED PRODUCTS PLANET (Saturn-sized, 4th) =====
         {
             name: "Shipped Products",
             title: "Key Projects",
@@ -393,9 +474,13 @@ window.RESUME_DATA = {
             order: 2,
             renderType: "projects",
             size: 9,
-            distance: 130,
-            speed: 0.0013,
+            distance: 460,
+            speed: 0.0004,
             type: "planet",
+            inclination: -0.1,
+            node: 4.5,
+            eccentricity: 0.056,
+            tilt: 0.47,
             color: 0xf39c12,
             texture: "drawSaturn",
             hasRings: true,
@@ -407,7 +492,7 @@ window.RESUME_DATA = {
                     name: "Sweatlife Stories", 
                     size: 2.0, 
                     distance: 14, 
-                    speed: 0.018,
+                    speed: 0.005,
                     color: 0xe67e22,
                     pdfDetails: {
                         title: "SWEATLIFE STORIES",
@@ -444,7 +529,7 @@ window.RESUME_DATA = {
                     name: "Digital Banking Platform", 
                     size: 2.2, 
                     distance: 20, 
-                    speed: 0.015,
+                    speed: 0.004,
                     color: 0x3498db,
                     pdfDetails: {
                         title: "DIGITAL CUSTOMER COMMUNICATION PLATFORM",
@@ -481,7 +566,7 @@ window.RESUME_DATA = {
                     name: "Stores Upgrade", 
                     size: 1.8, 
                     distance: 26, 
-                    speed: 0.012,
+                    speed: 0.003,
                     color: 0x9b59b6,
                     pdfDetails: {
                         title: "LULULEMON STORES UPGRADE",
@@ -518,7 +603,7 @@ window.RESUME_DATA = {
                     name: "Banking Migration", 
                     size: 2.0, 
                     distance: 32, 
-                    speed: 0.010,
+                    speed: 0.0025,
                     color: 0x1abc9c,
                     pdfDetails: {
                         title: "COMMERCIAL BANKING SYSTEM MIGRATION",
@@ -555,7 +640,7 @@ window.RESUME_DATA = {
                     name: "Olympics Partnership", 
                     size: 1.6, 
                     distance: 38, 
-                    speed: 0.008,
+                    speed: 0.002,
                     color: 0xe74c3c,
                     pdfDetails: {
                         title: "LULULEMON X OLYMPICS TEAM CANADA",
@@ -591,7 +676,7 @@ window.RESUME_DATA = {
             ]
         },
         
-        // ===== 4. PROBLEM DOMAINS PLANET (NEW - Neptune) =====
+        // ===== 5. PROBLEM DOMAINS PLANET (Neptune, 5th) =====
         {
             name: "Problem Domains",
             title: "Problem Domains",
@@ -599,9 +684,13 @@ window.RESUME_DATA = {
             order: 3,
             renderType: "text-list",
             size: 8,
-            distance: 170,
-            speed: 0.0012,
+            distance: 570,
+            speed: 0.0003,
             type: "planet",
+            inclination: 0.15,
+            node: 2.0,
+            eccentricity: 0.009,
+            tilt: 0.50,
             color: 0x3498db,
             texture: "drawNeptune",
             description: "Classes of problems I solve, not just tasks I've done",
@@ -612,7 +701,7 @@ window.RESUME_DATA = {
                     name: "E-commerce & Content", 
                     size: 1.8, 
                     distance: 14, 
-                    speed: 0.016,
+                    speed: 0.004,
                     color: 0x2980b9,
                     pdfDetails: {
                         title: "E-COMMERCE & CONTENT PLATFORMS",
@@ -635,7 +724,7 @@ window.RESUME_DATA = {
                     name: "Banking & Core Systems", 
                     size: 2.0, 
                     distance: 20, 
-                    speed: 0.014,
+                    speed: 0.0035,
                     color: 0x1a5276,
                     pdfDetails: {
                         title: "BANKING & CORE SYSTEMS",
@@ -658,7 +747,7 @@ window.RESUME_DATA = {
                     name: "Regulatory & Compliance", 
                     size: 1.6, 
                     distance: 26, 
-                    speed: 0.012,
+                    speed: 0.003,
                     color: 0x8e44ad,
                     pdfDetails: {
                         title: "REGULATORY & COMPLIANCE",
@@ -681,7 +770,7 @@ window.RESUME_DATA = {
                     name: "System Migrations", 
                     size: 1.7, 
                     distance: 32, 
-                    speed: 0.010,
+                    speed: 0.0025,
                     color: 0x27ae60,
                     pdfDetails: {
                         title: "SYSTEM MIGRATIONS & INTEGRATIONS",
@@ -704,7 +793,7 @@ window.RESUME_DATA = {
                     name: "Customer Communication", 
                     size: 1.5, 
                     distance: 38, 
-                    speed: 0.008,
+                    speed: 0.002,
                     color: 0xf39c12,
                     pdfDetails: {
                         title: "CUSTOMER COMMUNICATION PLATFORMS",
@@ -726,7 +815,7 @@ window.RESUME_DATA = {
             ]
         },
         
-        // ===== 5. WAYS OF WORKING PLANET (NEW - Uranus) =====
+        // ===== 6. WAYS OF WORKING PLANET (Uranus, 6th) =====
         {
             name: "Ways of Working",
             title: "Ways of Working",
@@ -734,9 +823,13 @@ window.RESUME_DATA = {
             order: 4,
             renderType: "text-list",
             size: 7,
-            distance: 210,
-            speed: 0.0010,
+            distance: 670,
+            speed: 0.00025,
             type: "planet",
+            inclination: -0.2,
+            node: 5.5,
+            eccentricity: 0.046,
+            tilt: 1.43,
             color: 0x9b59b6,
             texture: "drawUranus",
             description: "How I operate: methodologies and approaches that signal senior behavior",
@@ -747,7 +840,7 @@ window.RESUME_DATA = {
                     name: "Agile / SAFe", 
                     size: 1.8, 
                     distance: 14, 
-                    speed: 0.016,
+                    speed: 0.004,
                     color: 0x8e44ad,
                     pdfDetails: {
                         title: "AGILE / SAFE FRAMEWORK",
@@ -766,7 +859,7 @@ window.RESUME_DATA = {
                     name: "Discovery to Delivery", 
                     size: 1.9, 
                     distance: 20, 
-                    speed: 0.014,
+                    speed: 0.0035,
                     color: 0x6c3483,
                     pdfDetails: {
                         title: "DISCOVERY TO DELIVERY",
@@ -785,7 +878,7 @@ window.RESUME_DATA = {
                     name: "Stakeholder Alignment", 
                     size: 1.6, 
                     distance: 26, 
-                    speed: 0.012,
+                    speed: 0.003,
                     color: 0xbb8fce,
                     pdfDetails: {
                         title: "STAKEHOLDER ALIGNMENT",
@@ -805,7 +898,7 @@ window.RESUME_DATA = {
                     name: "Ambiguity Management", 
                     size: 1.5, 
                     distance: 32, 
-                    speed: 0.010,
+                    speed: 0.0025,
                     color: 0xa569bd,
                     pdfDetails: {
                         title: "AMBIGUITY MANAGEMENT",
@@ -823,7 +916,7 @@ window.RESUME_DATA = {
             ]
         },
         
-// ===== 6. IMPACT & OUTCOMES PLANET (NEW - Mars) =====
+// ===== 7. IMPACT & OUTCOMES PLANET (Mars, 7th) =====
         {
             name: "Impact & Outcomes",
             title: "Impact & Outcomes",
@@ -831,9 +924,13 @@ window.RESUME_DATA = {
             order: 5,
             renderType: "list",
             size: 7,
-            distance: 250,
-            speed: 0.0009,
+            distance: 770,
+            speed: 0.0002,
             type: "planet",
+            inclination: 0.25,
+            node: 1.0,
+            eccentricity: 0.094,
+            tilt: 0.44,
             color: 0xe74c3c,
             texture: "drawMars",
             description: "Measurable results that executives look for when skimming",
@@ -844,7 +941,7 @@ window.RESUME_DATA = {
                     name: "Cost Reduction", 
                     size: 1.5, 
                     distance: 12, 
-                    speed: 0.018,
+                    speed: 0.004,
                     color: 0xc0392b,
                     pdfDetails: {
                         title: "COST REDUCTION",
@@ -860,7 +957,7 @@ window.RESUME_DATA = {
                     name: "Sustainability", 
                     size: 1.5, 
                     distance: 18, 
-                    speed: 0.015,
+                    speed: 0.0035,
                     color: 0x27ae60,
                     pdfDetails: {
                         title: "SUSTAINABILITY",
@@ -875,7 +972,7 @@ window.RESUME_DATA = {
                     name: "Revenue Enable", 
                     size: 1.6, 
                     distance: 24, 
-                    speed: 0.013,
+                    speed: 0.003,
                     color: 0xf39c12,
                     pdfDetails: {
                         title: "REVENUE ENABLEMENT",
@@ -891,7 +988,7 @@ window.RESUME_DATA = {
                     name: "Risk Reduction", 
                     size: 1.4, 
                     distance: 30, 
-                    speed: 0.011,
+                    speed: 0.0025,
                     color: 0x3498db,
                     pdfDetails: {
                         title: "RISK REDUCTION",
@@ -907,7 +1004,7 @@ window.RESUME_DATA = {
                     name: "Operational Efficiency", 
                     size: 1.7, 
                     distance: 36, 
-                    speed: 0.009,
+                    speed: 0.002,
                     color: 0x9b59b6,
                     pdfDetails: {
                         title: "OPERATIONAL EFFICIENCY",
@@ -922,7 +1019,7 @@ window.RESUME_DATA = {
             ]
         },
         
-        // ===== 7. TOOLS & PLATFORMS PLANET (NEW - Earth) =====
+        // ===== 8. TOOLS & PLATFORMS PLANET (Earth, 8th) =====
         {
             name: "Tools & Platforms",
             title: "Tools & Platforms",
@@ -930,9 +1027,13 @@ window.RESUME_DATA = {
             order: 2,
             renderType: "list",
             size: 6,
-            distance: 290,
-            speed: 0.0008,
+            distance: 870,
+            speed: 0.00015,
             type: "planet",
+            inclination: 0.02,
+            node: 3.5,
+            eccentricity: 0.017,
+            tilt: 0.40,
             color: 0x2ecc71,
             texture: "drawEarth",
             description: "Technical tools and platforms I work with daily",
@@ -943,7 +1044,7 @@ window.RESUME_DATA = {
                     name: "Project Management", 
                     size: 1.6, 
                     distance: 12, 
-                    speed: 0.017,
+                    speed: 0.004,
                     color: 0x27ae60,
                     pdfDetails: {
                         title: "PROJECT MANAGEMENT",
@@ -959,7 +1060,7 @@ window.RESUME_DATA = {
                     name: "Analytics & Data", 
                     size: 1.5, 
                     distance: 18, 
-                    speed: 0.014,
+                    speed: 0.0035,
                     color: 0x16a085,
                     pdfDetails: {
                         title: "ANALYTICS & DATA",
@@ -975,7 +1076,7 @@ window.RESUME_DATA = {
                     name: "CMS & Marketing", 
                     size: 1.4, 
                     distance: 24, 
-                    speed: 0.012,
+                    speed: 0.003,
                     color: 0x1abc9c,
                     pdfDetails: {
                         title: "CMS & MARKETING",
@@ -991,7 +1092,7 @@ window.RESUME_DATA = {
                     name: "Testing & QA", 
                     size: 1.3, 
                     distance: 30, 
-                    speed: 0.010,
+                    speed: 0.0025,
                     color: 0x3498db,
                     pdfDetails: {
                         title: "TESTING & QA",
@@ -1006,85 +1107,17 @@ window.RESUME_DATA = {
             ]
         },
         
-        // ===== 8. EDUCATION PLANET (Small, calm) =====
-        {
-            name: "Education",
-            title: "Education",
-            section: "sidebar",
-            order: 3,
-            renderType: "education",
-            size: 5,
-            distance: 330,
-            speed: 0.0006,
-            inclination: 0.35,
-            texture: "drawBlue",
-            description: "Academic foundation and ongoing learning",
-            pdfDetails: {
-                degree: "Bachelor of Engineering - Computer Science (2005)",
-                institution: "Vivekanand Education Society's Institute of Technology (V.E.S.I.T)",
-                university: "Mumbai University, India"
-            },
-            spaceDetails: {
-                degree: "B.Eng. Computer Science // Core Systems",
-                institution: "V.E.S.I.T // Mumbai Sector",
-                university: "Mumbai University",
-                duration: "Flight Academy Certification: 2005"
-            },
-            moons: [
-                {
-                    name: "Certifications",
-                    size: 1.2,
-                    distance: 10,
-                    speed: 0.015,
-                    color: 0x3498db,
-                    pdfDetails: {
-                        title: "CERTIFICATIONS",
-                        items: [
-                            "Certified Business Analysis Professional (CBAP) - Expired"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "FLIGHT CERTIFICATIONS",
-                        skills: [
-                            "CBAP (Expired)"
-                        ]
-                    }
-                }
-            ]
-        },
-        
-        // ===== 9. LANGUAGES PLANET (Optional, subtle) =====
-        {
-            name: "Languages",
-            title: "Languages",
-            section: "sidebar",
-            order: 4,
-            renderType: "languages",
-            size: 4,
-            distance: 365,
-            speed: 0.0005,
-            inclination: 0.1,
-            texture: "drawLightGreenYellow",
-            description: "Communication capabilities",
-            pdfDetails: {
-                languages: [
-                    { name: "English", level: "Professional", proficiency: 100 },
-                    { name: "Hindi", level: "Native", proficiency: 100 },
-                    { name: "Gujarati", level: "Basic", proficiency: 40 },
-                    { name: "Marathi", level: "Basic", proficiency: 40 }
-                ]
-            },
-            moons: []
-        },
-        
         // ===== 10. CONTACT STATION (Orbital, not planet) =====
         {
             name: "Contact Station",
             section: "none",
             size: 4,
-            distance: 400,
-            speed: 0.0003,
+            distance: 960,
+            speed: 0.0001,
             inclination: 0,
+            node: 0.5,
+            eccentricity: 0,
+            tilt: 0,
             texture: "drawYellow",
             description: "How to reach me",
             
@@ -1094,7 +1127,7 @@ window.RESUME_DATA = {
                     name: "Email", 
                     size: 1.2, 
                     distance: 10, 
-                    speed: 0.020,
+                    speed: 0.005,
                     color: 0xf39c12,
                     pdfDetails: {
                         method: "EMAIL",
@@ -1106,7 +1139,7 @@ window.RESUME_DATA = {
                     name: "Phone", 
                     size: 1.1, 
                     distance: 15, 
-                    speed: 0.017,
+                    speed: 0.004,
                     color: 0xe74c3c,
                     pdfDetails: {
                         method: "PHONE",
@@ -1117,7 +1150,7 @@ window.RESUME_DATA = {
                     name: "LinkedIn", 
                     size: 1.3, 
                     distance: 20, 
-                    speed: 0.014,
+                    speed: 0.0035,
                     color: 0x0077b5,
                     pdfDetails: {
                         method: "LINKEDIN",
@@ -1129,7 +1162,7 @@ window.RESUME_DATA = {
                     name: "Location", 
                     size: 1.0, 
                     distance: 25, 
-                    speed: 0.011,
+                    speed: 0.003,
                     color: 0x3498db,
                     pdfDetails: {
                         method: "LOCATION",
@@ -1140,7 +1173,7 @@ window.RESUME_DATA = {
                     name: "PDF Download", 
                     size: 1.2, 
                     distance: 30, 
-                    speed: 0.008,
+                    speed: 0.002,
                     color: 0x9b59b6,
                     pdfDetails: {
                         method: "DOWNLOAD",
