@@ -29,7 +29,7 @@ window.RESUME_DATA = {
             section: "sidebar",
             order: 1,
             renderType: "list",
-            size: 8,
+            size: 12, // Increased from 8 for better visibility
             distance: 210,
             speed: 0.0005,
             type: "planet",
@@ -46,7 +46,7 @@ window.RESUME_DATA = {
             moons: [
                 { 
                     name: "Product & Analysis", 
-                    size: 1.8, 
+                    size: 2.4, // Increased from 1.8
                     distance: 12, 
                     speed: 0.004,
                     color: 0x27ae60,
@@ -72,7 +72,7 @@ window.RESUME_DATA = {
                 },
                 { 
                     name: "Technical Skills", 
-                    size: 1.6, 
+                    size: 2.1, // Increased from 1.6
                     distance: 18, 
                     speed: 0.003,
                     color: 0x16a085,
@@ -96,7 +96,7 @@ window.RESUME_DATA = {
                 },
                 { 
                     name: "Collaboration", 
-                    size: 1.4, 
+                    size: 1.8, // Increased from 1.4
                     distance: 24, 
                     speed: 0.002,
                     color: 0x3498db,
@@ -134,7 +134,7 @@ window.RESUME_DATA = {
             section: "main",
             order: 1,
             renderType: "experience",
-            size: 15,
+            size: 22, // Increased from 15 for better visibility
             distance: 330,
             speed: 0.0008,
             type: "planet",
@@ -150,7 +150,7 @@ window.RESUME_DATA = {
             moons: [
                 {
                     name: "lululemon athletica",
-                    size: 3.0,
+                    size: 4.0, // Increased from 3.0
                     distance: 28,
                     speed: 0.003,
                     color: 0xc0392b,
@@ -204,7 +204,7 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "Vancity",
-                    size: 2.6,
+                    size: 3.5, // Increased from 2.6
                     distance: 36,
                     speed: 0.0025,
                     color: 0xd35400,
@@ -243,7 +243,7 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "HSBC — Digital Platform",
-                    size: 2.8,
+                    size: 3.7, // Increased from 2.8
                     distance: 44,
                     speed: 0.002,
                     color: 0xe67e22,
@@ -282,7 +282,7 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "HSBC — ITQA Test Lead",
-                    size: 2.4,
+                    size: 3.2, // Increased from 2.4
                     distance: 52,
                     speed: 0.0015,
                     color: 0xb86b2b,
@@ -317,7 +317,7 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "HSBC — Business Analysis",
-                    size: 2.2,
+                    size: 3.0, // Increased from 2.2
                     distance: 60,
                     speed: 0.0012,
                     color: 0x9b5d2b,
@@ -354,7 +354,7 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "HSBC Global Technology",
-                    size: 3.4,
+                    size: 4.5, // Increased from 3.4
                     distance: 80,
                     speed: 0.0008,
                     color: 0x8b7a57,
@@ -400,7 +400,7 @@ window.RESUME_DATA = {
             section: "main",
             order: 2,
             renderType: "projects",
-            size: 9,
+            size: 14, // Increased from 9 for better visibility
             distance: 460,
             speed: 0.0004,
             type: "planet",
@@ -610,7 +610,7 @@ window.RESUME_DATA = {
             section: "main",
             order: 3,
             renderType: "text-list",
-            size: 8,
+            size: 12, // Increased from 8 for better visibility
             distance: 570,
             speed: 0.0003,
             type: "planet",
@@ -749,7 +749,7 @@ window.RESUME_DATA = {
             section: "main",
             order: 4,
             renderType: "text-list",
-            size: 7,
+            size: 11, // Increased from 7 for better visibility
             distance: 670,
             speed: 0.00025,
             type: "planet",
@@ -850,7 +850,7 @@ window.RESUME_DATA = {
             section: "main",
             order: 5,
             renderType: "list",
-            size: 7,
+            size: 11, // Increased from 7 for better visibility
             distance: 770,
             speed: 0.0002,
             type: "planet",
@@ -953,7 +953,7 @@ window.RESUME_DATA = {
             section: "sidebar",
             order: 2,
             renderType: "list",
-            size: 6,
+            size: 9, // Increased from 6 for better visibility
             distance: 870,
             speed: 0.00015,
             type: "planet",
@@ -1041,7 +1041,7 @@ window.RESUME_DATA = {
             section: "sidebar",
             order: 6,
             renderType: "education",
-            size: 6,
+            size: 9, // Increased from 6 for better visibility
             distance: 960,
             speed: 0.00012,
             type: "planet",
@@ -1057,7 +1057,7 @@ window.RESUME_DATA = {
             moons: [
                 {
                     name: "B.E. Computer Science",
-                    size: 1.5,
+                    size: 2.0, // Increased from 1.5 for better visibility
                     distance: 10,
                     speed: 0.003,
                     color: 0x3498db,
@@ -1087,7 +1087,7 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "H.S.C Science",
-                    size: 1.2,
+                    size: 1.6, // Increased from 1.2 for better visibility
                     distance: 16,
                     speed: 0.0025,
                     color: 0x2980b9,
@@ -1115,7 +1115,7 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "S.S.C",
-                    size: 1.0,
+                    size: 1.3, // Increased from 1.0 for better visibility
                     distance: 22,
                     speed: 0.002,
                     color: 0x1abc9c,
@@ -1151,7 +1151,7 @@ window.RESUME_DATA = {
             section: "sidebar",
             order: 7,
             renderType: "languages",
-            size: 5,
+            size: 8, // Increased from 5 for better visibility
             distance: 1050,
             speed: 0.0001,
             type: "planet",
@@ -1167,13 +1167,13 @@ window.RESUME_DATA = {
             moons: [
                 {
                     name: "Hindi",
-                    size: 1.4, // Largest - Native
+                    size: 1.8, // Increased from 1.4 for better visibility
                     distance: 8,
                     speed: 0.004,
                     color: 0xff9900,
                     texture: "drawOrange",
                     details: "Native Proficiency\n\nMother tongue with complete fluency in all aspects. Capable of complex technical discussions, literature comprehension, and professional communication. Deep cultural understanding and idiomatic expression mastery.",
-                    character: "🧙‍♂️",
+                    character: "🧙‍♂️", // Wise sage representing mastery
                     characterAnim: "expertGlow",
                     proficiencyLevel: "Native",
                     skills: {
@@ -1185,31 +1185,31 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "English",
-                    size: 1.2, // Large - Professional
+                    size: 1.6, // Increased from 1.2 for better visibility
                     distance: 14,
                     speed: 0.003,
                     color: 0xffffff,
                     texture: "drawWhite",
                     details: "Professional Proficiency\n\nFull professional working proficiency. Primary language for business communication, technical documentation, and client interactions. Excellent written and verbal communication skills in corporate environments.",
-                    character: "👨‍💼",
+                    character: "👨‍�", // Albert Einstein-like scientist
                     characterAnim: "professionalFloat",
                     proficiencyLevel: "Professional",
                     skills: {
                         speaking: 9,
-                        reading: 10,
-                        writing: 9,
+                        reading: 9,
+                        writing: 8,
                         comprehension: 10
                     }
                 },
                 {
                     name: "Gujarati",
-                    size: 0.8, // Small - Basic
+                    size: 1.1, // Increased from 0.8 for better visibility
                     distance: 20,
                     speed: 0.002,
                     color: 0x2ecc71,
                     texture: "drawGreenOrange",
                     details: "Intermediate Proficiency\n\nConversational ability with family and community. Can understand most daily conversations and express basic needs and ideas. Limited reading and writing capability.",
-                    character: "👨‍🎓",
+                    character: "👨‍🎓", // Graduate student representing learning
                     characterAnim: "charHover",
                     proficiencyLevel: "Intermediate",
                     skills: {
@@ -1221,13 +1221,13 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "Marathi",
-                    size: 0.8, // Small - Basic
+                    size: 1.1, // Increased from 0.8 for better visibility
                     distance: 26,
                     speed: 0.0015,
                     color: 0x1abc9c,
                     texture: "drawBluishGreen",
                     details: "Basic Proficiency\n\nBasic conversational ability. Can understand simple phrases and express basic needs. Primarily used for local interactions in Maharashtra region.",
-                    character: "👶",
+                    character: "👶", // Baby representing beginner level
                     characterAnim: "beginnerWobble",
                     proficiencyLevel: "Basic",
                     skills: {

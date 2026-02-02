@@ -186,6 +186,12 @@
         @media (max-width: 768px) {
             #overlay-panel { width: 100%; }
             .hud-btn { padding: 8px 16px; font-size: 12px; }
+            #sky-details {
+                top: 3%;
+                height: 75%; /* Reduced height on mobile */
+                width: 95%;
+                padding-bottom: 120px; /* More padding for mobile buttons */
+            }
         }
 
         #sky-details {
@@ -197,11 +203,11 @@
             color: #fff;
             text-shadow: 0 2px 10px rgba(0,0,0,0.8);
             pointer-events: none;
-            z-index: 15;
+            z-index: 25; /* Increased from 15 to be above controls */
             display: none;
             width: 90%;
             max-width: 800px;
-            height: 85%;
+            height: 80%; /* Reduced from 85% to avoid button overlap */
             animation: fadeIn 1s ease-out;
         }
         #sky-details h1 {
@@ -531,6 +537,19 @@
 
         const RESUME_DATA = window.RESUME_DATA;
         const { jsPDF } = window.jspdf;
+
+        // Check if RESUME_DATA is loaded properly
+        if (!RESUME_DATA) {
+            console.error('RESUME_DATA not loaded properly');
+            startFallbackMode('Resume data failed to load. Please refresh the page.');
+            throw new Error('RESUME_DATA not available');
+        }
+
+        if (!RESUME_DATA.name) {
+            console.error('RESUME_DATA.name is undefined');
+            startFallbackMode('Resume data is incomplete. Please refresh the page.');
+            throw new Error('RESUME_DATA.name not available');
+        }
 
 
         // === STATE VARIABLES (MUST BE DECLARED FIRST) ===
@@ -2289,6 +2308,44 @@
         };
         solarSystem.add(sun);
         
+        // Add realistic sun glow effect
+        const glowGeo = new THREE.SphereGeometry(120, 64, 64); // Larger than sun
+        const glowMat = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0.0 },
+                glowColor: { value: new THREE.Color(0xffaa33) }
+            },
+            vertexShader: `
+                varying vec3 vNormal;
+                varying vec3 vPosition;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    vPosition = position;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform float time;
+                uniform vec3 glowColor;
+                varying vec3 vNormal;
+                varying vec3 vPosition;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    intensity += sin(time * 2.0) * 0.1; // Pulsing effect
+                    gl_FragColor = vec4(glowColor, intensity * 0.4);
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+        });
+        
+        const sunGlow = new THREE.Mesh(glowGeo, glowMat);
+        solarSystem.add(sunGlow);
+        
+        // Store glow material for animation
+        sun.userData.glowMaterial = glowMat;
+        
         // Make Sun clickable
         clickableObjects.push(sun);
 
@@ -3059,7 +3116,7 @@
             let html = '';
             
             if (planetType === 'Languages') {
-                // Compact Language Modal with 3D Characters
+                // Enhanced Language Modal with Animated Characters
                 const proficiencyLevel = moon.userData.proficiencyLevel || getProficiencyLevel(moon.userData.details);
                 const character3D = moon.userData.character || getCharacterForProficiency(proficiencyLevel, moonName);
                 const animation = moon.userData.characterAnim || getAnimationForProficiency(proficiencyLevel);
@@ -3067,45 +3124,65 @@
                 
                 // Extract key details from the description
                 const details = moon.userData.details || '';
-                const keyPoints = details.split('\n').filter(line => line.trim() && !line.includes('Proficiency')).slice(0, 2);
+                const keyPoints = details.split('\n').filter(line => line.trim() && !line.includes('Proficiency')).slice(1, 3);
+                
+                // Get character description based on proficiency
+                const characterDescription = getCharacterDescription(proficiencyLevel, moonName);
                 
                 html = `
-                    <div style="display: flex; flex-direction: column; height: 100%; max-height: 70vh; padding: 15px;">
-                        <!-- Top Section: Character and Level -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                            <div style="flex: 1; text-align: center;">
-                                <div style="font-size: 80px; animation: ${animation} infinite; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.5)); position: relative;">
+                    <div style="display: flex; flex-direction: column; height: 100%; max-height: 70vh; padding: 20px; padding-bottom: 100px;">
+                        <!-- Header with Language Name -->
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <h2 style="color: #38bdf8; margin: 0; font-size: 28px;">${moonName}</h2>
+                            <div style="color: #94a3b8; font-size: 16px; margin-top: 5px;">${proficiencyLevel} Proficiency</div>
+                        </div>
+                        
+                        <!-- Character and Level Section -->
+                        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 25px; background: rgba(56, 189, 248, 0.05); border-radius: 15px; padding: 20px;">
+                            <div style="text-align: center; margin-right: 25px;">
+                                <div style="font-size: 100px; animation: ${animation} infinite; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.6)); position: relative; margin-bottom: 10px;">
                                     ${character3D}
-                                    <div style="position: absolute; top: -5px; right: -5px; background: linear-gradient(45deg, #ff6b6b, #ffd93d); border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                                    <div style="position: absolute; top: -8px; right: -8px; background: linear-gradient(45deg, #ff6b6b, #ffd93d); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; animation: pulseGlow 2s infinite;">
                                         ${getProficiencyBadge(proficiencyLevel)}
                                     </div>
                                 </div>
+                                <div style="color: #38bdf8; font-weight: bold; font-size: 14px;">${characterDescription}</div>
                             </div>
-                            <div style="flex: 2; padding-left: 20px;">
-                                <h3 style="color: #38bdf8; margin: 0 0 8px 0; font-size: 20px;">${proficiencyLevel} Level</h3>
-                                <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; font-size: 14px; color: #e2e8f0; line-height: 1.4;">
+                            <div style="flex: 1; padding-left: 20px;">
+                                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; font-size: 15px; color: #e2e8f0; line-height: 1.5; border: 1px solid rgba(56, 189, 248, 0.2);">
                                     ${keyPoints.join(' ')}
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Skills Grid - Compact -->
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: auto;">
-                            ${['speaking', 'reading', 'writing', 'comprehension'].map((skill, index) => {
-                                const icons = ['🗣️', '📖', '✍️', '👂'];
-                                const labels = ['Speaking', 'Reading', 'Writing', 'Listening'];
-                                const score = skills[skill] || parseInt(getProficiencyScore(proficiencyLevel, skill));
-                                return `
-                                <div style="background: rgba(56, 189, 248, 0.1); border-radius: 8px; padding: 10px; text-align: center; border: 1px solid rgba(56, 189, 248, 0.2);">
-                                    <div style="font-size: 20px; margin-bottom: 5px;">${icons[index]}</div>
-                                    <div style="font-size: 10px; color: #94a3b8; margin-bottom: 3px;">${labels[index]}</div>
-                                    <div style="color: #38bdf8; font-weight: bold; font-size: 14px;">${score}/10</div>
-                                    <div style="background: rgba(56, 189, 248, 0.2); height: 3px; border-radius: 2px; margin-top: 3px;">
-                                        <div style="background: #38bdf8; height: 100%; width: ${score * 10}%; border-radius: 2px; transition: width 0.5s ease;"></div>
+                        <!-- Compact Skills Assessment - Single Row -->
+                        <div style="background: rgba(255,255,255,0.03); border-radius: 15px; padding: 20px; border: 1px solid rgba(56, 189, 248, 0.1);">
+                            <h3 style="color: #38bdf8; margin: 0 0 15px 0; font-size: 18px; text-align: center;">Language Skills Assessment</h3>
+                            <div style="display: flex; gap: 12px; justify-content: space-between;">
+                                ${['speaking', 'reading', 'writing', 'comprehension'].map((skill, index) => {
+                                    const icons = ['🗣️', '📖', '✍️', '👂'];
+                                    const labels = ['Speaking', 'Reading', 'Writing', 'Listening'];
+                                    const score = skills[skill] || parseInt(getProficiencyScore(proficiencyLevel, skill));
+                                    const percentage = score * 10;
+                                    
+                                    return `
+                                    <div style="background: rgba(56, 189, 248, 0.08); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid rgba(56, 189, 248, 0.2); transition: transform 0.3s ease; flex: 1; min-width: 0;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                        <div style="font-size: 20px; margin-bottom: 6px;">${icons[index]}</div>
+                                        <div style="font-size: 10px; color: #94a3b8; margin-bottom: 6px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${labels[index].toUpperCase()}</div>
+                                        <div style="color: #38bdf8; font-weight: bold; font-size: 16px; margin-bottom: 6px;">${score}/10</div>
+                                        <div style="background: rgba(56, 189, 248, 0.2); height: 4px; border-radius: 2px; overflow: hidden;">
+                                            <div style="background: linear-gradient(90deg, #38bdf8, #818cf8); height: 100%; width: 0%; border-radius: 2px; transition: width 1s ease-in-out 0.${index * 2}s; animation: fillBar${index} 1s ease-in-out 0.${index * 2}s forwards;"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                `;
-                            }).join('')}
+                                    <style>
+                                        @keyframes fillBar${index} {
+                                            from { width: 0%; }
+                                            to { width: ${percentage}%; }
+                                        }
+                                    </style>
+                                    `;
+                                }).join('')}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -3232,8 +3309,8 @@
             const characters = {
                 'Native': {
                     'Hindi': '🧙‍♂️', // Wise sage for native Hindi
-                    'English': '👨‍🏫', // Professor for native English
-                    'default': '🧠' // Brain for native level
+                    'English': '👨‍🔬', // Albert Einstein-like scientist for native English
+                    'default': '👨‍🔬' // Albert Einstein for native level
                 },
                 'Professional': {
                     'Hindi': '👨‍💼', // Business person
@@ -3253,10 +3330,10 @@
 
         function getAnimationForProficiency(level) {
             const animations = {
-                'Native': 'char3D 3s ease-in-out',
-                'Professional': 'char3D 4s ease-in-out',
+                'Native': 'expertGlow 4s ease-in-out',
+                'Professional': 'professionalFloat 3s ease-in-out',
                 'Intermediate': 'charHover 2s ease-in-out',
-                'Basic': 'charBounce 1.5s ease-in-out'
+                'Basic': 'beginnerWobble 1.5s ease-in-out'
             };
             return animations[level] || 'charBounce 1.5s ease-in-out';
         }
@@ -3279,6 +3356,28 @@
                 'Basic': { speaking: '5', reading: '6', writing: '4', comprehension: '6' }
             };
             return scores[level]?.[skill] || '5';
+        }
+
+        function getCharacterDescription(level, language) {
+            const descriptions = {
+                'Native': {
+                    'Hindi': 'Master Linguist',
+                    'English': 'Einstein-level Expert',
+                    'default': 'Einstein-level Expert'
+                },
+                'Professional': {
+                    'Hindi': 'Business Communicator',
+                    'English': 'Professional Speaker',
+                    'default': 'Fluent Speaker'
+                },
+                'Intermediate': {
+                    'default': 'Learning Scholar'
+                },
+                'Basic': {
+                    'default': 'Language Learner'
+                }
+            };
+            return descriptions[level]?.[language] || descriptions[level]?.['default'] || 'Speaker';
         }
 
         // close overlay
@@ -3353,6 +3452,12 @@
             }
         	focusedObject = null;
         	undimBackground(); // Undim background when returning to overview
+        	
+        	// Clear view history when resetting
+        	viewHistory.length = 0;
+        	currentViewIndex = -1;
+        	updateBackButton();
+        	
         	gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 0.8 });
             document.getElementById('sky-details').style.display = 'none';
         	gsap.to(camera.position, { x: 0, y: 300, z: 1200, duration: 0.8 });
@@ -3433,22 +3538,58 @@
         const clock = new THREE.Clock();
 
         function spawnComet() {
-            const geo = new THREE.SphereGeometry(1.5, 8, 8);
-            const mat = new THREE.MeshBasicMaterial({ color: 0xaaddff });
-            const mesh = new THREE.Mesh(geo, mat);
+            // Create comet nucleus (brighter and more realistic)
+            const nucleusGeo = new THREE.SphereGeometry(2, 12, 12);
+            const nucleusMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffffcc,
+                transparent: true,
+                opacity: 0.9
+            });
+            const nucleus = new THREE.Mesh(nucleusGeo, nucleusMat);
             
-            const x = (Math.random() - 0.5) * 800;
-            const y = (Math.random() - 0.5) * 400;
-            const z = (Math.random() - 0.5) * 800;
-            mesh.position.set(x, y, z);
+            // Create comet coma (glowing atmosphere around nucleus)
+            const comaGeo = new THREE.SphereGeometry(4, 16, 16);
+            const comaMat = new THREE.MeshBasicMaterial({ 
+                color: 0xaaddff,
+                transparent: true,
+                opacity: 0.3
+            });
+            const coma = new THREE.Mesh(comaGeo, comaMat);
             
-            const targetX = (Math.random() - 0.5) * 200;
-            const targetY = (Math.random() - 0.5) * 100;
-            const targetZ = (Math.random() - 0.5) * 200;
-            const velocity = new THREE.Vector3(targetX - x, targetY - y, targetZ - z).normalize().multiplyScalar(3);
+            // Group nucleus and coma together
+            const cometGroup = new THREE.Group();
+            cometGroup.add(nucleus);
+            cometGroup.add(coma);
             
-            scene.add(mesh);
-            comets.push({ mesh, velocity, life: 400 });
+            // Random starting position (further out for more dramatic effect)
+            const x = (Math.random() - 0.5) * 1200;
+            const y = (Math.random() - 0.5) * 600;
+            const z = (Math.random() - 0.5) * 1200;
+            cometGroup.position.set(x, y, z);
+            
+            // Target closer to center for more visible trajectory
+            const targetX = (Math.random() - 0.5) * 300;
+            const targetY = (Math.random() - 0.5) * 150;
+            const targetZ = (Math.random() - 0.5) * 300;
+            const velocity = new THREE.Vector3(targetX - x, targetY - y, targetZ - z).normalize().multiplyScalar(4);
+            
+            scene.add(cometGroup);
+            
+            // Create trail system for this comet
+            const trailPositions = [];
+            const maxTrailLength = 80; // Longer trail
+            
+            comets.push({ 
+                mesh: cometGroup, 
+                nucleus: nucleus,
+                coma: coma,
+                velocity, 
+                life: 600, // Longer life
+                trailPositions: trailPositions,
+                maxTrailLength: maxTrailLength,
+                trailMeshes: [] // Store trail segment meshes
+            });
+            
             playSound('comet');
         }
 
@@ -3486,6 +3627,11 @@
             // Clean sun animation - no corona layers
             const time = Date.now() * 0.001;
             sun.rotation.y += 0.001; // Rotate sun counterclockwise (same as planets)
+            
+            // Animate sun glow
+            if (sun.userData.glowMaterial) {
+                sun.userData.glowMaterial.uniforms.time.value = time;
+            }
             
             // Animate sun lights for pulsing bright effect
             if (sunCoreLight) {
@@ -3526,36 +3672,126 @@
                 }
             });
 
-            // Comets
-            if (Math.random() < 0.005) spawnComet();
+            // Comets with realistic trails
+            if (Math.random() < 0.003) spawnComet(); // Slightly less frequent for better performance
+            
             for (let i = comets.length - 1; i >= 0; i--) {
                 const c = comets[i];
+                
+                // Store current position for trail
+                c.trailPositions.push(c.mesh.position.clone());
+                
+                // Limit trail length
+                if (c.trailPositions.length > c.maxTrailLength) {
+                    c.trailPositions.shift();
+                }
+                
+                // Move comet
                 c.mesh.position.add(c.velocity);
                 
-                // Spawn particles
-                if (c.life % 2 === 0) {
-                    const pGeo = new THREE.BufferGeometry();
-                    pGeo.setAttribute('position', new THREE.Float32BufferAttribute([c.mesh.position.x, c.mesh.position.y, c.mesh.position.z], 3));
-                    const pMat = new THREE.PointsMaterial({ color: 0xaaddff, size: 0.5, transparent: true });
-                    const p = new THREE.Points(pGeo, pMat);
-                    scene.add(p);
-                    cometParticles.push({ mesh: p, life: 50 });
+                // Animate nucleus and coma
+                c.nucleus.rotation.x += 0.02;
+                c.nucleus.rotation.y += 0.01;
+                c.coma.rotation.x -= 0.01;
+                c.coma.rotation.y += 0.015;
+                
+                // Create/update trail geometry
+                if (c.trailPositions.length > 2) {
+                    // Remove old trail meshes
+                    c.trailMeshes.forEach(trailMesh => {
+                        scene.remove(trailMesh);
+                        if (trailMesh.geometry) trailMesh.geometry.dispose();
+                        if (trailMesh.material) trailMesh.material.dispose();
+                    });
+                    c.trailMeshes = [];
+                    
+                    // Create new trail segments
+                    for (let j = 1; j < c.trailPositions.length; j++) {
+                        const segmentGeo = new THREE.BufferGeometry();
+                        const positions = new Float32Array([
+                            c.trailPositions[j-1].x, c.trailPositions[j-1].y, c.trailPositions[j-1].z,
+                            c.trailPositions[j].x, c.trailPositions[j].y, c.trailPositions[j].z
+                        ]);
+                        segmentGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                        
+                        // Trail opacity decreases towards the back
+                        const opacity = (j / c.trailPositions.length) * 0.8;
+                        const segmentMat = new THREE.LineBasicMaterial({ 
+                            color: 0xaaddff,
+                            transparent: true,
+                            opacity: opacity,
+                            linewidth: 2
+                        });
+                        
+                        const trailSegment = new THREE.Line(segmentGeo, segmentMat);
+                        scene.add(trailSegment);
+                        c.trailMeshes.push(trailSegment);
+                    }
+                }
+                
+                // Create glowing particles along the trail (less frequent for performance)
+                if (c.life % 4 === 0 && c.trailPositions.length > 5) {
+                    // Create particles at random positions along the trail
+                    const randomIndex = Math.floor(Math.random() * Math.min(c.trailPositions.length, 20));
+                    const trailPos = c.trailPositions[c.trailPositions.length - 1 - randomIndex];
+                    
+                    if (trailPos) {
+                        const pGeo = new THREE.BufferGeometry();
+                        // Add some randomness to particle position
+                        const px = trailPos.x + (Math.random() - 0.5) * 3;
+                        const py = trailPos.y + (Math.random() - 0.5) * 3;
+                        const pz = trailPos.z + (Math.random() - 0.5) * 3;
+                        
+                        pGeo.setAttribute('position', new THREE.Float32BufferAttribute([px, py, pz], 3));
+                        const pMat = new THREE.PointsMaterial({ 
+                            color: Math.random() > 0.5 ? 0xffffcc : 0xaaddff,
+                            size: Math.random() * 2 + 1,
+                            transparent: true,
+                            opacity: 0.8
+                        });
+                        const p = new THREE.Points(pGeo, pMat);
+                        scene.add(p);
+                        cometParticles.push({ mesh: p, life: 120 }); // Longer particle life
+                    }
+                }
+                
+                // Fade out comet as it ages
+                const fadeStart = c.life < 150;
+                if (fadeStart) {
+                    const fadeOpacity = c.life / 150;
+                    c.nucleus.material.opacity = fadeOpacity * 0.9;
+                    c.coma.material.opacity = fadeOpacity * 0.3;
                 }
 
                 c.life--;
                 if (c.life <= 0) {
+                    // Clean up trail meshes
+                    c.trailMeshes.forEach(trailMesh => {
+                        scene.remove(trailMesh);
+                        if (trailMesh.geometry) trailMesh.geometry.dispose();
+                        if (trailMesh.material) trailMesh.material.dispose();
+                    });
+                    
                     scene.remove(c.mesh);
                     comets.splice(i, 1);
                 }
             }
 
-            // Comet Particles
+            // Comet Particles (enhanced with longer trails)
             for (let i = cometParticles.length - 1; i >= 0; i--) {
                 const p = cometParticles[i];
                 p.life--;
+                
                 if (p.mesh.material) {
-                    p.mesh.material.opacity = p.life / 50;
+                    // Smoother fade out over longer period
+                    p.mesh.material.opacity = (p.life / 120) * 0.8;
+                    
+                    // Slight size reduction as particle ages
+                    if (p.mesh.material.size) {
+                        p.mesh.material.size = Math.max(0.2, (p.life / 120) * p.mesh.material.size);
+                    }
                 }
+                
                 if (p.life <= 0) {
                     scene.remove(p.mesh);
                     if (p.mesh.geometry) p.mesh.geometry.dispose();
