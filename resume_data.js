@@ -22,80 +22,7 @@ window.RESUME_DATA = {
     // ===== PLANETS (RESUME SECTIONS) =====
     // Solar System Metaphor: Each planet represents a different aspect of professional identity
     planets: [
-        // ===== 1. EDUCATION PLANET (Mercury-like, 1st) =====
-        {
-            name: "Education",
-            title: "Education & Languages",
-            section: "sidebar",
-            order: 0,
-            renderType: "education",
-            size: 4,
-            distance: 150,
-            speed: 0.001,
-            type: "planet",
-            inclination: 0.2,
-            node: 0,
-            eccentricity: 0.205,
-            tilt: 0.01,
-            color: 0xa5a5a5,
-            texture: "drawMercury",
-            description: "Academic foundation and communication capabilities",
-            pdfDetails: {
-                degree: "Bachelor of Engineering - Computer Science (2005)",
-                institution: "Vivekanand Education Society's Institute of Technology (V.E.S.I.T)",
-                university: "Mumbai University, India"
-            },
-            spaceDetails: {
-                degree: "B.Eng. Computer Science // Core Systems",
-                institution: "V.E.S.I.T // Mumbai Sector",
-                university: "Mumbai University",
-                duration: "Flight Academy Certification: 2005"
-            },
-            moons: [
-                {
-                    name: "English",
-                    size: 1.0,
-                    distance: 6,
-                    speed: 0.005,
-                    color: 0xffffff,
-                    texture: "drawWhite",
-                    viewType: "center",
-                    details: "Professional Level"
-                },
-                {
-                    name: "Hindi",
-                    size: 1.0,
-                    distance: 9,
-                    speed: 0.004,
-                    color: 0xff9900,
-                    texture: "drawOrange",
-                    viewType: "center",
-                    details: "Native"
-                },
-                {
-                    name: "Gujarati",
-                    size: 1.0,
-                    distance: 12,
-                    speed: 0.003,
-                    color: 0x2ecc71,
-                    texture: "drawGreenOrange",
-                    viewType: "center",
-                    details: "Basic"
-                },
-                {
-                    name: "Marathi",
-                    size: 1.0,
-                    distance: 15,
-                    speed: 0.002,
-                    color: 0x1abc9c,
-                    texture: "drawBluishGreen",
-                    viewType: "center",
-                    details: "Basic"
-                }
-            ]
-        },
-
-        // ===== 2. SKILLS PLANET (Venus-like, 2nd) =====
+        // ===== 1. SKILLS PLANET (Venus-like, 1st) =====
         {
             name: "Skills",
             title: "Skills & Competencies",
@@ -1106,13 +1033,219 @@ window.RESUME_DATA = {
                 }
             ]
         },
-        
-        // ===== 10. CONTACT STATION (Orbital, not planet) =====
+
+        // ===== 9. EDUCATION PLANET (Blue, 9th) =====
+        {
+            name: "Education",
+            title: "Education",
+            section: "sidebar",
+            order: 6,
+            renderType: "education",
+            size: 6,
+            distance: 960,
+            speed: 0.00012,
+            type: "planet",
+            inclination: 0.1,
+            node: 2.5,
+            eccentricity: 0.02,
+            tilt: 0.4,
+            color: 0x3498db,
+            texture: "drawBlue",
+            description: "Academic foundation",
+            details: "Strong academic background providing the theoretical foundation for software engineering and systems analysis.",
+            
+            moons: [
+                {
+                    name: "B.E. Computer Science",
+                    size: 1.5,
+                    distance: 10,
+                    speed: 0.003,
+                    color: 0x3498db,
+                    details: "Bachelor of Engineering - Computer Science\n2001 – 2005\n\nVivekanand Education Society's Institute of Technology (V.E.S.I.T)\nMumbai University, India\n\nSpecialization: Software Engineering, Database Systems, Computer Networks\nRelevant Coursework: Data Structures, Algorithms, Software Engineering, Database Management, Computer Networks, Operating Systems",
+                    mapQuery: "Vivekanand Education Society's Institute of Technology Mumbai",
+                    institution: "V.E.S.I.T",
+                    degree: "Bachelor of Engineering",
+                    field: "Computer Science",
+                    duration: "2001 - 2005",
+                    location: "Mumbai, India",
+                    achievements: [
+                        "Strong foundation in software engineering principles and methodologies",
+                        "Comprehensive understanding of computer systems architecture",
+                        "Database design and management expertise with SQL proficiency",
+                        "Advanced knowledge of data structures and algorithm optimization",
+                        "Computer networks and distributed systems understanding",
+                        "Object-oriented programming and software design patterns",
+                        "Operating systems concepts and system-level programming",
+                        "Mathematical foundation for computational problem solving"
+                    ],
+                    pdfDetails: { 
+                        degree: "Bachelor of Engineering - Computer Science", 
+                        institution: "V.E.S.I.T, Mumbai University", 
+                        year: "2005",
+                        location: "Mumbai, India"
+                    }
+                },
+                {
+                    name: "H.S.C Science",
+                    size: 1.2,
+                    distance: 16,
+                    speed: 0.0025,
+                    color: 0x2980b9,
+                    details: "Higher Secondary Certificate - Science Stream\n1999 – 2001\n\nK. J. Somaiya College of Science and Commerce\nMumbai University, India\n\nSubjects: Physics, Chemistry, Mathematics, Biology\nFocus: Mathematical and analytical thinking foundation",
+                    mapQuery: "K. J. Somaiya College of Science and Commerce Mumbai",
+                    institution: "K. J. Somaiya College",
+                    degree: "Higher Secondary Certificate",
+                    field: "Science Stream",
+                    duration: "1999 - 2001",
+                    location: "Mumbai, India",
+                    achievements: [
+                        "Strong mathematical foundation with advanced calculus and algebra",
+                        "Scientific methodology and experimental design understanding",
+                        "Analytical problem-solving skills development",
+                        "Physics concepts including mechanics and electromagnetism",
+                        "Chemistry knowledge with organic and inorganic compounds",
+                        "Logical reasoning and critical thinking enhancement"
+                    ],
+                    pdfDetails: { 
+                        degree: "H.S.C Science", 
+                        institution: "K. J. Somaiya College, Mumbai", 
+                        year: "2001",
+                        location: "Mumbai, India"
+                    }
+                },
+                {
+                    name: "S.S.C",
+                    size: 1.0,
+                    distance: 22,
+                    speed: 0.002,
+                    color: 0x1abc9c,
+                    details: "Secondary School Certificate\n1988 – 1999\n\nSt. Sebastian's High School\nMumbai, India\n\nComprehensive secondary education with focus on academic excellence and character development. Strong foundation in core subjects including Mathematics, Science, and Languages.",
+                    mapQuery: "St. Sebastian's High School Chembur Mumbai",
+                    institution: "St. Sebastian's High School",
+                    degree: "Secondary School Certificate",
+                    field: "General Education",
+                    duration: "1988 - 1999",
+                    location: "Mumbai, India",
+                    achievements: [
+                        "Comprehensive academic foundation across multiple disciplines",
+                        "Character development and disciplinary excellence",
+                        "Multi-language proficiency development (English, Hindi, Marathi)",
+                        "Mathematics and science fundamentals establishment",
+                        "Communication skills and presentation abilities",
+                        "Leadership qualities through school activities and projects"
+                    ],
+                    pdfDetails: { 
+                        degree: "S.S.C", 
+                        institution: "St. Sebastian's High School, Mumbai", 
+                        year: "1999",
+                        location: "Mumbai, India"
+                    }
+                }
+            ]
+        },
+
+        // ===== 10. LANGUAGES PLANET (Green/Yellow, 10th) =====
+        {
+            name: "Languages",
+            title: "Languages",
+            section: "sidebar",
+            order: 7,
+            renderType: "languages",
+            size: 5,
+            distance: 1050,
+            speed: 0.0001,
+            type: "planet",
+            inclination: -0.1,
+            node: 0.5,
+            eccentricity: 0.01,
+            tilt: 0.1,
+            color: 0x2ecc71,
+            texture: "drawLightGreenYellow",
+            description: "Communication capabilities",
+            details: "Proficiency in multiple languages enabling effective communication in diverse environments.",
+            
+            moons: [
+                {
+                    name: "Hindi",
+                    size: 1.4, // Largest - Native
+                    distance: 8,
+                    speed: 0.004,
+                    color: 0xff9900,
+                    texture: "drawOrange",
+                    details: "Native Proficiency\n\nMother tongue with complete fluency in all aspects. Capable of complex technical discussions, literature comprehension, and professional communication. Deep cultural understanding and idiomatic expression mastery.",
+                    character: "🧙‍♂️",
+                    characterAnim: "expertGlow",
+                    proficiencyLevel: "Native",
+                    skills: {
+                        speaking: 10,
+                        reading: 10,
+                        writing: 10,
+                        comprehension: 10
+                    }
+                },
+                {
+                    name: "English",
+                    size: 1.2, // Large - Professional
+                    distance: 14,
+                    speed: 0.003,
+                    color: 0xffffff,
+                    texture: "drawWhite",
+                    details: "Professional Proficiency\n\nFull professional working proficiency. Primary language for business communication, technical documentation, and client interactions. Excellent written and verbal communication skills in corporate environments.",
+                    character: "👨‍💼",
+                    characterAnim: "professionalFloat",
+                    proficiencyLevel: "Professional",
+                    skills: {
+                        speaking: 9,
+                        reading: 10,
+                        writing: 9,
+                        comprehension: 10
+                    }
+                },
+                {
+                    name: "Gujarati",
+                    size: 0.8, // Small - Basic
+                    distance: 20,
+                    speed: 0.002,
+                    color: 0x2ecc71,
+                    texture: "drawGreenOrange",
+                    details: "Intermediate Proficiency\n\nConversational ability with family and community. Can understand most daily conversations and express basic needs and ideas. Limited reading and writing capability.",
+                    character: "👨‍🎓",
+                    characterAnim: "charHover",
+                    proficiencyLevel: "Intermediate",
+                    skills: {
+                        speaking: 7,
+                        reading: 5,
+                        writing: 4,
+                        comprehension: 8
+                    }
+                },
+                {
+                    name: "Marathi",
+                    size: 0.8, // Small - Basic
+                    distance: 26,
+                    speed: 0.0015,
+                    color: 0x1abc9c,
+                    texture: "drawBluishGreen",
+                    details: "Basic Proficiency\n\nBasic conversational ability. Can understand simple phrases and express basic needs. Primarily used for local interactions in Maharashtra region.",
+                    character: "👶",
+                    characterAnim: "beginnerWobble",
+                    proficiencyLevel: "Basic",
+                    skills: {
+                        speaking: 5,
+                        reading: 3,
+                        writing: 2,
+                        comprehension: 6
+                    }
+                }
+            ]
+        },
+
+        // ===== 11. CONTACT STATION (Orbital, not planet) =====
         {
             name: "Contact Station",
             section: "none",
             size: 4,
-            distance: 960,
+            distance: 1150,
             speed: 0.0001,
             inclination: 0,
             node: 0.5,

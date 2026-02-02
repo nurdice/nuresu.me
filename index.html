@@ -37,27 +37,26 @@
 
         .label {
             position: absolute;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.95);
             font-size: 16px;
             font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(56, 189, 248, 0.4);
             pointer-events: auto;
             cursor: pointer;
             transition: opacity 0.3s, transform 0.3s;
             transform: translate(-50%, -50%);
             white-space: nowrap;
-            background: rgba(0, 0, 0, 0.5);
+            background: transparent;
             padding: 4px 10px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(4px);
+            border: none;
+            backdrop-filter: none;
             text-align: center;
         }
 
         .label:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.5);
             transform: translate(-50%, -50%) scale(1.1);
+            text-shadow: 0 0 12px rgba(0,0,0,0.9), 0 0 25px rgba(56, 189, 248, 0.7);
         }
 
         .label.major {
@@ -66,6 +65,9 @@
             text-transform: uppercase;
             background: transparent;
             border: none;
+            backdrop-filter: none;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8), 0 0 20px rgba(56, 189, 248, 0.5);
+            color: #ffffff;
         }
 
         #overlay-panel {
@@ -94,6 +96,7 @@
             font-size: 36px;
             margin-bottom: 10px;
             background: linear-gradient(90deg, #38bdf8, #818cf8);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -187,7 +190,7 @@
 
         #sky-details {
             position: fixed;
-            top: 10%;
+            top: 5%;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -196,8 +199,9 @@
             pointer-events: none;
             z-index: 15;
             display: none;
-            width: 80%;
-            max-width: 700px;
+            width: 90%;
+            max-width: 800px;
+            height: 85%;
             animation: fadeIn 1s ease-out;
         }
         #sky-details h1 {
@@ -210,16 +214,17 @@
         #sky-content {
             font-size: 15px;
             line-height: 1.5;
-            background: rgba(15, 23, 42, 0.7);
-            padding: 25px 25px 100px 25px;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 20px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
-            white-space: pre-wrap;
             pointer-events: auto;
-            max-height: 70vh;
-            overflow-y: auto;
+            height: calc(100% - 120px);
+            overflow: hidden;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
         #sky-close {
             position: absolute;
@@ -241,6 +246,30 @@
         @keyframes simpleFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slowSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulseGlow { 0% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); } 50% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.9); } 100% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); } }
+        @keyframes charBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes charHover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes char3D { 
+            0% { transform: perspective(600px) rotateY(0deg) rotateX(0deg) scale(1); } 
+            25% { transform: perspective(600px) rotateY(90deg) rotateX(10deg) scale(1.1); } 
+            50% { transform: perspective(600px) rotateY(180deg) rotateX(0deg) scale(1.2) translateY(-10px); } 
+            75% { transform: perspective(600px) rotateY(270deg) rotateX(-10deg) scale(1.1); } 
+            100% { transform: perspective(600px) rotateY(360deg) rotateX(0deg) scale(1); } 
+        }
+        @keyframes expertGlow { 
+            0% { transform: perspective(600px) rotateY(0deg) scale(1); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5)); } 
+            50% { transform: perspective(600px) rotateY(180deg) scale(1.15); filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.8)); } 
+            100% { transform: perspective(600px) rotateY(360deg) scale(1); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5)); } 
+        }
+        @keyframes professionalFloat { 
+            0%, 100% { transform: perspective(400px) rotateY(0deg) translateY(0px); } 
+            33% { transform: perspective(400px) rotateY(120deg) translateY(-5px); } 
+            66% { transform: perspective(400px) rotateY(240deg) translateY(-3px); } 
+        }
+        @keyframes beginnerWobble { 
+            0%, 100% { transform: rotate(0deg) scale(1); } 
+            25% { transform: rotate(-5deg) scale(0.95); } 
+            75% { transform: rotate(5deg) scale(1.05); } 
+        }
 
         /* Mobile View Styles */
         #mobile-view {
@@ -481,7 +510,7 @@
         <button class="hud-btn" onclick="resetView()">⊙ Reset View</button>
         <button class="hud-btn" onclick="toggleSound()" id="sound-btn">🔇 Sound Off</button>
         <button class="hud-btn" onclick="toggleOrbits()" id="orbits-btn">🪐 Show Orbits</button>
-
+        <button class="hud-btn" onclick="goToPreviousView()" id="back-btn" style="display: none;">← Back</button>
         <button class="hud-btn" onclick="document.getElementById('pdf-modal').style.display='flex'">📄 PDF Resume</button>
     </div>
 
@@ -520,6 +549,27 @@
         const comets = [];
         const cometParticles = [];
         const lasers = [];
+        
+        // View history system variables (functions defined after camera creation)
+        const viewHistory = [];
+        let currentViewIndex = -1;
+        
+        // Background dimming system
+        let backgroundDimming = false;
+        const backgroundObjects = []; // Will store all planets/moons for dimming
+        
+        // Tour mode system
+        let tourMode = false;
+        let tourIndex = 0;
+        let tourSequence = [];
+        let tourTimer = null;
+        const TOUR_DURATION = 4000; // 4 seconds per stop
+        
+        // Gravitational visualization system
+        let gravityMode = false;
+        const gravityLines = [];
+        const gravityParticles = [];
+        let gravityAnimationFrame = 0;
 
         // === SETUP THREE.JS (BEFORE ANYTHING ELSE) ===
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -787,8 +837,81 @@
             controls.rotateSpeed = 0.5;
         }
 
+        // === VIEW HISTORY SYSTEM (AFTER CAMERA/CONTROLS CREATION) ===
+        function saveCurrentView() {
+            const currentView = {
+                cameraPosition: camera.position.clone(),
+                cameraTarget: controls.target.clone(),
+                focusedObject: focusedObject,
+                isCenterView: isCenterView,
+                timestamp: Date.now()
+            };
+            
+            // Remove any views after current index (when going back and then making new selection)
+            viewHistory.splice(currentViewIndex + 1);
+            
+            // Add new view
+            viewHistory.push(currentView);
+            currentViewIndex = viewHistory.length - 1;
+            
+            // Limit history to last 10 views
+            if (viewHistory.length > 10) {
+                viewHistory.shift();
+                currentViewIndex--;
+            }
+            
+            // Update back button visibility
+            updateBackButton();
+        }
+        
+        function goToPreviousView() {
+            if (currentViewIndex > 0) {
+                currentViewIndex--;
+                const previousView = viewHistory[currentViewIndex];
+                
+                // Restore previous view
+                focusedObject = previousView.focusedObject;
+                isCenterView = previousView.isCenterView;
+                
+                // Animate to previous camera position
+                gsap.to(camera.position, {
+                    x: previousView.cameraPosition.x,
+                    y: previousView.cameraPosition.y,
+                    z: previousView.cameraPosition.z,
+                    duration: 1.0
+                });
+                
+                gsap.to(controls.target, {
+                    x: previousView.cameraTarget.x,
+                    y: previousView.cameraTarget.y,
+                    z: previousView.cameraTarget.z,
+                    duration: 1.0
+                });
+                
+                // Close any open modals
+                document.getElementById('sky-details').style.display = 'none';
+                document.getElementById('overlay-panel').classList.remove('active');
+                
+                // Update back button visibility
+                updateBackButton();
+                
+                return true; // Successfully went back
+            }
+            return false; // No previous view available
+        }
+        
+        function updateBackButton() {
+            const backBtn = document.getElementById('back-btn');
+            if (backBtn) {
+                backBtn.style.display = (currentViewIndex > 0) ? 'block' : 'none';
+            }
+        }
+        
+        // Make goToPreviousView available globally
+        window.goToPreviousView = goToPreviousView;
+
         // === LIGHTING ===
-        const ambientLight = new THREE.AmbientLight(0x999999, 0.9);
+        const ambientLight = new THREE.AmbientLight(0xcccccc, 2.0); // Much brighter ambient light
         scene.remove(ambientLight);
         scene.add(ambientLight);
         
@@ -799,6 +922,19 @@
         sunLight.shadow.mapSize.height = 4096;
         scene.remove(sunLight);
         solarSystem.add(sunLight);
+
+        // Additional fill lights to make planets visible from all angles
+        const fillLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        fillLight1.position.set(500, 300, 500);
+        scene.add(fillLight1);
+
+        const fillLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
+        fillLight2.position.set(-500, 200, -300);
+        scene.add(fillLight2);
+
+        const fillLight3 = new THREE.DirectionalLight(0xffffff, 0.4);
+        fillLight3.position.set(0, -400, 600);
+        scene.add(fillLight3);
 
         // === MINIMAL GSAP REPLACEMENT ===
         const gsap = {
@@ -852,40 +988,40 @@
             return tex;
         }
 
-        // Red Experience planet with Jupiter-like atmosphere
+        // Red Experience planet with Jupiter-like atmosphere - BRIGHTER
         function drawRed(ctx, w, h) {
             const grad = ctx.createLinearGradient(0, 0, 0, h);
-            grad.addColorStop(0, '#5a1a1a');
-            grad.addColorStop(0.15, '#a02a2a');
-            grad.addColorStop(0.3, '#d93a3a');
-            grad.addColorStop(0.4, '#ff5555');
-            grad.addColorStop(0.5, '#ff4444');
-            grad.addColorStop(0.6, '#e63c3c');
-            grad.addColorStop(0.7, '#cc3333');
-            grad.addColorStop(0.85, '#8b2a2a');
-            grad.addColorStop(1, '#5a1a1a');
+            grad.addColorStop(0, '#8a2a2a'); // Brighter starting color
+            grad.addColorStop(0.15, '#d04a4a'); // Much brighter
+            grad.addColorStop(0.3, '#ff5a5a'); // Bright red
+            grad.addColorStop(0.4, '#ff7777'); // Even brighter
+            grad.addColorStop(0.5, '#ff6666');
+            grad.addColorStop(0.6, '#ff5555');
+            grad.addColorStop(0.7, '#ee4444');
+            grad.addColorStop(0.85, '#bb3333');
+            grad.addColorStop(1, '#8a2a2a');
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, w, h);
 
-            // Atmospheric bands (dark)
+            // Atmospheric bands (lighter)
             ctx.globalCompositeOperation = 'multiply';
             for(let i = 0; i < 18; i++) {
                 const y = (i / 18) * h;
-                ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.12 + 0.03})`;
+                ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.08 + 0.02})`; // Reduced darkness
                 ctx.fillRect(0, y, w, Math.random() * 25 + 12);
             }
 
-            // Large storm/vortex similar to Jupiter's Great Red Spot
+            // Large storm/vortex - brighter
             ctx.globalCompositeOperation = 'overlay';
-            ctx.fillStyle = 'rgba(180, 40, 40, 0.3)';
+            ctx.fillStyle = 'rgba(220, 60, 60, 0.4)'; // Brighter storm
             ctx.beginPath();
             ctx.ellipse(w * 0.62, h * 0.58, w * 0.2, h * 0.14, -0.3, 0, Math.PI * 2);
             ctx.fill();
 
-            // Atmospheric swirls
+            // Atmospheric swirls - brighter
             ctx.globalCompositeOperation = 'screen';
             for(let i = 0; i < 200; i++) {
-                ctx.fillStyle = `rgba(255,200,200,${Math.random() * 0.12})`;
+                ctx.fillStyle = `rgba(255,220,220,${Math.random() * 0.18})`; // Brighter swirls
                 ctx.beginPath();
                 ctx.ellipse(Math.random() * w, Math.random() * h, 50 + Math.random() * 130, 12 + Math.random() * 35, Math.random() * Math.PI, 0, Math.PI * 2);
                 ctx.fill();
@@ -893,7 +1029,7 @@
 
             // Bright highlights for atmospheric reflection
             for(let i = 0; i < 120; i++) {
-                ctx.fillStyle = `rgba(255,150,150,${Math.random() * 0.18})`;
+                ctx.fillStyle = `rgba(255,180,180,${Math.random() * 0.25})`; // Brighter highlights
                 ctx.beginPath();
                 ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 18 + 3, 0, Math.PI * 2);
                 ctx.fill();
@@ -934,26 +1070,26 @@
         // Venus - Brighter golden yellow
         function drawVenus(ctx, w, h) {
             const grad = ctx.createLinearGradient(0, 0, 0, h);
-            grad.addColorStop(0, '#b39a5a');
-            grad.addColorStop(0.15, '#f5d86f');
-            grad.addColorStop(0.3, '#ffeb99');
-            grad.addColorStop(0.5, '#ffff99');
+            grad.addColorStop(0, '#d4b85a'); // Much brighter starting color
+            grad.addColorStop(0.15, '#ffeb8f'); // Brighter
+            grad.addColorStop(0.3, '#ffffbb'); // Brighter
+            grad.addColorStop(0.5, '#ffffbb'); // Brighter
             grad.addColorStop(0.7, '#ffeb99');
             grad.addColorStop(0.85, '#f5d86f');
-            grad.addColorStop(1, '#b39a5a');
+            grad.addColorStop(1, '#d4b85a'); // Brighter end
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, w, h);
 
             ctx.globalCompositeOperation = 'multiply';
             for(let i = 0; i < 10; i++) {
                 const y = (i / 10) * h;
-                ctx.fillStyle = `rgba(200, 160, 80, ${Math.random() * 0.08 + 0.02})`;
+                ctx.fillStyle = `rgba(200, 160, 80, ${Math.random() * 0.06 + 0.01})`; // Reduced darkness
                 ctx.fillRect(0, y, w, Math.random() * 30 + 15);
             }
 
             ctx.globalCompositeOperation = 'overlay';
             for(let i = 0; i < 150; i++) {
-                ctx.fillStyle = `rgba(255, 240, 180, ${Math.random() * 0.2})`;
+                ctx.fillStyle = `rgba(255, 240, 180, ${Math.random() * 0.3})`; // Brighter overlay
                 ctx.beginPath();
                 ctx.ellipse(Math.random() * w, Math.random() * h, 70 + Math.random() * 140, 20 + Math.random() * 40, 0, 0, Math.PI * 2);
                 ctx.fill();
@@ -1256,32 +1392,32 @@
             }
         }
 
-        // Blue Education planet texture
+        // Blue Education planet texture - BRIGHTER
         function drawBlue(ctx, w, h) {
             const grad = ctx.createLinearGradient(0, 0, 0, h);
-            grad.addColorStop(0, '#0a2a5a');
-            grad.addColorStop(0.15, '#1a5a9a');
-            grad.addColorStop(0.3, '#2a7acc');
-            grad.addColorStop(0.5, '#4a9aff');
-            grad.addColorStop(0.7, '#2a7acc');
-            grad.addColorStop(0.85, '#1a5a9a');
-            grad.addColorStop(1, '#0a2a5a');
+            grad.addColorStop(0, '#2a4a8a'); // Much brighter starting blue
+            grad.addColorStop(0.15, '#4a7acc'); // Brighter
+            grad.addColorStop(0.3, '#5a9aff'); // Bright blue
+            grad.addColorStop(0.5, '#6abaff'); // Even brighter
+            grad.addColorStop(0.7, '#5a9aff');
+            grad.addColorStop(0.85, '#4a7acc');
+            grad.addColorStop(1, '#2a4a8a');
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, w, h);
 
-            // Water/ocean patterns
+            // Water/ocean patterns - lighter
             ctx.globalCompositeOperation = 'multiply';
             for(let i = 0; i < 20; i++) {
-                ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.15 + 0.05})`;
+                ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.1 + 0.02})`; // Reduced darkness
                 ctx.beginPath();
                 ctx.arc(Math.random() * w, Math.random() * h, 50 + Math.random() * 150, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            // Cloud highlights
+            // Cloud highlights - brighter
             ctx.globalCompositeOperation = 'screen';
             for(let i = 0; i < 100; i++) {
-                ctx.fillStyle = `rgba(150, 200, 255, ${Math.random() * 0.15})`;
+                ctx.fillStyle = `rgba(180, 220, 255, ${Math.random() * 0.25})`; // Brighter clouds
                 ctx.beginPath();
                 ctx.arc(Math.random() * w, Math.random() * h, 20 + Math.random() * 60, 0, Math.PI * 2);
                 ctx.fill();
@@ -2064,57 +2200,86 @@
             document.getElementById('overlay-panel').classList.remove('active');
         }
 
-        // === BRIGHTER SUN WITH YELLOW-ORANGE GRADIENT ===
-        // Realistic Sun Texture with granulation and flares
+        // === BRIGHT GLOWING SUN LIKE A FIREBALL ===
         const sunGeo = new THREE.SphereGeometry(85, 256, 256);
-        const sunTexture = createCanvasTexture(1024, 1024, (ctx, w, h) => {
-            // Base plasma layer
-            ctx.fillStyle = '#ff9900';
+        
+        // Create a bright, glowing sun texture
+        const sunTexture = createCanvasTexture(2048, 2048, (ctx, w, h) => {
+            // Bright radial gradient base - much brighter colors
+            const centerGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+            centerGrad.addColorStop(0, '#ffffff');    // Pure white center (hottest)
+            centerGrad.addColorStop(0.1, '#ffffcc'); // Very bright yellow
+            centerGrad.addColorStop(0.3, '#ffff66'); // Bright yellow
+            centerGrad.addColorStop(0.5, '#ffcc33'); // Golden yellow
+            centerGrad.addColorStop(0.7, '#ff9933'); // Orange
+            centerGrad.addColorStop(0.9, '#ff6600'); // Deep orange
+            centerGrad.addColorStop(1, '#ff3300');   // Red edge
+            ctx.fillStyle = centerGrad;
             ctx.fillRect(0, 0, w, h);
             
-            // Granulation (thousands of small cells)
+            // Add bright plasma effects
             ctx.globalCompositeOperation = 'screen';
-            for(let i=0; i<5000; i++) {
-                ctx.fillStyle = `rgba(255, 220, 0, ${Math.random() * 0.15})`;
+            for(let i = 0; i < 12000; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 6 + 1;
+                const intensity = Math.random() * 0.8 + 0.2;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${intensity})`;
                 ctx.beginPath();
-                ctx.arc(Math.random()*w, Math.random()*h, Math.random()*4+1, 0, Math.PI*2);
+                ctx.arc(x, y, size, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            // Large convection cells/Turbulence
-            ctx.globalCompositeOperation = 'overlay';
-            for(let i=0; i<400; i++) {
-                ctx.fillStyle = `rgba(255, 100, 0, ${Math.random() * 0.1})`;
+            // Add bright flares and hot spots
+            ctx.globalCompositeOperation = 'lighter';
+            for(let i = 0; i < 300; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 30 + 10;
+                const intensity = Math.random() * 0.6 + 0.2;
+                
+                ctx.fillStyle = `rgba(255, 255, 200, ${intensity})`;
                 ctx.beginPath();
-                ctx.arc(Math.random()*w, Math.random()*h, Math.random()*30+10, 0, Math.PI*2);
+                ctx.arc(x, y, size, 0, Math.PI * 2);
                 ctx.fill();
             }
             
-            // Sunspots (Darker, cooler regions)
+            // Add some darker spots for contrast (but still bright)
             ctx.globalCompositeOperation = 'multiply';
-            for(let i=0; i<15; i++) {
-                ctx.fillStyle = `rgba(100, 50, 0, ${Math.random() * 0.5})`;
+            for(let i = 0; i < 15; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 25 + 10;
+                
+                ctx.fillStyle = `rgba(200, 150, 100, ${Math.random() * 0.3 + 0.1})`;
                 ctx.beginPath();
-                const r = Math.random()*20+5;
-                ctx.ellipse(Math.random()*w, Math.random()*h, r, r*0.8, Math.random(), 0, Math.PI*2);
+                ctx.arc(x, y, size, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            // Flares/Active Regions (Bright spots)
-            ctx.globalCompositeOperation = 'color-dodge';
-            for(let i=0; i<25; i++) {
-                ctx.fillStyle = `rgba(255, 255, 200, ${Math.random() * 0.6})`;
+            // Add super bright core flares
+            ctx.globalCompositeOperation = 'screen';
+            for(let i = 0; i < 80; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 15 + 3;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.9 + 0.1})`;
                 ctx.beginPath();
-                ctx.arc(Math.random()*w, Math.random()*h, Math.random()*15+2, 0, Math.PI*2);
+                ctx.arc(x, y, size, 0, Math.PI * 2);
                 ctx.fill();
             }
         });
         
+        // Bright emissive material that glows like a light bulb
         const sunMat = new THREE.MeshBasicMaterial({ 
             map: sunTexture,
             toneMapped: false,
-            fog: false
+            fog: false,
+            transparent: false
         });
+        
         const sun = new THREE.Mesh(sunGeo, sunMat);
         sun.userData = {
             name: RESUME_DATA.name,
@@ -2127,45 +2292,27 @@
         // Make Sun clickable
         clickableObjects.push(sun);
 
-        // Sun Glow (Corona) for visibility at distance
-        const sunGlowTexture = createCanvasTexture(512, 512, (ctx, w, h) => {
-            const cx = w / 2;
-            const cy = h / 2;
-            const r = w / 2;
-            const grad = ctx.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
-            grad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-            grad.addColorStop(0.2, 'rgba(255, 200, 50, 0.4)');
-            grad.addColorStop(0.5, 'rgba(255, 120, 0, 0.1)');
-            grad.addColorStop(1, 'rgba(255, 100, 0, 0)');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, w, h);
-        });
-        const sunGlowMat = new THREE.SpriteMaterial({ 
-            map: sunGlowTexture, 
-            color: 0xffaa00, 
-            transparent: true, 
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-            fog: false
-        });
-        const sunGlow = new THREE.Sprite(sunGlowMat);
-        sunGlow.scale.set(800, 800, 1);
-        solarSystem.add(sunGlow);
+        // Clean bright sun without corona layers - no banding
+        // Just the sun itself with enhanced brightness and glow
 
-        // Brighter triple-color sun lights
-        const sunYellowLight = new THREE.PointLight(0xffff00, 5, 2000);
-        sunYellowLight.position.set(0, 0, 0);
-        solarSystem.add(sunYellowLight);
+        // Intense sun lighting like a bright bulb
+        const sunCoreLight = new THREE.PointLight(0xffffff, 8, 2500);
+        sunCoreLight.position.set(0, 0, 0);
+        solarSystem.add(sunCoreLight);
 
-        const sunGoldenLight = new THREE.PointLight(0xffcc00, 3, 1500);
-        sunGoldenLight.position.set(0, 0, 0);
-        solarSystem.add(sunGoldenLight);
+        const sunBrightLight = new THREE.PointLight(0xffffcc, 6, 2000);
+        sunBrightLight.position.set(0, 0, 0);
+        solarSystem.add(sunBrightLight);
 
-        const sunOrangeLight = new THREE.PointLight(0xff9900, 2, 1000);
-        sunOrangeLight.position.set(0, 0, 0);
-        solarSystem.add(sunOrangeLight);
+        const sunWarmLight = new THREE.PointLight(0xffdd88, 4, 1500);
+        sunWarmLight.position.set(0, 0, 0);
+        solarSystem.add(sunWarmLight);
 
-        createLabel("NUR<br><span style='font-size:0.6em; opacity:0.8'>BA</span>", sun, true);
+        const sunAmbientLight = new THREE.PointLight(0xffaa44, 2, 1000);
+        sunAmbientLight.position.set(0, 0, 0);
+        solarSystem.add(sunAmbientLight);
+
+        createLabel("NUR<br><span style='font-size:0.6em; opacity:0.8; color: #38bdf8;'>Lead Business Analyst</span>", sun, true);
 
         // === IMPROVED STARFIELD WITH CIRCULAR STARS ===
         const starsGeo = new THREE.BufferGeometry();
@@ -2372,9 +2519,9 @@
             
             const material = new THREE.MeshPhongMaterial({
                 map: texture,
-                shininess: 20,
-                emissive: 0x050505,
-                emissiveIntensity: 0.05,
+                shininess: 40,
+                emissive: 0x333333, // Much stronger self-illumination
+                emissiveIntensity: 0.4, // Very bright emissive glow
                 side: THREE.FrontSide,
                 flatShading: false
             });
@@ -2411,6 +2558,7 @@
             objects.push({ type: 'ellipticalOrbit', pivot: planetPivot, radial: radialGroup, a: config.distance, e: config.eccentricity, speed: config.speed, theta: initialTheta });
             objects.push({ mesh: planet, speed: 0.003, type: 'rotate' });
             clickableObjects.push(planet);
+            backgroundObjects.push(planet); // Add planet to background objects for dimming
             createLabel(data.name, planet);
 
             // Rings for Saturn
@@ -2458,9 +2606,9 @@
 
                     const moonMat = new THREE.MeshPhongMaterial({
                         map: specificTex || moonTexture,
-                        shininess: 4,
-                        emissive: 0x151515,
-                        emissiveIntensity: 0.15,
+                        shininess: 25,
+                        emissive: 0x444444, // Much stronger moon self-illumination
+                        emissiveIntensity: 0.5, // Very bright moons
                         side: THREE.FrontSide
                     });
                     const moon = new THREE.Mesh(moonGeo, moonMat);
@@ -2491,6 +2639,7 @@
                     });
                     objects.push({ mesh: moon, speed: 0.005, type: 'rotate' });
                     clickableObjects.push(moon);
+                    backgroundObjects.push(moon); // Add moon to background objects for dimming
                     createLabel(moonData.name, moon);
                 });
             }
@@ -2557,7 +2706,9 @@
             if (intersects.length > 0) {
                 // Traverse up to find the object with userData (like the spaceship group)
                 let target = intersects[0].object;
-                while(target.parent && !target.userData.isSpaceship && !target.userData.isPlanet && !target.userData.isMoon) { target = target.parent; }
+                while(target.parent && !target.userData.isSpaceship && !target.userData.isPlanet && !target.userData.isMoon && !target.userData.isSun) { 
+                    target = target.parent; 
+                }
                 
                 if (target.userData.isSpaceship) {
                     fireLasers(target);
@@ -2565,13 +2716,31 @@
                     focusOnObject(target);
                 }
             } else {
-                // Clicked on empty space
-                if (isCenterView) {
+                // Clicked on empty space - try to go back to previous view
+                const skyDetails = document.getElementById('sky-details');
+                const overlayPanel = document.getElementById('overlay-panel');
+                
+                // If modals are open, close them first
+                if (skyDetails.style.display === 'block') {
                     closeSkyModal();
-                } else {
-                    focusedObject = null;
+                } else if (overlayPanel.classList.contains('active')) {
                     closeOverlay();
-                    document.getElementById('sky-details').style.display = 'none';
+                    // For overlay panel (standard moons), return to planet if we were on a moon
+                    if (focusedObject && focusedObject.userData.isMoon) {
+                        const parentPlanet = focusedObject.userData.parentPlanet;
+                        if (parentPlanet) {
+                            setTimeout(() => focusOnObject(parentPlanet), 100);
+                        }
+                    }
+                } else {
+                    // No modals open, try to go back to previous view
+                    const wentBack = goToPreviousView();
+                    if (!wentBack) {
+                        // No previous view available, just unselect current object
+                        focusedObject = null;
+                        undimBackground(); // Undim background when unselecting
+                        // Don't reset view completely, just stop following
+                    }
                 }
             }
         }
@@ -2602,11 +2771,136 @@
             }
         });
 
+        // === BACKGROUND DIMMING SYSTEM ===
+        function dimBackground(focusedPlanet) {
+            if (backgroundDimming) return; // Already dimmed
+            
+            backgroundDimming = true;
+            
+            // Dim all objects except the focused planet and its moons
+            backgroundObjects.forEach(obj => {
+                if (obj === focusedPlanet) return; // Don't dim the focused planet
+                
+                // Don't dim moons of the focused planet
+                if (obj.userData.isMoon && obj.userData.parentPlanet === focusedPlanet) return;
+                
+                // Store original material properties if not already stored
+                if (!obj.userData.originalMaterial) {
+                    obj.userData.originalMaterial = {
+                        emissive: obj.material.emissive.clone(),
+                        emissiveIntensity: obj.material.emissiveIntensity,
+                        opacity: obj.material.opacity || 1.0
+                    };
+                }
+                
+                // Different dimming levels: planets vs moons of other planets
+                let dimFactor, opacityFactor;
+                if (obj.userData.isMoon) {
+                    // Moons of other planets: make them nearly invisible (like real space)
+                    dimFactor = 0.02; // Very dim
+                    opacityFactor = 0.05; // Nearly transparent
+                } else {
+                    // Other planets: dim but still visible (like distant planets)
+                    dimFactor = 0.08; // Dim but visible
+                    opacityFactor = 0.2; // More visible than moons
+                }
+                
+                // Dim the object by reducing emissive properties and opacity
+                gsap.to(obj.material.emissive, {
+                    r: obj.userData.originalMaterial.emissive.r * dimFactor,
+                    g: obj.userData.originalMaterial.emissive.g * dimFactor,
+                    b: obj.userData.originalMaterial.emissive.b * dimFactor,
+                    duration: 1.0
+                });
+                
+                gsap.to(obj.material, {
+                    emissiveIntensity: obj.userData.originalMaterial.emissiveIntensity * dimFactor,
+                    duration: 1.0
+                });
+                
+                // Make material transparent if it wasn't already
+                if (!obj.material.transparent) {
+                    obj.material.transparent = true;
+                }
+                
+                gsap.to(obj.material, {
+                    opacity: obj.userData.originalMaterial.opacity * opacityFactor,
+                    duration: 1.0
+                });
+            });
+            
+            // Also dim labels of background objects
+            labels.forEach(labelItem => {
+                const obj = labelItem.object;
+                if (obj === focusedPlanet) return; // Don't dim focused planet label
+                if (obj.userData.isMoon && obj.userData.parentPlanet === focusedPlanet) return; // Don't dim focused planet's moon labels
+                
+                // Store original label opacity if not stored
+                if (!labelItem.originalOpacity) {
+                    labelItem.originalOpacity = parseFloat(window.getComputedStyle(labelItem.div).opacity) || 1.0;
+                }
+                
+                // Dim labels of background objects
+                let labelOpacity;
+                if (obj.userData.isMoon) {
+                    labelOpacity = 0.1; // Very dim for background moons
+                } else {
+                    labelOpacity = 0.3; // Dim for background planets
+                }
+                
+                gsap.to(labelItem.div, {
+                    opacity: labelOpacity,
+                    duration: 1.0
+                });
+            });
+        }
+        
+        function undimBackground() {
+            if (!backgroundDimming) return; // Not dimmed
+            
+            backgroundDimming = false;
+            
+            // Restore all objects to their original brightness
+            backgroundObjects.forEach(obj => {
+                if (!obj.userData.originalMaterial) return; // No original material stored
+                
+                // Restore original material properties
+                gsap.to(obj.material.emissive, {
+                    r: obj.userData.originalMaterial.emissive.r,
+                    g: obj.userData.originalMaterial.emissive.g,
+                    b: obj.userData.originalMaterial.emissive.b,
+                    duration: 1.0
+                });
+                
+                gsap.to(obj.material, {
+                    emissiveIntensity: obj.userData.originalMaterial.emissiveIntensity,
+                    opacity: obj.userData.originalMaterial.opacity,
+                    duration: 1.0
+                });
+            });
+            
+            // Restore all labels to their original opacity
+            labels.forEach(labelItem => {
+                if (labelItem.originalOpacity !== undefined) {
+                    gsap.to(labelItem.div, {
+                        opacity: labelItem.originalOpacity,
+                        duration: 1.0
+                    });
+                }
+            });
+        }
+
         // === INTERACTION HELPERS & OVERLAY ===
         // add focus / overlay functions (show moon surface + details)
         function focusOnObject(object) {
+            // Save current view before changing (unless it's the same object)
+            if (object !== focusedObject) {
+                saveCurrentView();
+            }
+            
         	if (object && object.userData && (object.userData.isSun || object.userData.viewType === 'center')) {
                 focusedObject = null; // Disable auto-tracking for Center view
+                undimBackground(); // Undim background when focusing on sun
 
                 if (!isCenterView) {
                     previousCameraPos.copy(camera.position);
@@ -2645,27 +2939,31 @@
                 }
         	}
 
-        	// also ensure controls target will follow (animate a bit)
+        	// Ensure controls target will follow the object continuously
         	if (object) {
-        		// if the clicked object is a mesh inside a pivot, use world position
+        		// Get world position for initial targeting
         		const targetPos = new THREE.Vector3();
         		object.getWorldPosition(targetPos);
-        		controls.target.copy(targetPos);
-                
-                // If it's a moon, zoom in close
+        		
+                // If it's a moon, zoom in close and don't dim background
                 if (object.userData.isMoon) {
+                    undimBackground(); // Undim when focusing on moon
                     const offset = new THREE.Vector3(object.geometry.parameters.radius * 4, 2, 2);
                     const camPos = targetPos.clone().add(offset);
                     gsap.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: 1.5 });
                 }
-                // If it's a planet, zoom in comfortably to see moons
+                // If it's a planet, zoom in comfortably to see moons and dim background
                 else if (object.userData.isPlanet) {
+                    dimBackground(object); // Dim background when focusing on planet
                     const dist = (object.userData.size || 5) * 3 + 15;
                     const currentDir = camera.position.clone().sub(targetPos).normalize();
                     const newPos = targetPos.clone().add(currentDir.multiplyScalar(dist));
                     
                     gsap.to(camera.position, { x: newPos.x, y: newPos.y, z: newPos.z, duration: 1.5 });
                 }
+                
+                // Set initial target but don't animate it - let the animation loop handle continuous following
+                controls.target.copy(targetPos);
         	}
         }
 
@@ -2677,22 +2975,57 @@
             titleEl.textContent = title;
             
             let html = `
-                <div style="text-align: left; max-width: 600px; margin: 0 auto; font-size: 15px; white-space: normal;">
-                    ${isSun ? `<div style="text-align:center; margin-bottom: 15px;">
-                        <img src="${RESUME_DATA.profileImage}" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid #38bdf8; object-fit: cover; animation: pulseGlow 3s ease-in-out infinite;">
-                    </div>` : ''}
-                    ${subTitle ? `<h3 style="color: #38bdf8; margin-top: 0; text-align: center;">${subTitle}</h3>` : ''}
+                <div style="display: flex; flex-direction: column; height: 100%; max-height: 100%;">
+                    ${isSun ? `
+                    <!-- Profile Header -->
+                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px; flex-shrink: 0;">
+                        <img src="${RESUME_DATA.profileImage}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid #38bdf8; object-fit: cover; animation: pulseGlow 3s ease-in-out infinite; margin-right: 20px;">
+                        <div style="text-align: left;">
+                            <h3 style="color: #38bdf8; margin: 0 0 5px 0; font-size: 24px;">${subTitle}</h3>
+                            <div style="color: #94a3b8; font-size: 14px;">Lead Business Analyst</div>
+                        </div>
+                    </div>
                     
-                    ${isSun ? `<div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1);">
-                        <p style="margin: 5px 0;"><strong>📧 Email:</strong> <a href="mailto:${RESUME_DATA.contact.email}" style="color: #fff; text-decoration: none;">${RESUME_DATA.contact.email}</a></p>
-                        <p style="margin: 5px 0;"><strong>📱 Phone:</strong> ${RESUME_DATA.contact.phone}</p>
-                        <p style="margin: 5px 0;"><strong>📍 Location:</strong> ${RESUME_DATA.contact.location}</p>
-                        <p style="margin: 5px 0;"><strong>🔗 LinkedIn:</strong> <a href="https://${RESUME_DATA.contact.linkedin}" target="_blank" style="color: #38bdf8; text-decoration: none;">${RESUME_DATA.contact.linkedin}</a></p>
-                        <p style="margin: 5px 0;"><strong>🌐 Website:</strong> <a href="https://${RESUME_DATA.contact.website}" target="_blank" style="color: #38bdf8; text-decoration: none;">${RESUME_DATA.contact.website}</a></p>
-                    </div>` : ''}
+                    <!-- Contact Info Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px; flex-shrink: 0;">
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 12px;">
+                            <strong>📧</strong> <a href="mailto:${RESUME_DATA.contact.email}" style="color: #38bdf8; text-decoration: none;">${RESUME_DATA.contact.email}</a>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 12px;">
+                            <strong>📱</strong> ${RESUME_DATA.contact.phone}
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 12px;">
+                            <strong>📍</strong> ${RESUME_DATA.contact.location}
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 12px;">
+                            <strong>🔗</strong> <a href="https://${RESUME_DATA.contact.linkedin}" target="_blank" style="color: #38bdf8; text-decoration: none;">LinkedIn</a>
+                        </div>
+                    </div>
+                    ` : ''}
                     
-                    ${isSun ? `<h4 style="color: #e2e8f0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; margin-bottom: 15px;">About Me</h4>` : ''}
-                    <p style="line-height: 1.6; color: #cbd5e1; text-align: center; font-size: 18px;">${content}</p>
+                    <!-- Summary Content -->
+                    <div style="flex: 1; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; overflow-y: auto; min-height: 0;">
+                        ${isSun ? '<h4 style="color: #e2e8f0; margin: 0 0 15px 0; text-align: center;">Professional Summary</h4>' : ''}
+                        <p style="line-height: 1.6; color: #cbd5e1; text-align: ${isSun ? 'left' : 'center'}; font-size: ${isSun ? '14px' : '18px'}; margin: 0;">${content}</p>
+                    </div>
+                    
+                    ${isSun ? `
+                    <!-- Quick Stats -->
+                    <div style="display: flex; justify-content: space-around; margin-top: 15px; flex-shrink: 0;">
+                        <div style="text-align: center;">
+                            <div style="color: #38bdf8; font-size: 20px; font-weight: bold;">18+</div>
+                            <div style="color: #94a3b8; font-size: 10px;">Years Experience</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #38bdf8; font-size: 20px; font-weight: bold;">4</div>
+                            <div style="color: #94a3b8; font-size: 10px;">Languages</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="color: #38bdf8; font-size: 20px; font-weight: bold;">10+</div>
+                            <div style="color: #94a3b8; font-size: 10px;">Major Projects</div>
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
             
@@ -2701,8 +3034,162 @@
             document.getElementById('overlay-panel').classList.remove('active');
         }
 
-        // show moon UI panel with surface image and text
+        // Enhanced modal system for Languages and Education planets
         function showMoonDetails(moon) {
+            const parentPlanet = moon.userData.parentPlanet;
+            const parentName = parentPlanet && parentPlanet.userData ? parentPlanet.userData.name : '';
+            
+            // Check if this is a Language or Education moon for enhanced modal
+            if (parentName === 'Languages' || parentName === 'Education') {
+                showEnhancedModal(moon, parentName);
+            } else {
+                showStandardModal(moon);
+            }
+        }
+
+        // Enhanced modal for Languages and Education with 3D characters and maps
+        function showEnhancedModal(moon, planetType) {
+            const skyDetails = document.getElementById('sky-details');
+            const titleEl = document.getElementById('sky-title');
+            const contentEl = document.getElementById('sky-content');
+            
+            const moonName = moon.userData.name || 'Moon';
+            titleEl.textContent = moonName;
+            
+            let html = '';
+            
+            if (planetType === 'Languages') {
+                // Compact Language Modal with 3D Characters
+                const proficiencyLevel = moon.userData.proficiencyLevel || getProficiencyLevel(moon.userData.details);
+                const character3D = moon.userData.character || getCharacterForProficiency(proficiencyLevel, moonName);
+                const animation = moon.userData.characterAnim || getAnimationForProficiency(proficiencyLevel);
+                const skills = moon.userData.skills || {};
+                
+                // Extract key details from the description
+                const details = moon.userData.details || '';
+                const keyPoints = details.split('\n').filter(line => line.trim() && !line.includes('Proficiency')).slice(0, 2);
+                
+                html = `
+                    <div style="display: flex; flex-direction: column; height: 100%; max-height: 70vh; padding: 15px;">
+                        <!-- Top Section: Character and Level -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                            <div style="flex: 1; text-align: center;">
+                                <div style="font-size: 80px; animation: ${animation} infinite; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.5)); position: relative;">
+                                    ${character3D}
+                                    <div style="position: absolute; top: -5px; right: -5px; background: linear-gradient(45deg, #ff6b6b, #ffd93d); border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                                        ${getProficiencyBadge(proficiencyLevel)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="flex: 2; padding-left: 20px;">
+                                <h3 style="color: #38bdf8; margin: 0 0 8px 0; font-size: 20px;">${proficiencyLevel} Level</h3>
+                                <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; font-size: 14px; color: #e2e8f0; line-height: 1.4;">
+                                    ${keyPoints.join(' ')}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skills Grid - Compact -->
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: auto;">
+                            ${['speaking', 'reading', 'writing', 'comprehension'].map((skill, index) => {
+                                const icons = ['🗣️', '📖', '✍️', '👂'];
+                                const labels = ['Speaking', 'Reading', 'Writing', 'Listening'];
+                                const score = skills[skill] || parseInt(getProficiencyScore(proficiencyLevel, skill));
+                                return `
+                                <div style="background: rgba(56, 189, 248, 0.1); border-radius: 8px; padding: 10px; text-align: center; border: 1px solid rgba(56, 189, 248, 0.2);">
+                                    <div style="font-size: 20px; margin-bottom: 5px;">${icons[index]}</div>
+                                    <div style="font-size: 10px; color: #94a3b8; margin-bottom: 3px;">${labels[index]}</div>
+                                    <div style="color: #38bdf8; font-weight: bold; font-size: 14px;">${score}/10</div>
+                                    <div style="background: rgba(56, 189, 248, 0.2); height: 3px; border-radius: 2px; margin-top: 3px;">
+                                        <div style="background: #38bdf8; height: 100%; width: ${score * 10}%; border-radius: 2px; transition: width 0.5s ease;"></div>
+                                    </div>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (planetType === 'Education') {
+                // Compact Education Modal with side-by-side layout
+                const institution = moon.userData.institution || '';
+                const degree = moon.userData.degree || '';
+                const field = moon.userData.field || '';
+                const duration = moon.userData.duration || '';
+                const location = moon.userData.location || '';
+                const achievements = moon.userData.achievements || [];
+                
+                html = `
+                    <div style="display: flex; flex-direction: column; height: 100%; max-height: 70vh; padding: 15px;">
+                        <!-- Header with Icon and Basic Info -->
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <div style="font-size: 50px; margin-right: 15px; animation: charHover 3s infinite ease-in-out;">🎓</div>
+                            <div style="flex: 1;">
+                                <h3 style="color: #38bdf8; margin: 0 0 5px 0; font-size: 18px;">${degree}</h3>
+                                <p style="color: #e2e8f0; margin: 0 0 3px 0; font-size: 14px;">${field}</p>
+                                <p style="color: #94a3b8; margin: 0; font-size: 12px;">${duration} • ${location}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Main Content: Two Columns -->
+                        <div style="display: flex; gap: 15px; flex: 1; min-height: 0;">
+                            <!-- Left Column: Institution & Achievements -->
+                            <div style="flex: 1; display: flex; flex-direction: column;">
+                                <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 10px;">
+                                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                        <span style="font-size: 16px; margin-right: 8px;">🏛️</span>
+                                        <span style="color: #38bdf8; font-weight: bold; font-size: 14px;">${institution}</span>
+                                    </div>
+                                </div>
+                                
+                                ${achievements.length > 0 ? `
+                                <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; flex: 1; overflow-y: auto;">
+                                    <h4 style="color: #38bdf8; margin: 0 0 8px 0; font-size: 14px; display: flex; align-items: center;">
+                                        <span style="margin-right: 5px;">🏆</span>
+                                        Highlights
+                                    </h4>
+                                    <div style="color: #e2e8f0; font-size: 11px; line-height: 1.5; text-align: left;">
+                                        ${achievements.map(achievement => `
+                                            <div style="display: flex; align-items: flex-start; margin-bottom: 6px; padding: 4px 0; text-align: left;">
+                                                <span style="color: #38bdf8; margin-right: 6px; margin-top: 1px; flex-shrink: 0;">•</span>
+                                                <span style="flex: 1; text-align: left;">${achievement}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+                            
+                            <!-- Right Column: Map -->
+                            ${moon.userData.mapQuery ? `
+                            <div style="flex: 1; display: flex; flex-direction: column;">
+                                <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; overflow: hidden; flex: 1;">
+                                    <div style="background: rgba(56, 189, 248, 0.2); padding: 8px; text-align: center; color: #38bdf8; font-weight: bold; font-size: 12px;">
+                                        📍 Location
+                                    </div>
+                                    <iframe width="100%" height="100%" frameborder="0" style="border:0; filter: hue-rotate(200deg) saturate(0.8); min-height: 150px;" 
+                                        src="https://maps.google.com/maps?q=${encodeURIComponent(moon.userData.mapQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed">
+                                    </iframe>
+                                </div>
+                            </div>
+                            ` : `
+                            <div style="flex: 1; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; overflow-y: auto;">
+                                <div style="color: #e2e8f0; font-size: 12px; line-height: 1.4;">
+                                    ${moon.userData.details ? moon.userData.details.split('\n').slice(2).join('\n') : ''}
+                                </div>
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            contentEl.innerHTML = html;
+            skyDetails.style.display = 'block';
+            document.getElementById('overlay-panel').classList.remove('active');
+        }
+
+        // Standard modal for other planets/moons
+        function showStandardModal(moon) {
             const panel = document.getElementById('overlay-panel');
             const title = document.getElementById('panel-title');
             const subtitle = document.getElementById('panel-subtitle');
@@ -2723,12 +3210,75 @@
             } else if (tex && tex.image && tex.image.src) {
                 imgSrc = tex.image.src;
             }
-
-            const detailsText = moon.userData.moonDetails || moon.userData.details || '';
+            
+            const detailsText = moon.userData.moonDetails || moon.userData.details || moon.userData.description || '';
             const imgHtml = imgSrc ? `<img src="${imgSrc}" style="width:100%;border-radius:8px;margin-bottom:12px;display:block">` : '';
             content.innerHTML = `${imgHtml}<div style="white-space:pre-wrap;margin:0;font-family:inherit;color:#dbeafe">${detailsText}</div>`;
 
             panel.classList.add('active');
+        }
+
+        // Helper functions for language proficiency
+        function getProficiencyLevel(details) {
+            if (!details) return 'Basic';
+            const text = details.toLowerCase();
+            if (text.includes('native')) return 'Native';
+            if (text.includes('professional') || text.includes('fluent')) return 'Professional';
+            if (text.includes('intermediate')) return 'Intermediate';
+            return 'Basic';
+        }
+
+        function getCharacterForProficiency(level, language) {
+            const characters = {
+                'Native': {
+                    'Hindi': '🧙‍♂️', // Wise sage for native Hindi
+                    'English': '👨‍🏫', // Professor for native English
+                    'default': '🧠' // Brain for native level
+                },
+                'Professional': {
+                    'Hindi': '👨‍💼', // Business person
+                    'English': '🕴️', // Professional figure
+                    'default': '👨‍💻' // Professional worker
+                },
+                'Intermediate': {
+                    'default': '👨‍🎓' // Graduate student
+                },
+                'Basic': {
+                    'default': '👶' // Learning/beginner
+                }
+            };
+            
+            return characters[level]?.[language] || characters[level]?.['default'] || '👨‍🎓';
+        }
+
+        function getAnimationForProficiency(level) {
+            const animations = {
+                'Native': 'char3D 3s ease-in-out',
+                'Professional': 'char3D 4s ease-in-out',
+                'Intermediate': 'charHover 2s ease-in-out',
+                'Basic': 'charBounce 1.5s ease-in-out'
+            };
+            return animations[level] || 'charBounce 1.5s ease-in-out';
+        }
+
+        function getProficiencyBadge(level) {
+            const badges = {
+                'Native': '⭐',
+                'Professional': '💼',
+                'Intermediate': '📚',
+                'Basic': '🌱'
+            };
+            return badges[level] || '📖';
+        }
+
+        function getProficiencyScore(level, skill) {
+            const scores = {
+                'Native': { speaking: '10', reading: '10', writing: '10', comprehension: '10' },
+                'Professional': { speaking: '9', reading: '9', writing: '8', comprehension: '10' },
+                'Intermediate': { speaking: '7', reading: '7', writing: '6', comprehension: '8' },
+                'Basic': { speaking: '5', reading: '6', writing: '4', comprehension: '6' }
+            };
+            return scores[level]?.[skill] || '5';
         }
 
         // close overlay
@@ -2738,7 +3288,10 @@
         }
 
         function closeSkyModal() {
+            document.getElementById('sky-details').style.display = 'none';
+            
             if (isCenterView) {
+                // If we were in center view (sun), reset to overview
                 isCenterView = false;
                 controls.enableZoom = true;
                 controls.maxDistance = 2000;
@@ -2746,23 +3299,45 @@
                 camera.fov = 60;
                 camera.updateProjectionMatrix();
                 
-                // Restore previous view
-                gsap.to(camera.position, { 
-                    x: previousCameraPos.x, 
-                    y: previousCameraPos.y, 
-                    z: previousCameraPos.z, 
-                    duration: 1.5 
-                });
-                gsap.to(controls.target, { 
-                    x: previousTarget.x, 
-                    y: previousTarget.y, 
-                    z: previousTarget.z, 
-                    duration: 1.5 
-                });
-                
-                document.getElementById('sky-details').style.display = 'none';
-            } else {
+                // Reset to overview position
                 resetView();
+            } else if (focusedObject) {
+                // Return to following the focused object closely
+                const targetPos = new THREE.Vector3();
+                focusedObject.getWorldPosition(targetPos);
+                
+                if (focusedObject.userData.isMoon) {
+                    // For moons, return to parent planet
+                    const parentPlanet = focusedObject.userData.parentPlanet;
+                    if (parentPlanet) {
+                        focusedObject = parentPlanet; // Switch focus to parent
+                        parentPlanet.getWorldPosition(targetPos);
+                        
+                        // Dim background when returning to parent planet
+                        dimBackground(parentPlanet);
+                        
+                        const dist = (parentPlanet.userData.size || 5) * 3 + 15;
+                        const currentDir = camera.position.clone().sub(targetPos).normalize();
+                        const newPos = targetPos.clone().add(currentDir.multiplyScalar(dist));
+                        
+                        gsap.to(camera.position, { x: newPos.x, y: newPos.y, z: newPos.z, duration: 1.0 });
+                        controls.target.copy(targetPos);
+                    }
+                } else {
+                    // For planets, return to close following position
+                    controls.target.copy(targetPos);
+                    
+                    if (focusedObject.userData.isPlanet) {
+                        // Ensure background is dimmed when returning to planet
+                        dimBackground(focusedObject);
+                        
+                        const dist = (focusedObject.userData.size || 5) * 3 + 15;
+                        const currentDir = camera.position.clone().sub(targetPos).normalize();
+                        const newPos = targetPos.clone().add(currentDir.multiplyScalar(dist));
+                        
+                        gsap.to(camera.position, { x: newPos.x, y: newPos.y, z: newPos.z, duration: 1.0 });
+                    }
+                }
             }
         }
 
@@ -2777,6 +3352,7 @@
                 camera.updateProjectionMatrix();
             }
         	focusedObject = null;
+        	undimBackground(); // Undim background when returning to overview
         	gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 0.8 });
             document.getElementById('sky-details').style.display = 'none';
         	gsap.to(camera.position, { x: 0, y: 300, z: 1200, duration: 0.8 });
@@ -2804,6 +3380,42 @@
                 newFov = Math.max(10, Math.min(60, newFov));
                 camera.fov = newFov;
                 camera.updateProjectionMatrix();
+            } else {
+                // Check if we're getting close to the sun during zoom
+                const sunDistance = camera.position.distanceTo(sun.position);
+                if (sunDistance < 150 && e.deltaY < 0) { // Zooming in towards sun
+                    // Auto-trigger sun modal when getting close
+                    setTimeout(() => {
+                        if (camera.position.distanceTo(sun.position) < 120) {
+                            focusOnObject(sun);
+                        }
+                    }, 100);
+                }
+            }
+        });
+
+        // Keyboard navigation
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'Backspace') {
+                e.preventDefault();
+                
+                // Close modals first if open
+                const skyDetails = document.getElementById('sky-details');
+                const overlayPanel = document.getElementById('overlay-panel');
+                
+                if (skyDetails.style.display === 'block') {
+                    closeSkyModal();
+                } else if (overlayPanel.classList.contains('active')) {
+                    closeOverlay();
+                } else {
+                    // Try to go back to previous view
+                    const wentBack = goToPreviousView();
+                    if (!wentBack) {
+                        // No previous view, just unselect and undim
+                        focusedObject = null;
+                        undimBackground();
+                    }
+                }
             }
         });
 
@@ -2871,9 +3483,23 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Sun & System Animation
+            // Clean sun animation - no corona layers
             const time = Date.now() * 0.001;
-            sun.rotation.y -= 0.001; // Rotate sun
+            sun.rotation.y += 0.001; // Rotate sun counterclockwise (same as planets)
+            
+            // Animate sun lights for pulsing bright effect
+            if (sunCoreLight) {
+                sunCoreLight.intensity = 8 + Math.sin(time * 4) * 1.5; // More dramatic pulsing
+            }
+            if (sunBrightLight) {
+                sunBrightLight.intensity = 6 + Math.sin(time * 3) * 1;
+            }
+            if (sunWarmLight) {
+                sunWarmLight.intensity = 4 + Math.sin(time * 2) * 0.5;
+            }
+            if (sunAmbientLight) {
+                sunAmbientLight.intensity = 2 + Math.sin(time * 1.5) * 0.3;
+            }
             
             // Move entire solar system slightly (Drift)
             solarSystem.position.x = Math.sin(time * 0.1) * 20;
@@ -2949,7 +3575,7 @@
                 }
             }
 
-            // Update labels
+            // Update labels to position above objects
             labels.forEach(item => {
                 const pos = new THREE.Vector3();
                 item.object.getWorldPosition(pos);
@@ -2962,6 +3588,45 @@
                     }
                 }
 
+                // Hide labels of background moons when dimmed (they're too faint to be useful)
+                if (backgroundDimming && item.object.userData.isMoon && 
+                    focusedObject && item.object.userData.parentPlanet !== focusedObject) {
+                    item.div.style.display = 'none';
+                    return;
+                }
+
+                // Position label above the object with appropriate spacing
+                const objectRadius = item.object.geometry ? item.object.geometry.parameters.radius : 50;
+                let labelOffset;
+                
+                // Adjust label positioning based on focus state
+                const isFocusedPlanetSystem = focusedObject && 
+                    (item.object === focusedObject || 
+                     (item.object.userData.isMoon && item.object.userData.parentPlanet === focusedObject));
+                
+                if (item.object.userData.isMoon) {
+                    if (isFocusedPlanetSystem) {
+                        // Moons of focused planet: very close to moon surface
+                        labelOffset = new THREE.Vector3(0, objectRadius + 3, 0);
+                    } else {
+                        // Moons of other planets: further away (but they'll be dimmed anyway)
+                        labelOffset = new THREE.Vector3(0, objectRadius + 8, 0);
+                    }
+                } else if (item.object.userData.isSun) {
+                    // Sun: higher above for visibility
+                    labelOffset = new THREE.Vector3(0, objectRadius + 30, 0);
+                } else {
+                    // Planets
+                    if (isFocusedPlanetSystem) {
+                        // Focused planet: closer label
+                        labelOffset = new THREE.Vector3(0, objectRadius + 8, 0);
+                    } else {
+                        // Other planets: standard spacing
+                        labelOffset = new THREE.Vector3(0, objectRadius + 15, 0);
+                    }
+                }
+                
+                pos.add(labelOffset);
                 pos.project(camera);
                 
                 const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
@@ -2982,10 +3647,26 @@
                 }
             });
 
-            if (focusedObject) {
+            // Continuous object following
+            if (focusedObject && !isCenterView) {
                 const targetPos = new THREE.Vector3();
                 focusedObject.getWorldPosition(targetPos);
-                controls.target.lerp(targetPos, 0.1);
+                
+                // Smoothly follow the object as it moves through its orbit
+                controls.target.lerp(targetPos, 0.05); // Smooth following with lerp
+                
+                // Optionally maintain camera distance relative to the object
+                if (focusedObject.userData.isPlanet) {
+                    const desiredDistance = (focusedObject.userData.size || 5) * 3 + 15;
+                    const currentDistance = camera.position.distanceTo(targetPos);
+                    
+                    // Only adjust if we're too far or too close
+                    if (Math.abs(currentDistance - desiredDistance) > 5) {
+                        const direction = camera.position.clone().sub(targetPos).normalize();
+                        const newPos = targetPos.clone().add(direction.multiplyScalar(desiredDistance));
+                        camera.position.lerp(newPos, 0.02); // Gentle distance correction
+                    }
+                }
             }
 
             controls.update();
@@ -3032,6 +3713,18 @@
             setTimeout(() => {
                 document.getElementById('loading').style.display = 'none';
                 animate();
+            }, 1000);
+        }, 1000);
+        }
+    </script>
+</body>
+
+
+</html>
+</html>
+
+
+</html>         animate();
             }, 1000);
         }, 1000);
         }
