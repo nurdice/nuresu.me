@@ -1,7 +1,7 @@
 window.RESUME_DATA = {
     // ===== PERSONAL INFO =====
     name: "Nuruddinali (Nur) Dawoodani",
-    role: "Lead Business Analyst",
+    role: "Business Analyst",
     profileImage: "Profile.jpg",
     profileImageDark: "Profile.jpg",
     profileImageLight: "Profile.jpg",
@@ -12,9 +12,9 @@ window.RESUME_DATA = {
         linkedin: "linkedin.com/in/nur786",
         location: "Port Coquitlam, BC"
     },
-    summary: "Lead Business Analyst with 18+ years of experience specialized in digital transformation for high-scale retail and banking platforms. Proven track record of bridging technical architecture with multi-million dollar business value. Expert at leading cross-functional teams in SAFe environments to deliver guest-facing products that impact millions",
-    pdfSummary: "Strategic Lead Business Analyst with nearly two decades of experience driving operational excellence and digital innovation. Adept at navigating complex technical landscapes to deliver high-visibility projects, including architecture revamps and AI-driven personalization. A results-oriented leader focused on translating complex business needs into scalable, high-performance technical solutions within Agile and SAFe frameworks.",
-    spaceSummary: "LEAD MISSION SPECIALIST with 18 years of flight heritage navigating complex enterprise constellations. Expert in calculating optimal trajectories for business system architectures and aligning disparate planetary stakeholders. Proven capability in establishing high-fidelity communication links between Mission Control (Business) and Engineering Crews. Track record of deploying high-velocity, mission-critical payloads that maintain peak performance across the guest-facing universe.",
+    summary: "Business Analyst with 18+ years of experience specialized in digital transformation for high-scale retail and banking platforms. Proven track record of bridging technical architecture with multi-million dollar business value. Expert at leading cross-functional teams in SAFe environments to deliver guest-facing products that impact millions",
+    pdfSummary: "Strategic Business Analyst with nearly two decades of experience driving operational excellence and digital innovation. Adept at navigating complex technical landscapes to deliver high-visibility projects, including architecture revamps and AI-driven personalization. A results-oriented leader focused on translating complex business needs into scalable, high-performance technical solutions within Agile and SAFe frameworks.",
+    spaceSummary: "MISSION SPECIALIST with 18 years of flight heritage navigating complex enterprise constellations. Expert in calculating optimal trajectories for business system architectures and aligning disparate planetary stakeholders. Proven capability in establishing high-fidelity communication links between Mission Control (Business) and Engineering Crews. Track record of deploying high-velocity, mission-critical payloads that maintain peak performance across the guest-facing universe.",
     certifications: [
         "Certified Business Analysis Professional (CBAP) - IIBA - Expired"
     ],
@@ -22,14 +22,14 @@ window.RESUME_DATA = {
     // ===== PLANETS (RESUME SECTIONS) =====
     // Solar System Metaphor: Each planet represents a different aspect of professional identity
     planets: [
-        // ===== 1. SKILLS PLANET (Venus-like, 1st) =====
+        // ===== 1. SKILLS & TOOLS PLANET (Venus-like, 1st) =====
         {
-            name: "Skills",
-            title: "Skills & Competencies",
+            name: "Skills & Tools",
+            title: "Skills & Technical Tools",
             section: "sidebar",
             order: 1,
             renderType: "list",
-            size: 12, // Increased from 8 for better visibility
+            size: 18,
             distance: 210,
             speed: 0.0005,
             type: "planet",
@@ -42,99 +42,130 @@ window.RESUME_DATA = {
             rings: { inner: 10, outer: 16 },
             description: "Technical and analytical capabilities that power delivery",
             
-            // Skills Moons (Skill Categories)
             moons: [
                 { 
-                    name: "Product & Analysis", 
-                    size: 2.4, // Increased from 1.8
-                    distance: 12, 
+                    name: "Leadership & Analysis", 
+                    size: 4.0, // Largest moon - most important
+                    distance: 16, 
                     speed: 0.004,
-                    color: 0x27ae60,
+                    color: 0x27ae60, // Green
+                    texture: "drawGreen",
+                    inclination: 0.2, // Custom inclination for this moon
+                    node: 0.5, // Custom node orientation
                     pdfDetails: {
-                        title: "LEADERSHIP",
-                        description: "Leadership and Governance",
+                        title: "LEADERSHIP & ANALYSIS",
+                        description: "Leadership and Analytical Capabilities",
                         skills: [
-                            "BA Mentorship",
-                            "Backlog Management",
-                            "Governance",
-                            "Stakeholder Collaboration"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "MISSION CONTROL PROTOCOLS",
-                        skills: [
-                            "Crew Training & Development",
-                            "Trajectory Analysis & Correction",
-                            "Mission Governance",
-                            "Cross-Functional Communication"
-                        ]
-                    }
-                },
-                { 
-                    name: "Technical Skills", 
-                    size: 2.1, // Increased from 1.6
-                    distance: 18, 
-                    speed: 0.003,
-                    color: 0x16a085,
-                    pdfDetails: {
-                        title: "FUNCTIONAL",
-                        description: "Functional Capabilities",
-                        skills: [
-                            "Data Analysis",
+                            "BA Mentorship & Team Leadership",
+                            "Backlog Management & Prioritization",
+                            "Stakeholder Collaboration",
+                            "Data Analysis & Business Intelligence",
                             "Business Process Improvement",
-                            "Strategic Planning"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "SYSTEMS ENGINEERING",
-                        skills: [
-                            "Data Telemetry Analysis",
-                            "Process Optimization Algorithms",
-                            "Strategic Roadmap Planning"
+                            "Strategic Planning & Roadmapping"
                         ]
                     }
                 },
                 { 
-                    name: "Collaboration", 
-                    size: 1.8, // Increased from 1.4
-                    distance: 24, 
-                    speed: 0.002,
-                    color: 0x3498db,
+                    name: "Technical Tools", 
+                    size: 3.5, // Second largest
+                    distance: 25, 
+                    speed: 0.003,
+                    color: 0x3498db, // Blue
+                    texture: "drawBlue",
+                    inclination: -0.15, // Different inclination
+                    node: 2.1, // Different node orientation
                     pdfDetails: {
-                        title: "TECHNICAL",
-                        description: "Technical Tools",
+                        title: "TECHNICAL TOOLS",
+                        description: "Technical Platforms & Tools",
                         skills: [
-                            "JIRA",
-                            "Confluence",
-                            "SQL",
-                            "Microsoft 365",
-                            "Power Automate",
-                            "Microsoft Azure",
-                            "Figma"
+                            "JIRA - Advanced workflows & reporting",
+                            "Confluence - Documentation & knowledge base",
+                            "SQL - Complex queries & optimization",
+                            "Microsoft 365 & Power Automate",
+                            "Microsoft Azure - Cloud platforms",
+                            "Figma - Design collaboration",
+                            "Python - Data analysis & automation"
                         ]
-                    },
-                    spaceDetails: {
-                        title: "FLIGHT INSTRUMENTATION",
+                    }
+                },
+                { 
+                    name: "Project Management", 
+                    size: 3.0, // Medium size
+                    distance: 34, 
+                    speed: 0.002,
+                    color: 0x9b59b6, // Purple
+                    texture: "drawUranus",
+                    inclination: 0.3, // Higher inclination
+                    node: 4.2, // Different node orientation
+                    pdfDetails: {
+                        title: "PROJECT MANAGEMENT",
+                        description: "Project & Quality Management Tools",
                         skills: [
-                            "JIRA Tracking Systems",
-                            "Confluence Database",
-                            "SQL Querying",
-                            "Azure Cloud Infrastructure",
-                            "Figma Schematics"
+                            "Azure DevOps - Portfolio management",
+                            "UFT - Automated testing",
+                            "Selenium - Browser automation",
+                            "TestRail - Test case management",
+                            "Postman - API testing",
+                            "Tableau - Data visualization"
+                        ]
+                    }
+                },
+                { 
+                    name: "Languages", 
+                    size: 3.2, // Distinctive size for Languages
+                    distance: 43, 
+                    speed: 0.0018,
+                    color: 0xf39c12, // Orange/Gold
+                    texture: "drawYellow",
+                    inclination: -0.25, // Retrograde-like inclination
+                    node: 1.8, // Different node orientation
+                    renderType: "languages", // Special render type
+                    pdfDetails: {
+                        title: "LANGUAGES",
+                        description: "Communication capabilities across multiple languages",
+                        languages: [
+                            {
+                                name: "Hindi",
+                                proficiency: "Native",
+                                character: "�‍♂️", // Buddha - for native/spiritual connection
+                                hero: "Buddha",
+                                skills: { speaking: 10, reading: 10, writing: 10, comprehension: 10 }
+                            },
+                            {
+                                name: "English", 
+                                proficiency: "Professional",
+                                character: "👨‍🔬", // Einstein - for professional/scientific excellence
+                                hero: "Einstein",
+                                skills: { speaking: 9, reading: 9, writing: 8, comprehension: 10 }
+                            },
+                            {
+                                name: "Gujarati",
+                                proficiency: "Intermediate", 
+                                character: "🕊️", // Gandhi - for cultural/peaceful communication
+                                hero: "Gandhi",
+                                skills: { speaking: 7, reading: 5, writing: 4, comprehension: 8 }
+                            },
+                            {
+                                name: "Marathi",
+                                proficiency: "Basic",
+                                character: "🍎", // Newton - for foundational/discovery learning
+                                hero: "Newton", 
+                                skills: { speaking: 5, reading: 3, writing: 2, comprehension: 6 }
+                            }
                         ]
                     }
                 }
             ]
         },
         
-        // ===== 3. EXPERIENCE PLANET (Jupiter-sized anchor, 3rd) =====
+        // ===== 2. EXPERIENCE PLANET (Earth-like, 2nd) =====
         {
             name: "Experience",
             title: "Professional Experience",
             section: "main",
             order: 1,
             renderType: "experience",
-            size: 22, // Increased from 15 for better visibility
+            size: 32,
             distance: 330,
             speed: 0.0008,
             type: "planet",
@@ -142,69 +173,37 @@ window.RESUME_DATA = {
             node: 3.0,
             eccentricity: 0.017,
             tilt: 0.41,
-            color: 0xdcdca6,
+            color: 0x6b93d6,
             texture: "drawEarth",
             description: "18 years of delivered impact across retail, banking, and enterprise platforms",
             
-            // Experience Moons (Individual Jobs)
             moons: [
                 {
                     name: "lululemon athletica",
-                    size: 4.0, // Increased from 3.0
+                    size: 5.5,
                     distance: 28,
                     speed: 0.003,
                     color: 0xc0392b,
-                    details: "2020-Present | Lead BA | Architectural Revamp | AI-Driven Highlights | SAFe Delivery",
+                    details: "2020-Present | Business Analyst | Architectural Revamp | AI-Driven Highlights | SAFe Delivery",
                     pdfDetails: {
                         company: "LULULEMON ATHLETICA",
-                        role: "Lead Business Analyst",
+                        role: "Business Analyst",
                         duration: "03/2020 – Present",
                         location: "Vancouver, Canada",
                         industry: "Retail / E-commerce / Athleisure",
                         achievements: [
-                            "Architectural Revamp Leadership: Served as Lead BA for an Accelerated Development project to revamp the architecture across all guest-facing pages, ensuring scalability and performance.",
+                            "Architectural Revamp Leadership: Served as BA for an Accelerated Development project to revamp the architecture across all guest-facing pages, ensuring scalability and performance.",
                             "Governance & Standardization: Guided the project team in following consistent patterns for Epic writing, User Story writing, and rigorous Backlog management.",
                             "AI-Driven Product Highlights: Led the 'Product Highlights' initiative, using AI to dynamically feature trending, new, and most-gifted products, resulting in a multi-million dollar revenue impact.",
                             "Home & Story Page Revamp: Developed new components to educate guests on popular categories and upcoming products, enhancing the 'Community Sweatlife Stories' hub.",
                             "Strategic Partnerships: Played a key role in high-profile initiatives including the Lululemon x Olympics Team Canada Partnership and the Holiday Gift Guide revamp.",
                             "SAFe Delivery: Authored Agile/Scrum User Stories for Web, iOS, and Services within the Scaled Agile Framework (SAFe)."
-                        ],
-                        responsibilities: [
-                            "Lead cross-functional teams in Agile/SAFe environment",
-                            "Drive digital transformation and business performance",
-                            "Bridge gap between technical architecture and business value"
-                        ],
-                        products: [
-                            "Community Sweatlife Stories - User engagement platform",
-                            "Stores Upgrade - Retail infrastructure modernization",
-                            "Ambassadors Web App - Brand ambassador empowerment tool",
-                            "Lululemon x Olympics Team Canada - National partnership activation",
-                            "Holiday Gift Guide Revamp - Seasonal experience enhancement"
-                        ]
-                    },
-                    spaceDetails: {
-                        company: "LULULEMON ATHLETICA // SECTOR: RETAIL",
-                        role: "Lead Mission Specialist",
-                        duration: "Mission Cycle: 2020 - Present",
-                        location: "Vancouver Outpost, Earth",
-                        achievements: [
-                            "Systems Architecture Reconfiguration: Directed the structural overhaul of all guest-facing interface modules to ensure maximum scalability during high-load launch windows.",
-                            "SOP Alignment: Enforced rigorous documentation standards for Epic/Story transmission and Backlog trajectory, ensuring zero ambiguity in flight plans.",
-                            "Autonomous Targeting Algorithms: Deployed neural net logic to identify and highlight mission-critical payloads, resulting in a multi-million credit yield.",
-                            "Crew Interface Enhancement: Re-engineered the 'Sweatlife' habitation module to improve crew engagement and morale.",
-                            "Strategic Docking Maneuvers: Executed high-priority docking sequences with Team Canada and Holiday supply drops, ensuring seamless payload delivery.",
-                            "Agile Flight Paths: Authored precise flight vectors for Web, iOS, and Services modules within Scaled Agile parameters."
-                        ],
-                        responsibilities: [
-                            "Command cross-functional engineering crews",
-                            "Execute high-scale mission-critical features",
-                            "Translate orbital architecture to business value"
                         ]
                     }
                 },
                 {
                     name: "Vancity",
-                    size: 3.5, // Increased from 2.6
+                    size: 4.8,
                     distance: 36,
                     speed: 0.0025,
                     color: 0xd35400,
@@ -219,31 +218,12 @@ window.RESUME_DATA = {
                             "System Migration: Acted as BA within a Scaled Agile structure for a major Commercial Banking system migration for staff and members.",
                             "Stakeholder Management: Collaborated with internal teams and external vendors to elicit integration requirements and formulate user stories.",
                             "Gap Analysis: Conducted thorough analysis of existing systems to understand behavior and identify critical gaps."
-                        ],
-                        responsibilities: [
-                            "Commercial Banking system migration",
-                            "Integration requirements elicitation",
-                            "System behavior analysis"
-                        ],
-                        products: [
-                            "Commercial Banking System Migration - Core banking platform transition"
-                        ]
-                    },
-                    spaceDetails: {
-                        company: "VANCITY // SECTOR: FINANCIAL",
-                        role: "Migration Flight Director",
-                        duration: "Mission Cycle: 2019 - 2020",
-                        location: "Vancouver Outpost, Earth",
-                        achievements: [
-                            "Core Systems Migration: Executed mass transfer of Commercial Banking data cores to new hosting environments with zero data loss.",
-                            "External Docking Protocols: Aligned internal command frequencies with external vendor systems for seamless integration.",
-                            "System Gap Analysis: Conducted deep-scan diagnostics of legacy systems to identify hull breaches and operational voids."
                         ]
                     }
                 },
                 {
                     name: "HSBC — Digital Platform",
-                    size: 3.7, // Increased from 2.8
+                    size: 5.0,
                     distance: 44,
                     speed: 0.002,
                     color: 0xe67e22,
@@ -257,32 +237,12 @@ window.RESUME_DATA = {
                         achievements: [
                             "Digital Transformation: Delivered a digital communication platform for large customer segments, achieving sustainable cost savings and a reduced carbon footprint.",
                             "Process Improvement: Optimized business processes for Lending Systems, specifically the Credit Application and Mortgage Renewal processes."
-                        ],
-                        responsibilities: [
-                            "Digital communication platform delivery",
-                            "Lending System optimization"
-                        ],
-                        products: [
-                            "Digital Customer Communication Platform - Paperless banking initiative",
-                            "Lending System Enhancement - Mortgage and loan processing improvements",
-                            "Credit Application Process Optimization - Faster approval workflows",
-                            "Mortgage Renewal Automation - Self-service renewal portal"
-                        ]
-                    },
-                    spaceDetails: {
-                        company: "HSBC CANADA // SECTOR: BANKING",
-                        role: "Digital Systems Engineer",
-                        duration: "Mission Cycle: 2016 - 2019",
-                        location: "Vancouver Outpost, Earth",
-                        achievements: [
-                            "Telemetry Array Deployment: Established high-bandwidth digital communication array, reducing physical mass (paper) and carbon output.",
-                            "Latency Reduction: Optimized Lending and Credit docking procedures, significantly reducing processing time for mission-critical workflows."
                         ]
                     }
                 },
                 {
                     name: "HSBC — ITQA Test Lead",
-                    size: 3.2, // Increased from 2.4
+                    size: 3.2,
                     distance: 52,
                     speed: 0.0015,
                     color: 0xb86b2b,
@@ -295,29 +255,12 @@ window.RESUME_DATA = {
                         industry: "Banking / Financial Services / Regulatory Compliance",
                         achievements: [
                             "QA Leadership: Created Test Strategies and Plans, leading manual and automated System Integration Testing (UFT) for core banking systems."
-                        ],
-                        responsibilities: [
-                            "Test Strategy creation",
-                            "Automated System Integration Testing (UFT)"
-                        ],
-                        products: [
-                            "FATCA Reporting System - Regulatory compliance automation",
-                            "Finance Transactions Reporting - Internal reporting platform"
-                        ]
-                    },
-                    spaceDetails: {
-                        company: "HSBC CANADA // SECTOR: QA",
-                        role: "Flight Readiness Commander",
-                        duration: "Mission Cycle: 2015 - 2016",
-                        location: "Vancouver Outpost, Earth",
-                        achievements: [
-                            "Flight Readiness Verification: Directed automated testing drones (UFT) to verify core banking system stability prior to launch."
                         ]
                     }
                 },
                 {
                     name: "HSBC — Business Analysis",
-                    size: 3.0, // Increased from 2.2
+                    size: 3.0,
                     distance: 60,
                     speed: 0.0012,
                     color: 0x9b5d2b,
@@ -331,30 +274,12 @@ window.RESUME_DATA = {
                         achievements: [
                             "Core Banking: Managed requirements for system enhancements affecting customer-facing and back-office operations.",
                             "Regulatory Compliance: Worked on FATCA Reporting and Finance Transactions Reporting."
-                        ],
-                        responsibilities: [
-                            "Requirements management",
-                            "Regulatory reporting"
-                        ],
-                        products: [
-                            "Core Banking System Enhancements - In-house platform improvements",
-                            "Regulatory Reporting Tools - Compliance automation"
-                        ]
-                    },
-                    spaceDetails: {
-                        company: "HSBC CANADA // SECTOR: CORE",
-                        role: "Core Systems Analyst",
-                        duration: "Mission Cycle: 2011 - 2015",
-                        location: "Burnaby Outpost, Earth",
-                        achievements: [
-                            "Mainframe Propulsion Upgrade: Directed multiple sorties to enhance Core Banking mainframe infrastructure.",
-                            "Regulatory Telemetry: Managed compliance data transmission for FATCA and Transaction Reporting protocols."
                         ]
                     }
                 },
                 {
                     name: "HSBC Global Technology",
-                    size: 4.5, // Increased from 3.4
+                    size: 6.0,
                     distance: 80,
                     speed: 0.0008,
                     color: 0x8b7a57,
@@ -368,39 +293,20 @@ window.RESUME_DATA = {
                         achievements: [
                             "System Development: Specialized in Retail Banking Systems (CRM and Transaction Processing) on mainframe/zOS platforms for HSBC UK.",
                             "Modernization: Delivered crucial transitional products to shift from legacy technology to future-proof, market-relevant solutions."
-                        ],
-                        responsibilities: [
-                            "Retail Banking Systems development",
-                            "Legacy technology modernization"
-                        ],
-                        products: [
-                            "Customer Relationship Management (CRM) System - Customer data and interaction platform",
-                            "Transaction Processing System - Core banking transaction engine",
-                            "Credit Bureau Integration - Automated credit reporting"
-                        ]
-                    },
-                    spaceDetails: {
-                        company: "HSBC GLOBAL // SECTOR: TECH",
-                        role: "Senior Propulsion Engineer",
-                        duration: "Mission Cycle: 2005 - 2011",
-                        location: "Pune & Burnaby Sectors",
-                        achievements: [
-                            "Subsystem Engineering: Constructed Retail Banking subsystems on zOS heavy-lift platforms.",
-                            "Legacy Retrofit: Retrofitted legacy engines with modern propulsion capabilities to extend mission viability."
                         ]
                     }
                 }
             ]
         },
 
-        // ===== 4. SHIPPED PRODUCTS PLANET (Saturn-sized, 4th) =====
+        // ===== 3. EXPERTISE & IMPACT PLANET (Combined Saturn-sized, 3rd) =====
         {
-            name: "Shipped Products",
-            title: "Key Projects",
+            name: "Expertise & Impact",
+            title: "Problem Domains & Measurable Impact",
             section: "main",
             order: 2,
             renderType: "projects",
-            size: 14, // Increased from 9 for better visibility
+            size: 20,
             distance: 460,
             speed: 0.0004,
             type: "planet",
@@ -411,639 +317,204 @@ window.RESUME_DATA = {
             color: 0xf39c12,
             texture: "drawSaturn",
             hasRings: true,
-            description: "Real products delivered to customers, not just tasks completed",
+            description: "Problem domains I solve and measurable business outcomes delivered",
             
-            // Product Moons (Individual Products)
             moons: [
                 { 
-                    name: "Sweatlife Stories", 
+                    name: "E-commerce & Digital Retail", 
                     size: 2.0, 
                     distance: 14, 
                     speed: 0.005,
                     color: 0xe67e22,
                     pdfDetails: {
-                        title: "SWEATLIFE STORIES",
-                        subtitle: "Community Engagement Platform",
-                        description: "User-generated content platform enabling lululemon customers to share their stories and connect with the brand community.",
-                        role: "Business Analyst - Features & Requirements",
+                        title: "E-COMMERCE & DIGITAL RETAIL",
+                        subtitle: "Community Engagement & Product Platforms",
+                        description: "Solving problems in digital retail, content management, and customer engagement platforms.",
                         impact: [
-                            "10,000+ active users sharing stories",
-                            "50,000+ stories shared in first year",
-                            "2,000,000+ impressions across social channels",
-                            "Increased community engagement by 45%"
+                            "45% increase in community engagement (Sweatlife Stories)",
+                            "Multi-million dollar revenue impact through AI-driven product highlights",
+                            "10,000+ active users sharing stories across social channels",
+                            "Successful Olympic partnership activation driving sales"
                         ],
-                        technologies: ["Web CMS", "User Profiles", "Content Moderation", "Social Sharing"],
-                        features: [
-                            "Story submission and approval workflow",
-                            "User profile and content management",
-                            "Community commenting and likes",
-                            "Content discovery and search",
-                            "Integration with marketing automation"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "MISSION: SWEATLIFE",
-                        description: "Crew Engagement Interface enabling user-generated content transmission and brand connection.",
-                        impact: [
-                            "10,000+ active units sharing stories",
-                            "2,000,000+ impressions across social channels",
-                            "Increased community engagement by 45%",
-                            "Deployed autonomous content moderation algorithms"
+                        problems: [
+                            "User-generated content platforms and community engagement",
+                            "Product catalog management and merchandising optimization",
+                            "Shopping cart and checkout process improvement",
+                            "Content management systems and publishing workflows"
                         ]
                     }
                 },
                 { 
-                    name: "Digital Banking Platform", 
+                    name: "Banking & Financial Systems", 
                     size: 2.2, 
                     distance: 20, 
                     speed: 0.004,
                     color: 0x3498db,
                     pdfDetails: {
-                        title: "DIGITAL CUSTOMER COMMUNICATION PLATFORM",
-                        subtitle: "HSBC Canada Customer Communications",
-                        description: "Comprehensive digital platform for delivering personalized customer communications, replacing paper-based statements and notices.",
-                        role: "Business Analyst - Platform Development",
+                        title: "BANKING & FINANCIAL SYSTEMS",
+                        subtitle: "Core Banking & Digital Transformation",
+                        description: "Solving complex problems in financial services, regulatory compliance, and system modernization.",
                         impact: [
+                            "$500K+ annual savings through paperless banking transformation",
                             "Eliminated 2+ million sheets of paper annually",
-                            "Reduced communication delivery time from weeks to days",
-                            "Sustainable cost savings exceeding $500K/year",
-                            "Improved customer satisfaction scores by 15%"
+                            "Zero data loss during major banking system migrations",
+                            "15% improvement in customer satisfaction scores"
                         ],
-                        technologies: ["Document Generation", "Email/SMS Delivery", "Secure Portal", "Customer Preferences"],
-                        features: [
-                            "Personalized statement generation",
-                            "Multi-channel delivery (email, SMS, push)",
-                            "Customer preference management",
-                            "Secure document viewing portal",
-                            "Regulatory compliance tracking"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "MISSION: DIGI-COMMS",
-                        description: "Digital Transmission Array for personalized customer communication, replacing physical media.",
-                        impact: [
-                            "Eliminated 2+ million physical units annually",
-                            "Reduced transmission latency from 14 days to 24 hours",
-                            "Sustainable resource savings > $500K/cycle",
-                            "Improved satisfaction metrics by 15%"
+                        problems: [
+                            "Core banking system operations and transaction processing",
+                            "Regulatory compliance and reporting (FATCA, AML)",
+                            "Legacy system modernization and data migration",
+                            "Multi-channel customer communication platforms"
                         ]
                     }
                 },
                 { 
-                    name: "Stores Upgrade", 
+                    name: "Agile & SAFe Delivery", 
                     size: 1.8, 
                     distance: 26, 
                     speed: 0.003,
                     color: 0x9b59b6,
                     pdfDetails: {
-                        title: "LULULEMON STORES UPGRADE",
-                        subtitle: "Retail Infrastructure Modernization",
-                        description: "Technology modernization initiative improving in-store systems and customer experience.",
-                        role: "Business Analyst - Retail Technology",
+                        title: "AGILE & SAFE DELIVERY",
+                        subtitle: "Scaled Agile Framework Implementation",
+                        description: "Leading cross-functional teams in SAFe environments to deliver high-impact products.",
                         impact: [
-                            "Faster checkout times (30% reduction)",
-                            "Improved inventory accuracy (99.5%)",
-                            "Enhanced associate productivity",
-                            "Seamless omnichannel experience"
+                            "30% reduction in delivery time through optimized processes",
+                            "Improved team productivity through better stakeholder alignment",
+                            "Enhanced cross-team communication and collaboration",
+                            "Faster time-to-market for critical business features"
                         ],
-                        technologies: ["POS Systems", "Inventory Management", "Associate Tools", "Customer Profiles"],
-                        features: [
-                            "Modern point-of-sale integration",
-                            "Real-time inventory visibility",
-                            "Associate mobile tools",
-                            "Customer profile access",
-                            "Omnichannel fulfillment"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "MISSION: OUTPOST UPGRADE",
-                        description: "Outpost Systems Modernization initiative improving station efficiency and user experience.",
-                        impact: [
-                            "Transaction latency reduced by 30%",
-                            "Inventory accuracy calibrated to 99.5%",
-                            "Enhanced crew productivity instrumentation",
-                            "Seamless omnichannel data integration"
-                        ]
-                    }
-                },
-                { 
-                    name: "Banking Migration", 
-                    size: 2.0, 
-                    distance: 32, 
-                    speed: 0.0025,
-                    color: 0x1abc9c,
-                    pdfDetails: {
-                        title: "COMMERCIAL BANKING SYSTEM MIGRATION",
-                        subtitle: "Vancity Core Banking Transition",
-                        description: "Large-scale migration of commercial banking services to new core banking platform with minimal disruption.",
-                        role: "Business Analyst - Migration Lead",
-                        impact: [
-                            "Successful migration with zero customer data loss",
-                            "Business continuity maintained throughout",
-                            "Improved system performance and reliability",
-                            "Enhanced reporting capabilities"
-                        ],
-                        technologies: ["Core Banking Platform", "Integration Middleware", "Data Migration", "Testing Tools"],
-                        features: [
-                            "Legacy system data migration",
-                            "Integration API development",
-                            "Comprehensive UAT execution",
-                            "Staff training and change management",
-                            "Go-live support and hypercare"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "MISSION: CORE TRANSFER",
-                        description: "Large-scale transfer of commercial banking services to new core platform with zero downtime.",
-                        impact: [
-                            "Successful transfer with 0% data loss",
-                            "Operational continuity maintained",
-                            "Improved system stability and performance",
-                            "Enhanced reporting telemetry resolution"
-                        ]
-                    }
-                },
-                { 
-                    name: "Olympics Partnership", 
-                    size: 1.6, 
-                    distance: 38, 
-                    speed: 0.002,
-                    color: 0xe74c3c,
-                    pdfDetails: {
-                        title: "LULULEMON X OLYMPICS TEAM CANADA",
-                        subtitle: "National Partnership Activation",
-                        description: "Digital activation supporting lululemon's partnership with Team Canada for Olympic Games.",
-                        role: "Business Analyst - Partnership Platform",
-                        impact: [
-                            "500,000+ reach during campaign",
-                            "50,000+ user interactions",
-                            "Strong brand alignment and positive sentiment",
-                            "Successful athlete content delivery"
-                        ],
-                        technologies: ["Web Platform", "Content Management", "Social Integration", "Analytics"],
-                        features: [
-                            "Athlete profile pages",
-                            "Campaign content management",
-                            "Social media integration",
-                            "User engagement tracking",
-                            "Merchandise integration"
-                        ]
-                    },
-                    spaceDetails: {
-                        title: "MISSION: OLYMPUS",
-                        description: "Digital activation supporting partnership with Team Canada for planetary games event.",
-                        impact: [
-                            "500,000+ reach during campaign window",
-                            "50,000+ user interactions recorded",
-                            "Strong alliance alignment achieved",
-                            "Successful content delivery vectors"
-                        ]
-                    }
-                }
-            ]
-        },
-        
-        // ===== 5. PROBLEM DOMAINS PLANET (Neptune, 5th) =====
-        {
-            name: "Problem Domains",
-            title: "Problem Domains",
-            section: "main",
-            order: 3,
-            renderType: "text-list",
-            size: 12, // Increased from 8 for better visibility
-            distance: 570,
-            speed: 0.0003,
-            type: "planet",
-            inclination: 0.15,
-            node: 2.0,
-            eccentricity: 0.009,
-            tilt: 0.50,
-            color: 0x3498db,
-            texture: "drawNeptune",
-            description: "Classes of problems I solve, not just tasks I've done",
-            
-            // Problem Domain Moons
-            moons: [
-                { 
-                    name: "E-commerce & Content", 
-                    size: 1.8, 
-                    distance: 14, 
-                    speed: 0.004,
-                    color: 0x2980b9,
-                    pdfDetails: {
-                        title: "E-COMMERCE & CONTENT PLATFORMS",
-                        description: "Solving problems related to digital retail and content management",
-                        problems: [
-                            "User-generated content platforms and community engagement",
-                            "Product catalog management and merchandising",
-                            "Shopping cart and checkout optimization",
-                            "Content management systems and publishing workflows",
-                            "Personalization and recommendation engines"
-                        ],
-                        contexts: [
-                            "Lululemon Sweatlife Stories platform",
-                            "Retail stores upgrade initiative",
-                            "Marketing content automation"
-                        ]
-                    }
-                },
-                { 
-                    name: "Banking & Core Systems", 
-                    size: 2.0, 
-                    distance: 20, 
-                    speed: 0.0035,
-                    color: 0x1a5276,
-                    pdfDetails: {
-                        title: "BANKING & CORE SYSTEMS",
-                        description: "Solving problems in financial services and banking technology",
-                        problems: [
-                            "Core banking system operations and transactions",
-                            "Customer account management and lifecycle",
-                            "Loan and mortgage processing",
-                            "Regulatory compliance and reporting",
-                            "Integration with payment networks"
-                        ],
-                        contexts: [
-                            "HSBC retail banking systems",
-                            "Vancity commercial banking migration",
-                            "FATCA and regulatory reporting"
-                        ]
-                    }
-                },
-                { 
-                    name: "Regulatory & Compliance", 
-                    size: 1.6, 
-                    distance: 26, 
-                    speed: 0.003,
-                    color: 0x8e44ad,
-                    pdfDetails: {
-                        title: "REGULATORY & COMPLIANCE",
-                        description: "Solving problems in regulatory requirements and compliance",
-                        problems: [
-                            "Financial regulation reporting (FATCA, AML)",
-                            "Data privacy and security requirements",
-                            "Audit trails and documentation",
-                            "Customer due diligence processes",
-                            "Cross-border compliance"
-                        ],
-                        contexts: [
-                            "FATCA reporting automation",
-                            "Customer communication compliance",
-                            "Data governance initiatives"
-                        ]
-                    }
-                },
-                { 
-                    name: "System Migrations", 
-                    size: 1.7, 
-                    distance: 32, 
-                    speed: 0.0025,
-                    color: 0x27ae60,
-                    pdfDetails: {
-                        title: "SYSTEM MIGRATIONS & INTEGRATIONS",
-                        description: "Solving problems in technology transitions and connections",
-                        problems: [
-                            "Legacy system modernization",
-                            "Data migration and validation",
-                            "API integration development",
-                            "Vendor system coordination",
-                            "Business continuity during transitions"
-                        ],
-                        contexts: [
-                            "Commercial banking platform migration",
-                            "Core banking system upgrades",
-                            "Payment gateway integrations"
-                        ]
-                    }
-                },
-                { 
-                    name: "Customer Communication", 
-                    size: 1.5, 
-                    distance: 38, 
-                    speed: 0.002,
-                    color: 0xf39c12,
-                    pdfDetails: {
-                        title: "CUSTOMER COMMUNICATION PLATFORMS",
-                        description: "Solving problems in how businesses communicate with customers",
-                        problems: [
-                            "Multi-channel communication delivery",
-                            "Personalization and segmentation",
-                            "Paperless transformation",
-                            "Customer preference management",
-                            "Communication analytics and optimization"
-                        ],
-                        contexts: [
-                            "HSBC digital communication platform",
-                            "Lululemon marketing automation",
-                            "Statement and notice digitalization"
-                        ]
-                    }
-                }
-            ]
-        },
-        
-        // ===== 6. WAYS OF WORKING PLANET (Uranus, 6th) =====
-        {
-            name: "Ways of Working",
-            title: "Ways of Working",
-            section: "main",
-            order: 4,
-            renderType: "text-list",
-            size: 11, // Increased from 7 for better visibility
-            distance: 670,
-            speed: 0.00025,
-            type: "planet",
-            inclination: -0.2,
-            node: 5.5,
-            eccentricity: 0.046,
-            tilt: 1.43,
-            color: 0x9b59b6,
-            texture: "drawUranus",
-            description: "How I operate: methodologies and approaches that signal senior behavior",
-            
-            // Way of Working Moons
-            moons: [
-                { 
-                    name: "Agile / SAFe", 
-                    size: 1.8, 
-                    distance: 14, 
-                    speed: 0.004,
-                    color: 0x8e44ad,
-                    pdfDetails: {
-                        title: "AGILE / SAFE FRAMEWORK",
-                        description: "Working within scaled agile environments",
-                        practices: [
-                            "SAFe Program Increment planning and execution",
-                            "Scrum ceremonies (Sprint Planning, Daily Standup, Review, Retro)",
-                            "Backlog refinement and prioritization",
-                            "Epic and Feature decomposition",
-                            "Value stream mapping and optimization"
-                        ],
-                        tools: ["Jira", "Confluence", "Azure DevOps", "Portfolio Kanban"]
-                    }
-                },
-                { 
-                    name: "Discovery to Delivery", 
-                    size: 1.9, 
-                    distance: 20, 
-                    speed: 0.0035,
-                    color: 0x6c3483,
-                    pdfDetails: {
-                        title: "DISCOVERY TO DELIVERY",
-                        description: "Navigating the full product development lifecycle",
-                        stages: [
-                            "Discovery: User research, problem definition, opportunity sizing",
-                            "Definition: Requirements, acceptance criteria, sprint readiness",
-                            "Delivery: Sprint execution, QA coordination, stakeholder alignment",
-                            "Deployment: Release planning, go-live support, hypercare",
-                            "Iteration: Metrics review, feedback incorporation, improvement"
-                        ],
-                        artifacts: ["User Stories", "Epics", "Features", "User Journeys", "Process Maps"]
-                    }
-                },
-                { 
-                    name: "Stakeholder Alignment", 
-                    size: 1.6, 
-                    distance: 26, 
-                    speed: 0.003,
-                    color: 0xbb8fce,
-                    pdfDetails: {
-                        title: "STAKEHOLDER ALIGNMENT",
-                        description: "Building consensus across diverse groups",
-                        stakeholders: [
-                            "Product Owners and Product Managers",
-                            "Engineering and Development Teams",
-                            "UX/UI Design Teams",
-                            "QA and Testing Teams",
-                            "Executive Sponsors and Business Leaders",
-                            "External Vendors and Partners"
-                        ],
-                        techniques: ["Stakeholder Mapping", " RACI Matrices", "Regular Syncs", "Executive Dashboards"]
-                    }
-                },
-                { 
-                    name: "Ambiguity Management", 
-                    size: 1.5, 
-                    distance: 32, 
-                    speed: 0.0025,
-                    color: 0xa569bd,
-                    pdfDetails: {
-                        title: "AMBIGUITY MANAGEMENT",
-                        description: "Thriving in undefined and evolving environments",
                         approaches: [
-                            "Progressive elaboration of requirements",
-                            "Assumption validation and testing",
-                            "Flexible scope management",
-                            "Risk-based prioritization",
-                            "Iterative delivery with early feedback"
-                        ],
-                        outcomes: ["Reduced project risk", "Faster time-to-value", "Improved stakeholder satisfaction"]
-                    }
-                }
-            ]
-        },
-        
-// ===== 7. IMPACT & OUTCOMES PLANET (Mars, 7th) =====
-        {
-            name: "Impact & Outcomes",
-            title: "Impact & Outcomes",
-            section: "main",
-            order: 5,
-            renderType: "list",
-            size: 11, // Increased from 7 for better visibility
-            distance: 770,
-            speed: 0.0002,
-            type: "planet",
-            inclination: 0.25,
-            node: 1.0,
-            eccentricity: 0.094,
-            tilt: 0.44,
-            color: 0xe74c3c,
-            texture: "drawMars",
-            description: "Measurable results that executives look for when skimming",
-            
-            // Impact Moons (Glowing, no dense text)
-            moons: [
-                { 
-                    name: "Cost Reduction", 
-                    size: 1.5, 
-                    distance: 12, 
-                    speed: 0.004,
-                    color: 0xc0392b,
-                    pdfDetails: {
-                        title: "COST REDUCTION",
-                        outcomes: [
-                            "$500K+ annual savings through paperless banking",
-                            "40% reduction in testing time through automation",
-                            "30% reduction in checkout times through system optimization",
-                            "Reduced operational costs through process automation"
+                            "SAFe Program Increment planning and execution",
+                            "Epic and Feature decomposition with clear acceptance criteria",
+                            "Stakeholder alignment across diverse groups and vendors",
+                            "Progressive elaboration in ambiguous environments"
                         ]
                     }
                 },
                 { 
-                    name: "Sustainability", 
-                    size: 1.5, 
-                    distance: 18, 
-                    speed: 0.0035,
-                    color: 0x27ae60,
-                    pdfDetails: {
-                        title: "SUSTAINABILITY",
-                        outcomes: [
-                            "Eliminated 2+ million sheets of paper annually",
-                            "Reduced carbon footprint through digital communication",
-                            "Sustainable technology practices in retail operations"
-                        ]
-                    }
-                },
-                { 
-                    name: "Revenue Enable", 
-                    size: 1.6, 
-                    distance: 24, 
-                    speed: 0.003,
-                    color: 0xf39c12,
-                    pdfDetails: {
-                        title: "REVENUE ENABLEMENT",
-                        outcomes: [
-                            "15% improvement in customer satisfaction scores",
-                            "45% increase in community engagement",
-                            "Successful Olympic partnership activation driving sales",
-                            "Improved conversion through optimized checkout"
-                        ]
-                    }
-                },
-                { 
-                    name: "Risk Reduction", 
-                    size: 1.4, 
-                    distance: 30, 
+                    name: "System Integration & QA", 
+                    size: 2.0, 
+                    distance: 32, 
                     speed: 0.0025,
-                    color: 0x3498db,
-                    pdfDetails: {
-                        title: "RISK REDUCTION",
-                        outcomes: [
-                            "Zero data loss during major banking migration",
-                            "Regulatory compliance maintained across all projects",
-                            "Improved audit readiness through documentation",
-                            "Reduced system downtime through proactive testing"
-                        ]
-                    }
-                },
-                { 
-                    name: "Operational Efficiency", 
-                    size: 1.7, 
-                    distance: 36, 
-                    speed: 0.002,
-                    color: 0x9b59b6,
-                    pdfDetails: {
-                        title: "OPERATIONAL EFFICIENCY",
-                        outcomes: [
-                            "Faster loan/mortgage processing times",
-                            "Improved inventory accuracy (99.5%)",
-                            "Enhanced team productivity through better tools",
-                            "Streamlined cross-team communication"
-                        ]
-                    }
-                }
-            ]
-        },
-        
-        // ===== 8. TOOLS & PLATFORMS PLANET (Earth, 8th) =====
-        {
-            name: "Tools & Platforms",
-            title: "Tools & Platforms",
-            section: "sidebar",
-            order: 2,
-            renderType: "list",
-            size: 9, // Increased from 6 for better visibility
-            distance: 870,
-            speed: 0.00015,
-            type: "planet",
-            inclination: 0.02,
-            node: 3.5,
-            eccentricity: 0.017,
-            tilt: 0.40,
-            color: 0x2ecc71,
-            texture: "drawEarth",
-            description: "Technical tools and platforms I work with daily",
-            
-            // Tool Categories (No emojis, clean list)
-            moons: [
-                { 
-                    name: "Project Management", 
-                    size: 1.6, 
-                    distance: 12, 
-                    speed: 0.004,
-                    color: 0x27ae60,
-                    pdfDetails: {
-                        title: "PROJECT MANAGEMENT",
-                        tools: [
-                            "Jira - Advanced workflows, custom fields, reporting",
-                            "Confluence - Documentation, knowledge base",
-                            "Azure DevOps - Portfolio management",
-                            "Monday.com - Simple project tracking"
-                        ]
-                    }
-                },
-                { 
-                    name: "Analytics & Data", 
-                    size: 1.5, 
-                    distance: 18, 
-                    speed: 0.0035,
-                    color: 0x16a085,
-                    pdfDetails: {
-                        title: "ANALYTICS & DATA",
-                        tools: [
-                            "SQL - Complex queries, optimization",
-                            "Python - Data analysis, automation scripts",
-                            "Tableau - Dashboards, visualization",
-                            "Excel - Advanced modeling, pivots"
-                        ]
-                    }
-                },
-                { 
-                    name: "CMS & Marketing", 
-                    size: 1.4, 
-                    distance: 24, 
-                    speed: 0.003,
                     color: 0x1abc9c,
                     pdfDetails: {
-                        title: "CMS & MARKETING",
-                        tools: [
-                            "Contentful - Headless CMS",
-                            "Salesforce Marketing Cloud",
-                            "Google Analytics - Tracking, insights",
-                            "Braze - Customer engagement"
-                        ]
-                    }
-                },
-                { 
-                    name: "Testing & QA", 
-                    size: 1.3, 
-                    distance: 30, 
-                    speed: 0.0025,
-                    color: 0x3498db,
-                    pdfDetails: {
-                        title: "TESTING & QA",
-                        tools: [
-                            "UFT (Unified Functional Testing)",
-                            "Selenium - Browser automation",
-                            "TestRail - Test case management",
-                            "Postman - API testing"
+                        title: "SYSTEM INTEGRATION & QA",
+                        subtitle: "Testing Strategy & Quality Assurance",
+                        description: "Comprehensive testing strategies and quality assurance for complex system integrations.",
+                        impact: [
+                            "40% reduction in testing time through automation",
+                            "99.5% inventory accuracy through system optimization",
+                            "Reduced system downtime through proactive testing",
+                            "Improved audit readiness through comprehensive documentation"
+                        ],
+                        capabilities: [
+                            "Automated testing strategy using UFT and Selenium",
+                            "API testing and integration validation",
+                            "Test case management and execution planning",
+                            "Quality gates and release readiness assessment"
                         ]
                     }
                 }
             ]
         },
 
-        // ===== 9. EDUCATION PLANET (Blue, 9th) =====
+        // ===== 4. PROJECTS PLANET (Mars-like, 4th) =====
+        {
+            name: "Projects",
+            title: "Key Projects & Achievements",
+            section: "main",
+            order: 3,
+            renderType: "projects",
+            size: 16,
+            distance: 580,
+            speed: 0.0003,
+            type: "planet",
+            inclination: 0.08,
+            node: 5.5,
+            eccentricity: 0.093,
+            tilt: 0.44,
+            color: 0xe74c3c,
+            texture: "drawMars",
+            description: "Major projects and initiatives that demonstrate impact and innovation",
+            
+            moons: [
+                {
+                    name: "AI Product Highlights",
+                    size: 2.8,
+                    distance: 15,
+                    speed: 0.004,
+                    color: 0xff6b6b,
+                    texture: "drawRed",
+                    inclination: 0.15,
+                    node: 1.2,
+                    pdfDetails: {
+                        title: "AI-DRIVEN PRODUCT HIGHLIGHTS",
+                        subtitle: "Machine Learning & Personalization",
+                        description: "Led AI initiative to dynamically feature trending and personalized products using machine learning algorithms.",
+                        impact: [
+                            "Multi-million dollar revenue impact through intelligent product recommendations",
+                            "45% increase in click-through rates on featured products",
+                            "Reduced manual merchandising effort by 70%",
+                            "Improved customer engagement and personalization"
+                        ]
+                    }
+                },
+                {
+                    name: "Architecture Revamp",
+                    size: 2.5,
+                    distance: 22,
+                    speed: 0.003,
+                    color: 0xe67e22,
+                    texture: "drawYellow",
+                    inclination: -0.1,
+                    node: 3.8,
+                    pdfDetails: {
+                        title: "ENTERPRISE ARCHITECTURE REVAMP",
+                        subtitle: "Scalability & Performance Optimization",
+                        description: "Led business analysis for comprehensive architecture overhaul across all guest-facing platforms.",
+                        impact: [
+                            "Improved system scalability to handle 10x traffic growth",
+                            "Reduced page load times by 40%",
+                            "Enhanced development velocity through standardized patterns",
+                            "Future-proofed technology stack for next 5 years"
+                        ]
+                    }
+                },
+                {
+                    name: "Digital Banking Platform",
+                    size: 2.3,
+                    distance: 29,
+                    speed: 0.0025,
+                    color: 0x3498db,
+                    texture: "drawBlue",
+                    inclination: 0.2,
+                    node: 5.1,
+                    pdfDetails: {
+                        title: "DIGITAL BANKING TRANSFORMATION",
+                        subtitle: "Paperless Communication Platform",
+                        description: "Delivered digital communication platform for large customer segments in banking sector.",
+                        impact: [
+                            "$500K+ annual cost savings through paperless processes",
+                            "Eliminated 2+ million sheets of paper annually",
+                            "Improved customer satisfaction by 15%",
+                            "Reduced carbon footprint significantly"
+                        ]
+                    }
+                }
+            ]
+        },
+
+        // ===== 5. EDUCATION PLANET (Blue, 5th) =====
         {
             name: "Education",
             title: "Education",
             section: "sidebar",
-            order: 6,
+            order: 3,
             renderType: "education",
-            size: 9, // Increased from 6 for better visibility
-            distance: 960,
-            speed: 0.00012,
+            size: 14,
+            distance: 720,
+            speed: 0.00025,
             type: "planet",
             inclination: 0.1,
             node: 2.5,
@@ -1051,23 +522,25 @@ window.RESUME_DATA = {
             tilt: 0.4,
             color: 0x3498db,
             texture: "drawBlue",
-            description: "Academic foundation",
-            details: "Strong academic background providing the theoretical foundation for software engineering and systems analysis.",
+            description: "Academic foundation in Computer Science and Engineering",
             
             moons: [
                 {
                     name: "B.E. Computer Science",
-                    size: 2.0, // Increased from 1.5 for better visibility
-                    distance: 10,
+                    size: 2.5, // Increased size for better visibility
+                    distance: 18, // Increased distance from planet for better spacing
                     speed: 0.003,
                     color: 0x3498db,
-                    details: "Bachelor of Engineering - Computer Science\n2001 – 2005\n\nVivekanand Education Society's Institute of Technology (V.E.S.I.T)\nMumbai University, India\n\nSpecialization: Software Engineering, Database Systems, Computer Networks\nRelevant Coursework: Data Structures, Algorithms, Software Engineering, Database Management, Computer Networks, Operating Systems",
-                    mapQuery: "Vivekanand Education Society's Institute of Technology Mumbai",
+                    texture: "drawBlue",
+                    inclination: 0.1, // Slight inclination
+                    node: 0.8, // Custom orientation
                     institution: "V.E.S.I.T",
                     degree: "Bachelor of Engineering",
                     field: "Computer Science",
                     duration: "2001 - 2005",
                     location: "Mumbai, India",
+                    details: "Bachelor of Engineering - Computer Science\n2001 – 2005\n\nVivekanand Education Society's Institute of Technology (V.E.S.I.T)\nMumbai University, India\n\nSpecialization: Software Engineering, Database Systems, Computer Networks\nRelevant Coursework: Data Structures, Algorithms, Software Engineering, Database Management, Computer Networks, Operating Systems",
+                    mapQuery: "Vivekanand Education Society's Institute of Technology Mumbai",
                     achievements: [
                         "Strong foundation in software engineering principles and methodologies",
                         "Comprehensive understanding of computer systems architecture",
@@ -1087,17 +560,20 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "H.S.C Science",
-                    size: 1.6, // Increased from 1.2 for better visibility
-                    distance: 16,
+                    size: 2.0, // Increased size
+                    distance: 28, // Increased distance for better spacing
                     speed: 0.0025,
                     color: 0x2980b9,
-                    details: "Higher Secondary Certificate - Science Stream\n1999 – 2001\n\nK. J. Somaiya College of Science and Commerce\nMumbai University, India\n\nSubjects: Physics, Chemistry, Mathematics, Biology\nFocus: Mathematical and analytical thinking foundation",
-                    mapQuery: "K. J. Somaiya College of Science and Commerce Mumbai",
+                    texture: "drawTeal",
+                    inclination: -0.2, // Different inclination
+                    node: 3.5, // Different orientation
                     institution: "K. J. Somaiya College",
                     degree: "Higher Secondary Certificate",
                     field: "Science Stream",
                     duration: "1999 - 2001",
                     location: "Mumbai, India",
+                    details: "Higher Secondary Certificate - Science Stream\n1999 – 2001\n\nK. J. Somaiya College of Science and Commerce\nMumbai University, India\n\nSubjects: Physics, Chemistry, Mathematics, Biology\nFocus: Mathematical and analytical thinking foundation",
+                    mapQuery: "K. J. Somaiya College of Science and Commerce Mumbai",
                     achievements: [
                         "Strong mathematical foundation with advanced calculus and algebra",
                         "Scientific methodology and experimental design understanding",
@@ -1115,17 +591,20 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "S.S.C",
-                    size: 1.3, // Increased from 1.0 for better visibility
-                    distance: 22,
+                    size: 1.8, // Increased size for better visibility
+                    distance: 38, // Increased distance for proper spacing
                     speed: 0.002,
                     color: 0x1abc9c,
-                    details: "Secondary School Certificate\n1988 – 1999\n\nSt. Sebastian's High School\nMumbai, India\n\nComprehensive secondary education with focus on academic excellence and character development. Strong foundation in core subjects including Mathematics, Science, and Languages.",
-                    mapQuery: "St. Sebastian's High School Chembur Mumbai",
+                    texture: "drawGreen",
+                    inclination: 0.25, // Higher inclination
+                    node: 5.2, // Different orientation
                     institution: "St. Sebastian's High School",
                     degree: "Secondary School Certificate",
                     field: "General Education",
                     duration: "1988 - 1999",
                     location: "Mumbai, India",
+                    details: "Secondary School Certificate\n1988 – 1999\n\nSt. Sebastian's High School\nMumbai, India\n\nComprehensive secondary education with focus on academic excellence and character development. Strong foundation in core subjects including Mathematics, Science, and Languages.",
+                    mapQuery: "St. Sebastian's High School Chembur Mumbai",
                     achievements: [
                         "Comprehensive academic foundation across multiple disciplines",
                         "Character development and disciplinary excellence",
@@ -1144,174 +623,192 @@ window.RESUME_DATA = {
             ]
         },
 
-        // ===== 10. LANGUAGES PLANET (Green/Yellow, 10th) =====
+        // ===== 6. CERTIFICATIONS PLANET (Purple, 6th) =====
         {
-            name: "Languages",
-            title: "Languages",
+            name: "Certifications",
+            title: "Certifications & Professional Development",
             section: "sidebar",
-            order: 7,
-            renderType: "languages",
-            size: 8, // Increased from 5 for better visibility
-            distance: 1050,
-            speed: 0.0001,
+            order: 4,
+            renderType: "list",
+            size: 12,
+            distance: 850,
+            speed: 0.0002,
             type: "planet",
-            inclination: -0.1,
-            node: 0.5,
-            eccentricity: 0.01,
-            tilt: 0.1,
-            color: 0x2ecc71,
-            texture: "drawLightGreenYellow",
-            description: "Communication capabilities",
-            details: "Proficiency in multiple languages enabling effective communication in diverse environments.",
+            inclination: -0.12,
+            node: 4.2,
+            eccentricity: 0.045,
+            tilt: 0.35,
+            color: 0x9b59b6,
+            texture: "drawUranus",
+            description: "Professional certifications and continuous learning achievements",
             
             moons: [
                 {
-                    name: "Hindi",
-                    size: 1.8, // Increased from 1.4 for better visibility
-                    distance: 8,
-                    speed: 0.004,
-                    color: 0xff9900,
-                    texture: "drawOrange",
-                    details: "Native Proficiency\n\nMother tongue with complete fluency in all aspects. Capable of complex technical discussions, literature comprehension, and professional communication. Deep cultural understanding and idiomatic expression mastery.",
-                    character: "🧙‍♂️", // Wise sage representing mastery
-                    characterAnim: "expertGlow",
-                    proficiencyLevel: "Native",
-                    skills: {
-                        speaking: 10,
-                        reading: 10,
-                        writing: 10,
-                        comprehension: 10
-                    }
-                },
-                {
-                    name: "English",
-                    size: 1.6, // Increased from 1.2 for better visibility
+                    name: "Business Analysis",
+                    size: 2.0,
                     distance: 14,
-                    speed: 0.003,
-                    color: 0xffffff,
-                    texture: "drawWhite",
-                    details: "Professional Proficiency\n\nFull professional working proficiency. Primary language for business communication, technical documentation, and client interactions. Excellent written and verbal communication skills in corporate environments.",
-                    character: "👨‍�", // Albert Einstein-like scientist
-                    characterAnim: "professionalFloat",
-                    proficiencyLevel: "Professional",
-                    skills: {
-                        speaking: 9,
-                        reading: 9,
-                        writing: 8,
-                        comprehension: 10
+                    speed: 0.004,
+                    color: 0x8e44ad,
+                    texture: "drawUranus",
+                    inclination: 0.18,
+                    node: 1.5,
+                    pdfDetails: {
+                        title: "BUSINESS ANALYSIS CERTIFICATION",
+                        description: "Professional certification in business analysis methodologies and practices",
+                        skills: [
+                            "Certified Business Analysis Professional (CBAP) - IIBA - Expired",
+                            "Requirements Engineering and Management",
+                            "Stakeholder Analysis and Engagement",
+                            "Business Process Modeling and Improvement",
+                            "Solution Assessment and Validation",
+                            "Agile Business Analysis Techniques"
+                        ]
                     }
                 },
                 {
-                    name: "Gujarati",
-                    size: 1.1, // Increased from 0.8 for better visibility
+                    name: "Agile & SAFe",
+                    size: 1.8,
                     distance: 20,
-                    speed: 0.002,
-                    color: 0x2ecc71,
-                    texture: "drawGreenOrange",
-                    details: "Intermediate Proficiency\n\nConversational ability with family and community. Can understand most daily conversations and express basic needs and ideas. Limited reading and writing capability.",
-                    character: "👨‍🎓", // Graduate student representing learning
-                    characterAnim: "charHover",
-                    proficiencyLevel: "Intermediate",
-                    skills: {
-                        speaking: 7,
-                        reading: 5,
-                        writing: 4,
-                        comprehension: 8
+                    speed: 0.003,
+                    color: 0x9b59b6,
+                    texture: "drawUranus",
+                    inclination: -0.15,
+                    node: 4.1,
+                    pdfDetails: {
+                        title: "AGILE & SAFE METHODOLOGIES",
+                        description: "Expertise in Agile and Scaled Agile Framework practices",
+                        skills: [
+                            "SAFe Program Increment Planning",
+                            "Scrum Master Principles",
+                            "Agile User Story Writing",
+                            "Epic and Feature Decomposition",
+                            "Continuous Integration/Delivery",
+                            "Lean Portfolio Management"
+                        ]
                     }
                 },
                 {
-                    name: "Marathi",
-                    size: 1.1, // Increased from 0.8 for better visibility
+                    name: "Technical Certifications",
+                    size: 1.6,
                     distance: 26,
-                    speed: 0.0015,
-                    color: 0x1abc9c,
-                    texture: "drawBluishGreen",
-                    details: "Basic Proficiency\n\nBasic conversational ability. Can understand simple phrases and express basic needs. Primarily used for local interactions in Maharashtra region.",
-                    character: "👶", // Baby representing beginner level
-                    characterAnim: "beginnerWobble",
-                    proficiencyLevel: "Basic",
-                    skills: {
-                        speaking: 5,
-                        reading: 3,
-                        writing: 2,
-                        comprehension: 6
+                    speed: 0.0025,
+                    color: 0x663399,
+                    texture: "drawUranus",
+                    inclination: 0.22,
+                    node: 2.8,
+                    pdfDetails: {
+                        title: "TECHNICAL CERTIFICATIONS",
+                        description: "Technical skills and platform certifications",
+                        skills: [
+                            "Microsoft Azure Fundamentals",
+                            "SQL Server Database Administration",
+                            "JIRA Advanced Administration",
+                            "Confluence Space Administration",
+                            "Python for Data Analysis",
+                            "Tableau Desktop Specialist"
+                        ]
                     }
                 }
             ]
         },
 
-        // ===== 11. CONTACT STATION (Orbital, not planet) =====
+        // ===== 7. CONTACT PLANET (Cyan, 7th) =====
         {
-            name: "Contact Station",
-            section: "none",
-            size: 4,
-            distance: 1150,
-            speed: 0.0001,
-            inclination: 0,
-            node: 0.5,
-            eccentricity: 0,
-            tilt: 0,
-            texture: "drawYellow",
-            description: "How to reach me",
+            name: "Contact",
+            title: "Contact & Professional Network",
+            section: "sidebar",
+            order: 5,
+            renderType: "contact",
+            size: 10,
+            distance: 980,
+            speed: 0.00015,
+            type: "planet",
+            inclination: 0.05,
+            node: 6.1,
+            eccentricity: 0.025,
+            tilt: 0.28,
+            color: 0x1abc9c,
+            texture: "drawTeal",
+            description: "Professional contact information and networking channels",
             
-            // Contact Methods (Satellites orbiting the station)
             moons: [
-                { 
-                    name: "Email", 
-                    size: 1.2, 
-                    distance: 10, 
+                {
+                    name: "Email",
+                    size: 1.5,
+                    distance: 12,
                     speed: 0.005,
-                    color: 0xf39c12,
+                    color: 0x16a085,
+                    texture: "drawEmailSurface",
+                    inclination: 0.1,
+                    node: 0.5,
                     pdfDetails: {
-                        method: "EMAIL",
-                        value: "nurrali786@gmail.com",
-                        link: "mailto:nurrali786@gmail.com"
+                        title: "EMAIL COMMUNICATION",
+                        description: "Primary professional email contact",
+                        contact: {
+                            method: "Email",
+                            value: "nurrali786@gmail.com",
+                            link: "mailto:nurrali786@gmail.com",
+                            icon: "📧"
+                        }
                     }
                 },
-                { 
-                    name: "Phone", 
-                    size: 1.1, 
-                    distance: 15, 
+                {
+                    name: "LinkedIn",
+                    size: 1.4,
+                    distance: 17,
                     speed: 0.004,
-                    color: 0xe74c3c,
-                    pdfDetails: {
-                        method: "PHONE",
-                        value: "+1 (236) 508-4786"
-                    }
-                },
-                { 
-                    name: "LinkedIn", 
-                    size: 1.3, 
-                    distance: 20, 
-                    speed: 0.0035,
                     color: 0x0077b5,
+                    texture: "drawBlue",
+                    inclination: -0.12,
+                    node: 2.3,
                     pdfDetails: {
-                        method: "LINKEDIN",
-                        value: "linkedin.com/in/nur786",
-                        link: "https://linkedin.com/in/nur786"
+                        title: "PROFESSIONAL NETWORK",
+                        description: "LinkedIn professional profile and network",
+                        contact: {
+                            method: "LinkedIn",
+                            value: "linkedin.com/in/nur786",
+                            link: "https://linkedin.com/in/nur786",
+                            icon: "🔗"
+                        }
                     }
                 },
-                { 
-                    name: "Location", 
-                    size: 1.0, 
-                    distance: 25, 
+                {
+                    name: "Phone",
+                    size: 1.3,
+                    distance: 22,
                     speed: 0.003,
-                    color: 0x3498db,
+                    color: 0x27ae60,
+                    texture: "drawPhoneSurface",
+                    inclination: 0.18,
+                    node: 4.7,
                     pdfDetails: {
-                        method: "LOCATION",
-                        value: "Port Coquitlam, BC"
+                        title: "PHONE CONTACT",
+                        description: "Direct phone communication",
+                        contact: {
+                            method: "Phone",
+                            value: "+1 (236) 508-4786",
+                            link: "tel:+12365084786",
+                            icon: "📱"
+                        }
                     }
                 },
-                { 
-                    name: "PDF Download", 
-                    size: 1.2, 
-                    distance: 30, 
-                    speed: 0.002,
-                    color: 0x9b59b6,
+                {
+                    name: "Location",
+                    size: 1.2,
+                    distance: 27,
+                    speed: 0.0025,
+                    color: 0x2ecc71,
+                    texture: "drawLocationSurface",
+                    inclination: -0.08,
+                    node: 1.9,
                     pdfDetails: {
-                        method: "DOWNLOAD",
-                        value: "Full PDF Resume Available",
-                        link: "#"
+                        title: "LOCATION",
+                        description: "Current professional location",
+                        contact: {
+                            method: "Location",
+                            value: "Port Coquitlam, BC, Canada",
+                            icon: "📍"
+                        }
                     }
                 }
             ]
