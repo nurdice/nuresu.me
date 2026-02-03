@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
     <title>Nur | Mission Control</title>
+    <link rel="icon" href="data:,">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
         
         body {
             margin: 0;
@@ -161,6 +163,13 @@
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
         }
 
+        #nur-wars-btn:hover {
+            background: url('nurwars.png') no-repeat center/contain !important;
+            background-color: transparent !important;
+            transform: scale(1.1) translateY(-2px) !important;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4) !important;
+        }
+
         #loading {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -313,6 +322,66 @@
         @keyframes pulse {
             0%, 100% { opacity: 0.4; transform: scale(1); }
             50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        /* NUR WARS Crawl Animation - Fixed */
+        @keyframes crawl {
+            0% {
+                top: 100vh;
+                opacity: 1;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                top: -150vh;
+                opacity: 0;
+            }
+        }
+
+        .crawl-text-animated {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%) rotateX(25deg);
+            transform-origin: 50% 100%;
+            width: 80%;
+            max-width: 800px;
+            color: #FFFFFF;
+            font-family: 'Orbitron', serif;
+            font-size: 32px;
+            line-height: 1.8;
+            text-align: justify;
+            animation: crawl 60s linear forwards;
+        }
+
+        @keyframes crawlFadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes panZoomToBattle {
+            0% { 
+                transform: scale(1) translateZ(0px);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.8) translateZ(150px);
+                opacity: 0.5;
+            }
+            100% { 
+                transform: scale(3) translateZ(300px);
+                opacity: 0;
+            }
+        }
+
+        /* Hide controls during NUR WARS */
+        .nur-wars-active #controls {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-out;
         }
 
         /* Language Card Glow Effect */
@@ -578,7 +647,56 @@
         <button class="hud-btn" onclick="toggleSound()" id="sound-btn">🔇 Sound Off</button>
         <button class="hud-btn" onclick="toggleOrbits()" id="orbits-btn">🪐 Show Orbits</button>
         <button class="hud-btn" onclick="goToPreviousView()" id="back-btn" style="display: none;">← Back</button>
+        <button class="hud-btn" onclick="startNurWars()" id="nur-wars-btn" aria-label="Nur Wars" style="background: url('nurwars.png') no-repeat center/contain; background-color: transparent; border: none; width: 120px; height: 60px; padding: 0; min-width: auto; box-shadow: none; backdrop-filter: none;"></button>
         <button class="hud-btn" onclick="document.getElementById('pdf-modal').style.display='flex'">📄 PDF Resume</button>
+    </div>
+
+    <!-- NUR WARS Experience -->
+    <div id="nur-wars-container" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1000; overflow: hidden; pointer-events: none;">
+        <!-- Opening Crawl -->
+        <div id="opening-crawl" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; perspective: 1200px; overflow: hidden; background: transparent; -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 8%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 100%); mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 8%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 100%); pointer-events: none;">
+            <!-- Opening text - fixed position, not affected by scroll -->
+            <p id="opening-text" style="font-size: 20px; text-align: center; opacity: 0.9; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; width: 90%; max-width: 800px; z-index: 1001; color: #0099FF; font-family: 'Arial Black', 'Franklin Gothic', sans-serif; letter-spacing: 2px; line-height: 1.4; font-weight: bold; text-transform: uppercase;">A long time ago in a galaxy far, far away....</p>
+            
+            <!-- Nur Wars image - fixed position overlay, animated separately -->
+            <div id="nurwars-image-container" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 999; width: 90%; max-width: 600px;">
+                <img src="nurwars opening.png" alt="NUR WARS" style="width: 100%; height: auto;">
+            </div>
+            
+            <div id="crawl-text" style="position: absolute; top: 100vh; left: 50%; transform: translateX(-50%) rotateX(0deg) scale(1); transform-origin: 50% bottom; width: 98%; max-width: 1200px; color: #feda4a; font-family: 'Arial Black', 'Franklin Gothic', sans-serif; font-size: 36px; line-height: 1.8; text-align: center; letter-spacing: 2px; font-weight: bold;">
+                
+                <div style="height: 50vh;"></div>
+                
+                <p style="margin: 0 0 30px 0;">It is a period of digital transformation. Rebel analysts, striking from hidden offices, have won their first victory against the evil Legacy Systems Empire.</p>
+                
+                <p style="margin: 0 0 30px 0;">During the battle, rebel spies managed to steal secret plans to the Empire's ultimate weapon, the MONOLITHIC ARCHITECTURE—a legacy system with enough power to destroy an entire business process.</p>
+                
+                <p style="margin: 0 0 30px 0;">In this epic tale, young NUR DAWOODANI emerges as the chosen Business Analyst, wielding 18+ years of experience across retail and banking galaxies. From the corporate towers of LULULEMON to the financial fortresses of HSBC, he has brought balance to the Force of digital transformation.</p>
+                
+                <p style="margin: 0 0 30px 0;">His legendary achievements include architecting the Great Revamp that saved the Retail Galaxy from scalability collapse, wielding AI-driven Product Highlights to generate multi-million credit revenues, and leading the Paperless Rebellion that eliminated 2+ million sheets annually.</p>
+                
+                <p style="margin: 0 0 30px 0;">Now, as the Empire of Technical Debt threatens to engulf all business processes, the galaxy's only hope lies with this Business Analysis Jedi Master...</p>
+                
+                <p style="margin: 0 0 30px 0;">Will Nur's mastery of SAFe, stakeholder management, and epic decomposition be enough to restore order to the chaotic universe of enterprise software?</p>
+                
+                <p style="margin: 0;">The fate of digital transformation rests in his capable hands...</p>
+            </div>
+        </div>
+        
+        <!-- Battle Scene -->
+        <div id="battle-scene" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+            <canvas id="battle-canvas" style="width: 100%; height: 100%;"></canvas>
+            <div id="battle-hud" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-family: 'Orbitron', serif; text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 10px;">REBEL ALLIANCE MISSION</div>
+                <div style="font-size: 18px;">Destroy the Legacy System Death Star</div>
+                <div style="font-size: 14px; margin-top: 10px; opacity: 0.8;">Use the Force of Business Analysis, Nur...</div>
+            </div>
+        </div>
+        
+        <!-- Close Button -->
+        <button onclick="closeNurWars()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,215,0,0.2); border: 2px solid #FFD700; color: #FFD700; padding: 10px 20px; border-radius: 5px; font-family: 'Orbitron', serif; cursor: pointer; z-index: 1001;">
+            EXIT HYPERSPACE
+        </button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -651,6 +769,7 @@
         const gravityLines = [];
         const gravityParticles = [];
         let gravityAnimationFrame = 0;
+        let renderMode = 'default'; // 'default' or 'battle'
 
         // === SETUP THREE.JS (BEFORE ANYTHING ELSE) ===
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -2860,6 +2979,89 @@
         starMesh.layers.set(0);
         scene.add(starMesh);
 
+        // === ADDITIONAL STARFIELD FOR NUR WARS CRAWL AREA ===
+        // Create stars in upper region where camera pans for opening crawl
+        const upperStarsGeo = new THREE.BufferGeometry();
+        const upperStarsCount = 8000;
+        const upperStarPositions = new Float32Array(upperStarsCount * 3);
+        const upperStarColors = new Float32Array(upperStarsCount * 3);
+        const upperStarSizes = new Float32Array(upperStarsCount);
+
+        for(let i = 0; i < upperStarsCount; i++) {
+            // Position stars in upper region (Y: 10000 to 20000)
+            upperStarPositions[i * 3] = (Math.random() - 0.5) * 8000;
+            upperStarPositions[i * 3 + 1] = Math.random() * 10000 + 10000; // Y between 10000-20000
+            upperStarPositions[i * 3 + 2] = (Math.random() - 0.5) * 8000;
+
+            const col = starColorChoices[Math.floor(Math.random() * starColorChoices.length)];
+            upperStarColors[i * 3] = col.r;
+            upperStarColors[i * 3 + 1] = col.g;
+            upperStarColors[i * 3 + 2] = col.b;
+
+            upperStarSizes[i] = Math.random() * 2.5 + 0.8;
+        }
+
+        upperStarsGeo.setAttribute('position', new THREE.BufferAttribute(upperStarPositions, 3));
+        upperStarsGeo.setAttribute('color', new THREE.BufferAttribute(upperStarColors, 3));
+        upperStarsGeo.setAttribute('size', new THREE.BufferAttribute(upperStarSizes, 1));
+
+        const upperStarsMat = new THREE.PointsMaterial({
+            size: 2,
+            vertexColors: true,
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.9,
+            fog: false,
+            alphaTest: 0.5,
+            map: starTexture
+        });
+
+        const upperStarMesh = new THREE.Points(upperStarsGeo, upperStarsMat);
+        upperStarMesh.layers.set(0);
+        scene.add(upperStarMesh);
+        window.upperStarMesh = upperStarMesh; // Make accessible globally for animation
+
+        // === ADD NEBULA CLOUDS IN CRAWL AREA FOR DEPTH ===
+        for (let i = 0; i < 3; i++) {
+            const nebulaGeo = new THREE.PlaneGeometry(3000, 2000);
+            const nebulaCanvas = document.createElement('canvas');
+            nebulaCanvas.width = 512;
+            nebulaCanvas.height = 512;
+            const ctx = nebulaCanvas.getContext('2d');
+            
+            // Create gradient nebula
+            const gradient = ctx.createRadialGradient(256, 256, 50, 256, 256, 300);
+            const colors = [
+                ['rgba(100, 50, 150, 0.15)', 'rgba(100, 50, 150, 0)'],
+                ['rgba(50, 100, 200, 0.15)', 'rgba(50, 100, 200, 0)'],
+                ['rgba(150, 50, 100, 0.15)', 'rgba(150, 50, 100, 0)']
+            ];
+            gradient.addColorStop(0, colors[i][0]);
+            gradient.addColorStop(1, colors[i][1]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 512, 512);
+            
+            const nebulaTex = new THREE.CanvasTexture(nebulaCanvas);
+            const nebulaMat = new THREE.MeshBasicMaterial({
+                map: nebulaTex,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            
+            const nebulaMesh = new THREE.Mesh(nebulaGeo, nebulaMat);
+            nebulaMesh.position.set(
+                (Math.random() - 0.5) * 6000,
+                Math.random() * 8000 + 12000,
+                (Math.random() - 0.5) * 6000 - 2000
+            );
+            nebulaMesh.rotation.x = Math.random() * Math.PI;
+            nebulaMesh.rotation.y = Math.random() * Math.PI;
+            nebulaMesh.layers.set(0);
+            scene.add(nebulaMesh);
+        }
+
         // === IMPROVED REALISTIC GALAXIES WITH VARIED COLORS ===
         function createGalaxy(colorScheme = 0) {
             const colors = [
@@ -3227,598 +3429,6 @@
             }
         });
 
-        // === CREATE STAR WARS ELEMENTS ===
-        function createStarWarsElements() {
-            const starWarsObjects = [];
-            
-            // Create 3D Star Wars spaceships, characters, and objects
-            const starWarsItems = [
-                // Spaceships
-                { type: 'millennium-falcon', count: 2 },
-                { type: 'x-wing', count: 3 },
-                { type: 'tie-fighter', count: 4 },
-                { type: 'star-destroyer', count: 1 },
-                { type: 'death-star', count: 1 },
-                
-                // Characters
-                { type: 'darth-vader', count: 2 },
-                { type: 'yoda', count: 2 },
-                { type: 'r2d2', count: 3 },
-                { type: 'c3po', count: 2 },
-                
-                // Objects
-                { type: 'lightsaber', count: 4 },
-                { type: 'asteroid', count: 6 }
-            ];
-            
-            starWarsItems.forEach(item => {
-                for (let i = 0; i < item.count; i++) {
-                    const element = createStarWarsElement(item.type);
-                    
-                    // Random positioning in 3D space (avoiding planet orbits)
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = 1200 + Math.random() * 2000; // Far from planets
-                    const height = (Math.random() - 0.5) * 1000;
-                    
-                    element.position.set(
-                        Math.cos(angle) * distance,
-                        height,
-                        Math.sin(angle) * distance
-                    );
-                    
-                    // Random rotation
-                    element.rotation.set(
-                        Math.random() * Math.PI * 2,
-                        Math.random() * Math.PI * 2,
-                        Math.random() * Math.PI * 2
-                    );
-                    
-                    // Random scale variation
-                    const scale = 0.8 + Math.random() * 0.4;
-                    element.scale.setScalar(scale);
-                    
-                    scene.add(element);
-                    starWarsObjects.push(element);
-                }
-            });
-            
-            return starWarsObjects;
-        }
-        
-        function createStarWarsElement(type) {
-            switch(type) {
-                case 'millennium-falcon':
-                    return createMillenniumFalcon();
-                case 'x-wing':
-                    return createXWing();
-                case 'tie-fighter':
-                    return createTieFighter();
-                case 'star-destroyer':
-                    return createStarDestroyer();
-                case 'death-star':
-                    return createDeathStar();
-                case 'darth-vader':
-                    return createDarthVader();
-                case 'yoda':
-                    return createYoda();
-                case 'r2d2':
-                    return createR2D2();
-                case 'c3po':
-                    return createC3PO();
-                case 'lightsaber':
-                    return createLightsaber();
-                case 'asteroid':
-                    return createAsteroid();
-                default:
-                    return new THREE.Group();
-            }
-        }
-        
-        // Millennium Falcon
-        function createMillenniumFalcon() {
-            const group = new THREE.Group();
-            
-            // Main hull (circular with notch)
-            const hullGeo = new THREE.CylinderGeometry(25, 25, 8, 16);
-            const hullMat = new THREE.MeshPhongMaterial({ 
-                color: 0x888888,
-                shininess: 30,
-                transparent: true,
-                opacity: 0.9
-            });
-            const hull = new THREE.Mesh(hullGeo, hullMat);
-            hull.rotation.x = Math.PI / 2;
-            group.add(hull);
-            
-            // Cockpit
-            const cockpitGeo = new THREE.SphereGeometry(8, 8, 8);
-            const cockpitMat = new THREE.MeshPhongMaterial({ 
-                color: 0x444444,
-                transparent: true,
-                opacity: 0.7
-            });
-            const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
-            cockpit.position.set(15, 0, 0);
-            cockpit.scale.set(1, 0.6, 1);
-            group.add(cockpit);
-            
-            // Engine glow
-            const engineGeo = new THREE.CylinderGeometry(3, 5, 12, 8);
-            const engineMat = new THREE.MeshBasicMaterial({ 
-                color: 0x00aaff,
-                transparent: true,
-                opacity: 0.8
-            });
-            const engine1 = new THREE.Mesh(engineGeo, engineMat);
-            engine1.position.set(-20, 0, 10);
-            engine1.rotation.x = Math.PI / 2;
-            group.add(engine1);
-            
-            const engine2 = new THREE.Mesh(engineGeo, engineMat);
-            engine2.position.set(-20, 0, -10);
-            engine2.rotation.x = Math.PI / 2;
-            group.add(engine2);
-            
-            // Add subtle animation
-            group.userData.animate = () => {
-                group.rotation.y += 0.002;
-                group.position.y += Math.sin(Date.now() * 0.001) * 0.5;
-            };
-            
-            return group;
-        }
-        
-        // X-Wing Fighter
-        function createXWing() {
-            const group = new THREE.Group();
-            
-            // Main body
-            const bodyGeo = new THREE.CylinderGeometry(2, 4, 20, 8);
-            const bodyMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.rotation.x = Math.PI / 2;
-            group.add(body);
-            
-            // Wings
-            const wingGeo = new THREE.BoxGeometry(25, 2, 4);
-            const wingMat = new THREE.MeshPhongMaterial({ color: 0xaaaaaa });
-            
-            const wing1 = new THREE.Mesh(wingGeo, wingMat);
-            wing1.position.set(0, 5, 0);
-            wing1.rotation.z = Math.PI / 6;
-            group.add(wing1);
-            
-            const wing2 = new THREE.Mesh(wingGeo, wingMat);
-            wing2.position.set(0, -5, 0);
-            wing2.rotation.z = -Math.PI / 6;
-            group.add(wing2);
-            
-            // Engine glow
-            for (let i = 0; i < 4; i++) {
-                const engineGeo = new THREE.CylinderGeometry(1, 1, 4, 6);
-                const engineMat = new THREE.MeshBasicMaterial({ 
-                    color: 0xff4400,
-                    transparent: true,
-                    opacity: 0.8
-                });
-                const engine = new THREE.Mesh(engineGeo, engineMat);
-                const angle = (i / 4) * Math.PI * 2;
-                engine.position.set(Math.cos(angle) * 12, Math.sin(angle) * 6, -12);
-                engine.rotation.x = Math.PI / 2;
-                group.add(engine);
-            }
-            
-            group.userData.animate = () => {
-                group.rotation.z += 0.01;
-                group.position.x += Math.sin(Date.now() * 0.002) * 0.3;
-            };
-            
-            return group;
-        }
-        
-        // TIE Fighter
-        function createTieFighter() {
-            const group = new THREE.Group();
-            
-            // Central cockpit
-            const cockpitGeo = new THREE.SphereGeometry(6, 8, 8);
-            const cockpitMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
-            const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
-            group.add(cockpit);
-            
-            // Solar panels
-            const panelGeo = new THREE.CylinderGeometry(15, 15, 2, 6);
-            const panelMat = new THREE.MeshPhongMaterial({ 
-                color: 0x222222,
-                transparent: true,
-                opacity: 0.8
-            });
-            
-            const panel1 = new THREE.Mesh(panelGeo, panelMat);
-            panel1.position.set(-20, 0, 0);
-            panel1.rotation.z = Math.PI / 2;
-            group.add(panel1);
-            
-            const panel2 = new THREE.Mesh(panelGeo, panelMat);
-            panel2.position.set(20, 0, 0);
-            panel2.rotation.z = Math.PI / 2;
-            group.add(panel2);
-            
-            // Engine glow
-            const engineGeo = new THREE.CylinderGeometry(2, 2, 6, 6);
-            const engineMat = new THREE.MeshBasicMaterial({ 
-                color: 0x00ff00,
-                transparent: true,
-                opacity: 0.9
-            });
-            const engine = new THREE.Mesh(engineGeo, engineMat);
-            engine.position.set(0, 0, -8);
-            engine.rotation.x = Math.PI / 2;
-            group.add(engine);
-            
-            group.userData.animate = () => {
-                group.rotation.y += 0.015;
-                const panels = [panel1, panel2];
-                panels.forEach(panel => {
-                    panel.rotation.y += 0.005;
-                });
-            };
-            
-            return group;
-        }
-        
-        // Death Star
-        function createDeathStar() {
-            const group = new THREE.Group();
-            
-            // Main sphere
-            const sphereGeo = new THREE.SphereGeometry(40, 16, 16);
-            const sphereMat = new THREE.MeshPhongMaterial({ 
-                color: 0x666666,
-                shininess: 10
-            });
-            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-            group.add(sphere);
-            
-            // Superlaser dish
-            const dishGeo = new THREE.CylinderGeometry(8, 10, 4, 8);
-            const dishMat = new THREE.MeshPhongMaterial({ color: 0x444444 });
-            const dish = new THREE.Mesh(dishGeo, dishMat);
-            dish.position.set(25, 10, 0);
-            group.add(dish);
-            
-            // Surface details (trenches)
-            for (let i = 0; i < 8; i++) {
-                const trenchGeo = new THREE.TorusGeometry(35 + i * 2, 0.5, 4, 16);
-                const trenchMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
-                const trench = new THREE.Mesh(trenchGeo, trenchMat);
-                trench.rotation.x = Math.PI / 2;
-                trench.rotation.z = i * 0.3;
-                group.add(trench);
-            }
-            
-            group.userData.animate = () => {
-                group.rotation.y += 0.001;
-                group.rotation.x += 0.0005;
-            };
-            
-            return group;
-        }
-        
-        // Star Destroyer
-        function createStarDestroyer() {
-            const group = new THREE.Group();
-            
-            // Main hull (triangular)
-            const hullGeo = new THREE.ConeGeometry(20, 60, 3);
-            const hullMat = new THREE.MeshPhongMaterial({ color: 0x777777 });
-            const hull = new THREE.Mesh(hullGeo, hullMat);
-            hull.rotation.x = Math.PI / 2;
-            group.add(hull);
-            
-            // Bridge tower
-            const bridgeGeo = new THREE.BoxGeometry(8, 15, 6);
-            const bridgeMat = new THREE.MeshPhongMaterial({ color: 0x555555 });
-            const bridge = new THREE.Mesh(bridgeGeo, bridgeMat);
-            bridge.position.set(0, 7, 20);
-            group.add(bridge);
-            
-            // Engine glow
-            for (let i = 0; i < 6; i++) {
-                const engineGeo = new THREE.CylinderGeometry(2, 2, 8, 6);
-                const engineMat = new THREE.MeshBasicMaterial({ 
-                    color: 0x0088ff,
-                    transparent: true,
-                    opacity: 0.8
-                });
-                const engine = new THREE.Mesh(engineGeo, engineMat);
-                engine.position.set((i - 2.5) * 4, 0, -25);
-                engine.rotation.x = Math.PI / 2;
-                group.add(engine);
-            }
-            
-            group.userData.animate = () => {
-                group.rotation.y += 0.001;
-            };
-            
-            return group;
-        }
-        
-        // R2-D2
-        function createR2D2() {
-            const group = new THREE.Group();
-            
-            // Body
-            const bodyGeo = new THREE.CylinderGeometry(6, 6, 12, 8);
-            const bodyMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            group.add(body);
-            
-            // Head
-            const headGeo = new THREE.SphereGeometry(6, 8, 8);
-            const headMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 10;
-            head.scale.y = 0.7;
-            group.add(head);
-            
-            // Blue details
-            const detailGeo = new THREE.CylinderGeometry(5.5, 5.5, 8, 8);
-            const detailMat = new THREE.MeshPhongMaterial({ color: 0x0066cc });
-            const detail = new THREE.Mesh(detailGeo, detailMat);
-            detail.position.y = 2;
-            group.add(detail);
-            
-            // Eye
-            const eyeGeo = new THREE.SphereGeometry(1, 6, 6);
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            const eye = new THREE.Mesh(eyeGeo, eyeMat);
-            eye.position.set(0, 12, 5);
-            group.add(eye);
-            
-            group.userData.animate = () => {
-                head.rotation.y += 0.02;
-                eye.material.opacity = 0.5 + 0.5 * Math.sin(Date.now() * 0.01);
-            };
-            
-            return group;
-        }
-        
-        // Darth Vader
-        function createDarthVader() {
-            const group = new THREE.Group();
-            
-            // Body
-            const bodyGeo = new THREE.CylinderGeometry(8, 6, 20, 8);
-            const bodyMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            group.add(body);
-            
-            // Head/Helmet
-            const headGeo = new THREE.SphereGeometry(7, 8, 8);
-            const headMat = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 15;
-            group.add(head);
-            
-            // Cape
-            const capeGeo = new THREE.CylinderGeometry(12, 8, 18, 8);
-            const capeMat = new THREE.MeshPhongMaterial({ 
-                color: 0x222222,
-                transparent: true,
-                opacity: 0.8
-            });
-            const cape = new THREE.Mesh(capeGeo, capeMat);
-            cape.position.set(0, 0, -5);
-            group.add(cape);
-            
-            // Lightsaber
-            const saberHilt = new THREE.CylinderGeometry(0.8, 0.8, 8, 8);
-            const saberHiltMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
-            const hilt = new THREE.Mesh(saberHilt, saberHiltMat);
-            hilt.position.set(10, 5, 0);
-            hilt.rotation.z = Math.PI / 4;
-            group.add(hilt);
-            
-            const saberBlade = new THREE.CylinderGeometry(0.5, 0.5, 20, 8);
-            const saberBladeMat = new THREE.MeshBasicMaterial({ 
-                color: 0xff0000,
-                transparent: true,
-                opacity: 0.8
-            });
-            const blade = new THREE.Mesh(saberBlade, saberBladeMat);
-            blade.position.set(15, 12, 0);
-            blade.rotation.z = Math.PI / 4;
-            group.add(blade);
-            
-            group.userData.animate = () => {
-                cape.rotation.y += 0.005;
-                blade.material.opacity = 0.6 + 0.4 * Math.sin(Date.now() * 0.01);
-            };
-            
-            return group;
-        }
-        
-        // Yoda
-        function createYoda() {
-            const group = new THREE.Group();
-            
-            // Body (small)
-            const bodyGeo = new THREE.CylinderGeometry(4, 3, 8, 8);
-            const bodyMat = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            group.add(body);
-            
-            // Head (large relative to body)
-            const headGeo = new THREE.SphereGeometry(5, 8, 8);
-            const headMat = new THREE.MeshPhongMaterial({ color: 0x90EE90 });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 8;
-            head.scale.set(1, 1.2, 1);
-            group.add(head);
-            
-            // Ears
-            const earGeo = new THREE.ConeGeometry(2, 4, 6);
-            const earMat = new THREE.MeshPhongMaterial({ color: 0x90EE90 });
-            
-            const ear1 = new THREE.Mesh(earGeo, earMat);
-            ear1.position.set(-4, 10, 0);
-            ear1.rotation.z = -Math.PI / 3;
-            group.add(ear1);
-            
-            const ear2 = new THREE.Mesh(earGeo, earMat);
-            ear2.position.set(4, 10, 0);
-            ear2.rotation.z = Math.PI / 3;
-            group.add(ear2);
-            
-            // Walking stick
-            const stickGeo = new THREE.CylinderGeometry(0.3, 0.3, 12, 6);
-            const stickMat = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
-            const stick = new THREE.Mesh(stickGeo, stickMat);
-            stick.position.set(6, 2, 0);
-            group.add(stick);
-            
-            group.userData.animate = () => {
-                group.rotation.y += 0.003;
-                head.rotation.x = Math.sin(Date.now() * 0.002) * 0.1;
-            };
-            
-            return group;
-        }
-        
-        // C-3PO
-        function createC3PO() {
-            const group = new THREE.Group();
-            
-            // Body
-            const bodyGeo = new THREE.CylinderGeometry(6, 5, 15, 8);
-            const bodyMat = new THREE.MeshPhongMaterial({ 
-                color: 0xFFD700,
-                shininess: 100
-            });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            group.add(body);
-            
-            // Head
-            const headGeo = new THREE.SphereGeometry(5, 8, 8);
-            const headMat = new THREE.MeshPhongMaterial({ 
-                color: 0xFFD700,
-                shininess: 100
-            });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 12;
-            group.add(head);
-            
-            // Eyes
-            const eyeGeo = new THREE.SphereGeometry(0.8, 6, 6);
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-            
-            const eye1 = new THREE.Mesh(eyeGeo, eyeMat);
-            eye1.position.set(-2, 13, 4);
-            group.add(eye1);
-            
-            const eye2 = new THREE.Mesh(eyeGeo, eyeMat);
-            eye2.position.set(2, 13, 4);
-            group.add(eye2);
-            
-            group.userData.animate = () => {
-                group.rotation.y += 0.008;
-                [eye1, eye2].forEach(eye => {
-                    eye.material.opacity = 0.7 + 0.3 * Math.sin(Date.now() * 0.008);
-                });
-            };
-            
-            return group;
-        }
-        
-        // Lightsaber (standalone)
-        function createLightsaber() {
-            const group = new THREE.Group();
-            
-            // Hilt
-            const hiltGeo = new THREE.CylinderGeometry(1, 1, 8, 8);
-            const hiltMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
-            const hilt = new THREE.Mesh(hiltGeo, hiltMat);
-            group.add(hilt);
-            
-            // Blade
-            const bladeGeo = new THREE.CylinderGeometry(0.5, 0.5, 25, 8);
-            const bladeColors = [0x00ff00, 0xff0000, 0x0066ff, 0xff00ff];
-            const bladeColor = bladeColors[Math.floor(Math.random() * bladeColors.length)];
-            const bladeMat = new THREE.MeshBasicMaterial({ 
-                color: bladeColor,
-                transparent: true,
-                opacity: 0.8
-            });
-            const blade = new THREE.Mesh(bladeGeo, bladeMat);
-            blade.position.y = 16;
-            group.add(blade);
-            
-            // Glow effect
-            const glowGeo = new THREE.CylinderGeometry(1.5, 1.5, 25, 8);
-            const glowMat = new THREE.MeshBasicMaterial({ 
-                color: bladeColor,
-                transparent: true,
-                opacity: 0.3
-            });
-            const glow = new THREE.Mesh(glowGeo, glowMat);
-            glow.position.y = 16;
-            group.add(glow);
-            
-            group.userData.animate = () => {
-                group.rotation.z += 0.05;
-                blade.material.opacity = 0.6 + 0.4 * Math.sin(Date.now() * 0.01);
-                glow.material.opacity = 0.2 + 0.2 * Math.sin(Date.now() * 0.01);
-            };
-            
-            return group;
-        }
-        
-        // Asteroid
-        function createAsteroid() {
-            const group = new THREE.Group();
-            
-            // Irregular asteroid shape
-            const asteroidGeo = new THREE.DodecahedronGeometry(8 + Math.random() * 12, 1);
-            const asteroidMat = new THREE.MeshPhongMaterial({ 
-                color: 0x444444,
-                shininess: 5
-            });
-            const asteroid = new THREE.Mesh(asteroidGeo, asteroidMat);
-            
-            // Random deformation for more realistic look
-            const vertices = asteroidGeo.attributes.position.array;
-            for (let i = 0; i < vertices.length; i += 3) {
-                vertices[i] *= 0.8 + Math.random() * 0.4;
-                vertices[i + 1] *= 0.8 + Math.random() * 0.4;
-                vertices[i + 2] *= 0.8 + Math.random() * 0.4;
-            }
-            asteroidGeo.attributes.position.needsUpdate = true;
-            asteroidGeo.computeVertexNormals();
-            
-            group.add(asteroid);
-            
-            group.userData.animate = () => {
-                group.rotation.x += 0.01;
-                group.rotation.y += 0.008;
-                group.rotation.z += 0.005;
-            };
-            
-            return group;
-        }
-        
-        // Create and add all Star Wars elements
-        const starWarsElements = createStarWarsElements();
-        
-        // Animation function for Star Wars elements
-        function animateStarWarsElements() {
-            starWarsElements.forEach(element => {
-                if (element.userData.animate) {
-                    element.userData.animate();
-                }
-            });
-        }
-
         // === INTERACTION ===
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -4170,7 +3780,7 @@
             document.getElementById('overlay-panel').classList.remove('active');
         }
 
-        // Enhanced modal system for Languages and Education planets
+        // Enhanced modal system for all planets
         function showMoonDetails(moon) {
             const parentPlanet = moon.userData.parentPlanet;
             const parentName = parentPlanet && parentPlanet.userData ? parentPlanet.userData.name : '';
@@ -4180,6 +3790,8 @@
             const isLanguagesMoon = moon.userData.renderType === 'languages' || moonName === 'Languages';
             const isEducationMoon = parentName === 'Education';
             const isSkillsMoon = parentName === 'Skills & Tools';
+            const isExperienceMoon = parentName === 'Experience';
+            const isExpertiseMoon = parentName === 'Expertise & Impact';
             const isProjectsMoon = parentName === 'Projects';
             const isCertificationsMoon = parentName === 'Certifications';
             const isContactMoon = parentName === 'Contact';
@@ -4188,6 +3800,10 @@
                 showEnhancedModal(moon, parentName);
             } else if (isSkillsMoon || isCertificationsMoon) {
                 showSkillsModal(moon);
+            } else if (isExperienceMoon) {
+                showExperienceModal(moon);
+            } else if (isExpertiseMoon) {
+                showExpertiseModal(moon);
             } else if (isProjectsMoon) {
                 showProjectsModal(moon);
             } else if (isContactMoon) {
@@ -4567,6 +4183,116 @@
             document.getElementById('overlay-panel').classList.remove('active');
         }
 
+        // Experience modal for Experience planet moons
+        function showExperienceModal(moon) {
+            const skyDetails = document.getElementById('sky-details');
+            const titleEl = document.getElementById('sky-title');
+            const contentEl = document.getElementById('sky-content');
+            
+            const moonName = moon.userData.name || 'Moon';
+            const pdfDetails = moon.userData.pdfDetails || {};
+            
+            titleEl.textContent = moonName;
+            
+            let html = `
+                <div style="display: flex; flex-direction: column; height: 100%; padding: 20px;">
+                    <!-- Company Header -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #38bdf8; margin: 0; font-size: 24px;">${pdfDetails.company || moonName}</h2>
+                        <div style="color: #94a3b8; font-size: 16px; margin-top: 5px;">${pdfDetails.role || 'Professional Role'}</div>
+                        <div style="color: #64748b; font-size: 14px; margin-top: 3px;">${pdfDetails.duration || ''} | ${pdfDetails.location || ''}</div>
+                    </div>
+                    
+                    <!-- Industry Badge -->
+                    ${pdfDetails.industry ? `
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <span style="background: linear-gradient(45deg, #38bdf8, #818cf8); color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                                ${pdfDetails.industry}
+                            </span>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Achievements -->
+                    <div style="flex: 1; overflow-y: auto;">
+                        <h3 style="color: #38bdf8; margin: 0 0 15px 0; font-size: 18px; text-align: center;">Key Achievements</h3>
+                        <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px;">
+                            ${(pdfDetails.achievements || []).map(achievement => `
+                                <div style="background: rgba(56, 189, 248, 0.05); border-left: 3px solid #38bdf8; padding: 12px; margin-bottom: 10px; border-radius: 0 8px 8px 0;">
+                                    <p style="margin: 0; color: #e2e8f0; font-size: 14px; line-height: 1.5;">${achievement}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            contentEl.innerHTML = html;
+            skyDetails.style.display = 'block';
+            document.getElementById('overlay-panel').classList.remove('active');
+        }
+
+        // Expertise modal for Expertise & Impact planet moons
+        function showExpertiseModal(moon) {
+            const skyDetails = document.getElementById('sky-details');
+            const titleEl = document.getElementById('sky-title');
+            const contentEl = document.getElementById('sky-content');
+            
+            const moonName = moon.userData.name || 'Moon';
+            const pdfDetails = moon.userData.pdfDetails || {};
+            
+            titleEl.textContent = moonName;
+            
+            let html = `
+                <div style="display: flex; flex-direction: column; height: 100%; padding: 20px;">
+                    <!-- Header -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #f39c12; margin: 0; font-size: 24px;">${pdfDetails.title || moonName}</h2>
+                        <div style="color: #94a3b8; font-size: 14px; margin-top: 5px;">${pdfDetails.subtitle || 'Domain Expertise'}</div>
+                    </div>
+                    
+                    <!-- Description -->
+                    ${pdfDetails.description ? `
+                        <div style="background: rgba(243, 156, 18, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                            <p style="color: #e2e8f0; margin: 0; font-size: 14px; line-height: 1.5; text-align: center;">${pdfDetails.description}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Content Sections -->
+                    <div style="flex: 1; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <!-- Impact Column -->
+                        ${pdfDetails.impact ? `
+                            <div style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 15px;">
+                                <h4 style="color: #f39c12; margin: 0 0 12px 0; font-size: 16px; text-align: center;">📊 Measurable Impact</h4>
+                                ${pdfDetails.impact.map(item => `
+                                    <div style="background: rgba(243, 156, 18, 0.1); padding: 8px; margin-bottom: 8px; border-radius: 6px; border-left: 3px solid #f39c12;">
+                                        <p style="margin: 0; color: #e2e8f0; font-size: 12px; line-height: 1.4;">${item}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Problems/Approaches Column -->
+                        ${(pdfDetails.problems || pdfDetails.approaches || pdfDetails.capabilities) ? `
+                            <div style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 15px;">
+                                <h4 style="color: #f39c12; margin: 0 0 12px 0; font-size: 16px; text-align: center;">
+                                    ${pdfDetails.problems ? '🎯 Problem Domains' : pdfDetails.approaches ? '🚀 Approaches' : '⚡ Capabilities'}
+                                </h4>
+                                ${(pdfDetails.problems || pdfDetails.approaches || pdfDetails.capabilities || []).map(item => `
+                                    <div style="background: rgba(243, 156, 18, 0.05); padding: 8px; margin-bottom: 8px; border-radius: 6px;">
+                                        <p style="margin: 0; color: #cbd5e1; font-size: 12px; line-height: 1.4;">${item}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            contentEl.innerHTML = html;
+            skyDetails.style.display = 'block';
+            document.getElementById('overlay-panel').classList.remove('active');
+        }
+
         // Standard modal for other planets/moons
         function showStandardModal(moon) {
             const panel = document.getElementById('overlay-panel');
@@ -4829,6 +4555,1896 @@
         	panel.classList.remove('active');
         }
 
+        // === NUR WARS EXPERIENCE ===
+        let nurWarsActive = false;
+        let battleScene = null;
+        let nurWarsCamera = null;
+        let nurWarsScene = null;
+        let nurWarsObjects = [];
+        let nurWarsTimeouts = [];
+        
+        function setNurWarsTimeout(callback, delay) {
+            const id = setTimeout(callback, delay);
+            nurWarsTimeouts.push(id);
+            return id;
+        }
+        
+        function clearNurWarsTimeouts() {
+            nurWarsTimeouts.forEach(clearTimeout);
+            nurWarsTimeouts = [];
+        }
+
+        function startNurWars() {
+            if (nurWarsActive) return;
+            
+            nurWarsActive = true;
+            renderMode = 'default'; // Start in default mode (solar system view)
+            
+            // Enable sound automatically for NUR WARS
+            if (!soundEnabled) {
+                soundEnabled = true;
+                document.getElementById('sound-btn').textContent = '🔊 Sound On';
+            }
+            
+            // Stop default solar system sounds and hide UI
+            stopCurrentAudio();
+            stopCometSounds(); // Stop comet sounds
+            document.body.classList.add('nur-wars-active');
+            
+            // Save current camera state
+            const originalCameraPos = camera.position.clone();
+            const originalTarget = controls.target.clone();
+            
+            // Disable main controls during NUR WARS
+            controls.enabled = false;
+            
+            // SILENT PAN: Pan up to see a different area in space, avoiding solar system
+            // Move camera upward and shift target away from solar system center
+            const panTarget = originalCameraPos.clone().add(new THREE.Vector3(0, 15000, 0));
+            const targetShift = originalTarget.clone().add(new THREE.Vector3(0, 15000, 0));
+            const panStart = Date.now();
+            const panDuration = 6000; // 6 second silent pan
+            
+            function animatePanToCrawl() {
+                const elapsed = Date.now() - panStart;
+                const progress = Math.min(elapsed / panDuration, 1);
+                const eased = easeInOut(progress);
+                
+                camera.position.lerpVectors(originalCameraPos, panTarget, eased);
+                controls.target.lerpVectors(originalTarget, targetShift, eased);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animatePanToCrawl);
+                } else {
+                    // Pan complete, now start the crawl sequence
+                    showCrawlSequence(panTarget);
+                }
+            }
+            
+            animatePanToCrawl();
+        }
+        
+        function stopCometSounds() {
+            // Stop any comet-related audio if it exists
+            if (window.cometAudio) {
+                window.cometAudio.pause();
+                window.cometAudio = null;
+            }
+        }
+        
+        function easeInOut(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+        
+        function showCrawlSequence(crawlLocation) {
+            // Position camera for crawl view in isolated 3D space far from solar system
+            camera.position.copy(crawlLocation);
+            camera.rotation.z = 0;
+            
+            // Expand camera far plane to see more of 3D space
+            camera.far = 100000;
+            camera.updateProjectionMatrix();
+            
+            // Get the crawl text element and start 3D animation
+            const crawlText = document.getElementById('crawl-text');
+            
+            // Reset position and styles for 3D effect
+            crawlText.style.animation = 'none';
+            crawlText.style.transition = 'none';
+            crawlText.className = '';
+            crawlText.style.position = 'absolute';
+            crawlText.style.left = '50%';
+            crawlText.style.transformOrigin = '50% 0%';
+            crawlText.style.opacity = '1';
+            
+            // Show crawl overlay first
+            const container = document.getElementById('nur-wars-container');
+            const crawl = document.getElementById('opening-crawl');
+            const battle = document.getElementById('battle-scene');
+            
+            container.style.display = 'block';
+            crawl.style.display = 'block';
+            battle.style.display = 'none';
+            
+            // Start scroll animation immediately
+            const scrollDuration = start3DCrawlAnimation(crawlText);
+            
+            // Start music earlier (at 2.8 seconds, before image appears)
+            setNurWarsTimeout(() => {
+                playNurWarsSound('opening'); // This is the main theme
+            }, 2800);
+            
+            // Transition to battle when scroll completely vanishes
+            setNurWarsTimeout(() => {
+                transitionToBattle(crawlLocation);
+            }, scrollDuration);
+        }
+        
+        function start3DCrawlAnimation(element) {
+            const startTime = Date.now();
+            const totalDuration = 50000; // Reduced from 70s to 50s for faster scroll
+            
+            // Start large at bottom, move up and get smaller
+            element.style.top = '100vh';
+            element.style.willChange = 'transform';
+            element.style.opacity = '1';
+            
+            // Show opening text first
+            const openingText = document.getElementById('opening-text');
+            const imageContainer = document.getElementById('nurwars-image-container');
+
+            function animateFrame() {
+                if (!nurWarsActive) return;
+                
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / totalDuration, 1); // Clamp progress to 0-1
+                
+                // Show opening text for first 2.5 seconds (static, no scroll effect)
+                if (elapsed < 2500) {
+                    openingText.style.display = 'block';
+                    openingText.style.opacity = Math.min(1, elapsed / 500); // Fade in first 500ms
+                } else if (elapsed < 3500) {
+                    openingText.style.opacity = Math.max(0, 1 - ((elapsed - 2500) / 500)); // Fade out over 500ms
+                } else {
+                    openingText.style.display = 'none';
+                }
+                
+                // Nur Wars image appears at 3.5 seconds (when music starts) and scrolls with text
+                if (elapsed >= 3500 && elapsed < 25000) {
+                    imageContainer.style.display = 'block';
+                    
+                    // Apply same scroll animation to image starting at 3.5 second mark
+                    const imageProgress = Math.min((elapsed - 3500) / (totalDuration - 3500), 1);
+                    const distance = window.innerHeight * 2;
+                    const imageY = -distance * imageProgress;
+                    const imageRotation = 60 * imageProgress;
+                    const imageScale = 1.0 - (0.95 * imageProgress);
+                    const imageZ = -500 * imageProgress;
+                    
+                    imageContainer.style.transform = `translate(-50%, calc(-50% + ${imageY}px)) rotateX(${imageRotation}deg) scale(${imageScale}) translateZ(${imageZ}px)`;
+                } else {
+                    imageContainer.style.display = 'none';
+                }
+                
+                // Apply scroll animation to entire text (including image)
+                // Constant speed upward motion - linear only
+                const distance = window.innerHeight * 2;
+                const currentY = -distance * progress;
+                
+                // Linear rotation to create receding effect
+                const rotationAngle = 60 * progress;
+                
+                // Uniform scale reduction - shrink both width and height proportionally
+                const currentScale = 1.0 - (0.95 * progress);
+                
+                // Z depth for receding effect
+                const currentZ = -500 * progress;
+                
+                element.style.transform = `translateX(-50%) translateY(${currentY}px) rotateX(${rotationAngle}deg) scale(${currentScale}) translateZ(${currentZ}px)`;
+                
+                // Only continue animation if not finished
+                if (elapsed < totalDuration) {
+                    requestAnimationFrame(animateFrame);
+                }
+            }
+            
+            animateFrame();
+            // Return total duration so battle starts when scroll completely vanishes
+            return totalDuration;
+        }
+        
+        function transitionToBattle(currentLocation) {
+            // Play battle transition sound
+            playNurWarsSound('battle');
+            
+            // Fade out crawl with slower pan/zoom effect
+            const crawl = document.getElementById('opening-crawl');
+            crawl.style.animation = 'panZoomToBattle 4s ease-in-out forwards'; 
+            
+            // Move camera to battle location (closer to solar system) with slower transition
+            const battleLocation = new THREE.Vector3(currentLocation.x + 800, currentLocation.y - 150, currentLocation.z - 1200);
+            const battleCamPos = new THREE.Vector3(battleLocation.x, battleLocation.y, battleLocation.z + 800);
+            
+            // Star Wars style pan down transition
+            // Start looking straight ahead (where crawl was going)
+            const startLookAt = new THREE.Vector3(0, 0, -1000).applyQuaternion(camera.quaternion).add(camera.position);
+            // End looking at the battle scene (Death Star location)
+            const endLookAt = battleLocation.clone();
+            
+            const transitionStart = Date.now();
+            const transitionDuration = 5000; // 5 seconds pan
+            
+            function animateToBattle() {
+                if (!nurWarsActive) return;
+                
+                const elapsed = Date.now() - transitionStart;
+                const progress = Math.min(elapsed / transitionDuration, 1);
+                const eased = easeInOut(progress);
+                
+                // Move camera to battle position
+                camera.position.lerpVectors(currentLocation, battleCamPos, eased);
+                
+                // Pan the camera (look down effect)
+                const currentLook = new THREE.Vector3().lerpVectors(startLookAt, endLookAt, eased);
+                camera.lookAt(currentLook);
+                
+                if (progress >= 1) {
+                    // Start battle scene
+                    crawl.style.display = 'none';
+                    crawl.style.animation = 'none';
+                    
+                    const battle = document.getElementById('battle-scene');
+                    battle.style.display = 'block';
+                    
+                    init3DBattleScene(battleLocation);
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateToBattle);
+                }
+            }
+            
+            animateToBattle();
+        }
+
+        function closeNurWars() {
+            nurWarsActive = false;
+            renderMode = 'default';
+            
+            // Clear all pending timeouts
+            clearNurWarsTimeouts();
+            
+            const container = document.getElementById('nur-wars-container');
+            container.style.display = 'none';
+            
+            // Restore UI
+            document.body.classList.remove('nur-wars-active');
+            
+            // Stop NUR WARS audio and restore background audio
+            stopCurrentAudio();
+            if (typeof backgroundAudio !== 'undefined' && backgroundAudio && soundEnabled && backgroundAudio.audioContext.state === 'suspended') {
+                backgroundAudio.audioContext.resume().catch(e => console.log('Audio resume failed:', e));
+            }
+            
+            // Restore original camera and controls
+            controls.enabled = true;
+            
+            // Restore main canvas z-index
+            const mainCanvas = webGLRenderer.domElement;
+            mainCanvas.style.zIndex = '';
+            
+            // Smooth transition back to original solar system view
+            const returnDuration = 3000; // Slower return
+            const startTime = Date.now();
+            const startPos = camera.position.clone();
+            const startTarget = controls.target.clone();
+            
+            // Reset to overview position
+            const targetPos = new THREE.Vector3(0, 200, 800);
+            const targetLookAt = new THREE.Vector3(0, 0, 0);
+            
+            function animateReturn() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / returnDuration, 1);
+                const eased = easeInOut(progress);
+                
+                camera.position.lerpVectors(startPos, targetPos, eased);
+                controls.target.lerpVectors(startTarget, targetLookAt, eased);
+                camera.rotation.z = 0; // Reset any rotation
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateReturn);
+                } else {
+                    // Fully restore original state
+                    resetView();
+                }
+            }
+            
+            animateReturn();
+            
+            // Reset battle scene variables
+            if (battleScene) {
+                battleScene = null;
+            }
+            
+            nurWarsCamera = null;
+            nurWarsScene = null;
+            nurWarsObjects = [];
+            battlePhase = 'approach';
+            battleTimer = 0;
+            explosions = [];
+            lasers = [];
+            finalExplosionStarted = false;
+        }
+
+        // === ENHANCED SOUND SYSTEM FOR NUR WARS ===
+        let nurWarsSounds = {};
+        let currentAudio = null;
+        let audioContext = null;
+        
+        function initNurWarsSounds() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                nurWarsSounds = {
+                    opening: () => playRealStarWarsTheme(),
+                    crawl: () => {}, // Continue playing main theme from opening
+                    battle: () => playRealBattleMusic(),
+                    laser: () => playLaserSound(),
+                    explosion: () => playExplosionSound(),
+                    victory: () => playVictoryFanfare()
+                };
+            } catch (e) {
+                console.warn('Audio not supported');
+            }
+        }
+        
+        function stopCurrentAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+            // Fix backgroundAudio reference error - check if it exists and has pause method
+            if (typeof backgroundAudio !== 'undefined' && backgroundAudio && typeof backgroundAudio.pause === 'function') {
+                try {
+                    backgroundAudio.pause();
+                } catch (e) {
+                    console.log('Background audio pause failed:', e);
+                }
+            }
+        }
+        
+        function playRealStarWarsTheme() {
+            stopCurrentAudio();
+            const audio = new Audio('Star%20Wars%20Main%20Theme.mp3');
+            audio.volume = 1.0;
+            // Ensure audio plays through user interaction
+            audio.play().then(() => {
+                currentAudio = audio;
+            }).catch(e => {
+                console.warn("Audio play failed, falling back to synth", e);
+                playStarWarsTheme();
+            });
+        }
+        
+        function playRealImperialMarch() {
+            stopCurrentAudio();
+            playImperialMarch();
+        }
+        
+        function playRealBattleMusic() {
+            stopCurrentAudio();
+            const audio = new Audio('Star%20Wars%20Battle%20Background.mp3');
+            audio.volume = 0.6;
+            audio.loop = true;
+            audio.play().then(() => {
+                currentAudio = audio;
+            }).catch(e => {
+                console.warn("Audio play failed", e);
+                playBattleMusic();
+            });
+        }
+        
+        function playVictoryFanfare() {
+            stopCurrentAudio();
+            const audio = new Audio('Epic%20Star%20Wars%20Compilation.mp3');
+            audio.currentTime = 952; // 15:52
+            audio.volume = 1.0;
+            audio.play().then(() => {
+                currentAudio = audio;
+            }).catch(e => {
+                console.warn("Audio play failed", e);
+                playVictoryMusic();
+            });
+        }
+        
+        function playStarWarsTheme() {
+            if (!audioContext) return;
+            
+            // Create a rich orchestral-like Star Wars theme
+            const masterGain = audioContext.createGain();
+            masterGain.connect(audioContext.destination);
+            masterGain.gain.setValueAtTime(0.4, audioContext.currentTime);
+            
+            // Main melody (Star Wars theme)
+            const melody = [
+                {note: 'G4', duration: 0.5, time: 0},
+                {note: 'G4', duration: 0.5, time: 0.5},
+                {note: 'G4', duration: 0.5, time: 1.0},
+                {note: 'C5', duration: 1.5, time: 1.5},
+                {note: 'G5', duration: 1.5, time: 3.0},
+                {note: 'F5', duration: 0.5, time: 4.5},
+                {note: 'E5', duration: 0.5, time: 5.0},
+                {note: 'D5', duration: 0.5, time: 5.5},
+                {note: 'C6', duration: 1.5, time: 6.0},
+                {note: 'G5', duration: 1.0, time: 7.5}
+            ];
+            
+            const noteFreqs = {
+                'G4': 392, 'C5': 523.25, 'G5': 783.99, 'F5': 698.46,
+                'E5': 659.25, 'D5': 587.33, 'C6': 1046.50
+            };
+            
+            melody.forEach(({note, duration, time}) => {
+                // Main oscillator
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(noteFreqs[note], audioContext.currentTime + time);
+                
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, audioContext.currentTime + time);
+                
+                gain.gain.setValueAtTime(0, audioContext.currentTime + time);
+                gain.gain.linearRampToValueAtTime(0.8, audioContext.currentTime + time + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+                
+                osc.start(audioContext.currentTime + time);
+                osc.stop(audioContext.currentTime + time + duration);
+                
+                // Add harmonic
+                const harmonic = audioContext.createOscillator();
+                const harmonicGain = audioContext.createGain();
+                
+                harmonic.connect(harmonicGain);
+                harmonicGain.connect(masterGain);
+                
+                harmonic.type = 'sine';
+                harmonic.frequency.setValueAtTime(noteFreqs[note] * 2, audioContext.currentTime + time);
+                
+                harmonicGain.gain.setValueAtTime(0, audioContext.currentTime + time);
+                harmonicGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + time + 0.1);
+                harmonicGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+                
+                harmonic.start(audioContext.currentTime + time);
+                harmonic.stop(audioContext.currentTime + time + duration);
+            });
+        }
+        
+        function playImperialMarch() {
+            if (!audioContext) return;
+            
+            const masterGain = audioContext.createGain();
+            masterGain.connect(audioContext.destination);
+            masterGain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            
+            // Imperial March melody
+            const march = [
+                {note: 'A3', duration: 0.6}, {note: 'A3', duration: 0.6}, {note: 'A3', duration: 0.6},
+                {note: 'F3', duration: 0.4}, {note: 'C4', duration: 0.2}, {note: 'A3', duration: 0.6},
+                {note: 'F3', duration: 0.4}, {note: 'C4', duration: 0.2}, {note: 'A3', duration: 1.2}
+            ];
+            
+            const noteFreqs = {
+                'A3': 220, 'F3': 174.61, 'C4': 261.63
+            };
+            
+            let currentTime = 0;
+            
+            // Play multiple times for the crawl duration
+            for (let repeat = 0; repeat < 12; repeat++) {
+                march.forEach(({note, duration}) => {
+                    // Bass line
+                    const bass = audioContext.createOscillator();
+                    const bassGain = audioContext.createGain();
+                    const bassFilter = audioContext.createBiquadFilter();
+                    
+                    bass.connect(bassFilter);
+                    bassFilter.connect(bassGain);
+                    bassGain.connect(masterGain);
+                    
+                    bass.type = 'sawtooth';
+                    bass.frequency.setValueAtTime(noteFreqs[note], audioContext.currentTime + currentTime);
+                    
+                    bassFilter.type = 'lowpass';
+                    bassFilter.frequency.setValueAtTime(800, audioContext.currentTime + currentTime);
+                    
+                    bassGain.gain.setValueAtTime(0, audioContext.currentTime + currentTime);
+                    bassGain.gain.linearRampToValueAtTime(0.6, audioContext.currentTime + currentTime + 0.05);
+                    bassGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + currentTime + duration);
+                    
+                    bass.start(audioContext.currentTime + currentTime);
+                    bass.stop(audioContext.currentTime + currentTime + duration);
+                    
+                    // Add octave for richness
+                    const octave = audioContext.createOscillator();
+                    const octaveGain = audioContext.createGain();
+                    
+                    octave.connect(octaveGain);
+                    octaveGain.connect(masterGain);
+                    
+                    octave.type = 'triangle';
+                    octave.frequency.setValueAtTime(noteFreqs[note] * 2, audioContext.currentTime + currentTime);
+                    
+                    octaveGain.gain.setValueAtTime(0, audioContext.currentTime + currentTime);
+                    octaveGain.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + currentTime + 0.05);
+                    octaveGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + currentTime + duration);
+                    
+                    octave.start(audioContext.currentTime + currentTime);
+                    octave.stop(audioContext.currentTime + currentTime + duration);
+                    
+                    currentTime += duration;
+                });
+                currentTime += 0.5; // Pause between repeats
+            }
+        }
+        
+        function playBattleMusic() {
+            if (!audioContext) return;
+            
+            const masterGain = audioContext.createGain();
+            masterGain.connect(audioContext.destination);
+            masterGain.gain.setValueAtTime(0.25, audioContext.currentTime);
+            
+            // Create intense battle rhythm
+            for (let i = 0; i < 4; i++) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(110 + i * 27.5, audioContext.currentTime);
+                
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1500 + i * 200, audioContext.currentTime);
+                
+                // Create rhythmic pattern
+                let time = audioContext.currentTime;
+                for (let j = 0; j < 300; j++) {
+                    const intensity = 0.3 + Math.sin(j * 0.1) * 0.2;
+                    gain.gain.setValueAtTime(intensity, time);
+                    gain.gain.setValueAtTime(0.05, time + 0.08);
+                    time += 0.15;
+                }
+                
+                osc.start();
+                setTimeout(() => osc.stop(), 45000);
+            }
+        }
+        
+        function playVictoryMusic() {
+            if (!audioContext) return;
+            
+            const masterGain = audioContext.createGain();
+            masterGain.connect(audioContext.destination);
+            masterGain.gain.setValueAtTime(0.5, audioContext.currentTime);
+            
+            // Victory fanfare melody
+            const victory = [
+                {note: 'C5', duration: 0.8, time: 0},
+                {note: 'G5', duration: 0.8, time: 0.8},
+                {note: 'C6', duration: 1.2, time: 1.6},
+                {note: 'G5', duration: 0.6, time: 2.8},
+                {note: 'C6', duration: 1.5, time: 3.4}
+            ];
+            
+            const noteFreqs = {
+                'C5': 523.25, 'G5': 783.99, 'C6': 1046.50
+            };
+            
+            victory.forEach(({note, duration, time}) => {
+                // Main trumpet-like sound
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(noteFreqs[note], audioContext.currentTime + time);
+                
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(3000, audioContext.currentTime + time);
+                
+                gain.gain.setValueAtTime(0, audioContext.currentTime + time);
+                gain.gain.linearRampToValueAtTime(0.9, audioContext.currentTime + time + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+                
+                osc.start(audioContext.currentTime + time);
+                osc.stop(audioContext.currentTime + time + duration);
+            });
+        }
+        
+        function playLaserSound() {
+            if (!audioContext) return;
+            
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(1200, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.3);
+            
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+            filter.Q.setValueAtTime(5, audioContext.currentTime);
+            
+            gain.gain.setValueAtTime(0.4, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.3);
+        }
+        
+        function playExplosionSound() {
+            if (!audioContext) return;
+            
+            // Create realistic explosion with multiple components
+            const bufferSize = audioContext.sampleRate * 4;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            // Generate explosion noise
+            for (let i = 0; i < bufferSize; i++) {
+                const decay = Math.pow(1 - i / bufferSize, 1.5);
+                data[i] = (Math.random() * 2 - 1) * decay;
+            }
+            
+            const noise = audioContext.createBufferSource();
+            noise.buffer = buffer;
+            
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            const compressor = audioContext.createDynamicsCompressor();
+            
+            noise.connect(filter);
+            filter.connect(compressor);
+            compressor.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(3000, audioContext.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 3);
+            
+            gain.gain.setValueAtTime(0.6, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 4);
+            
+            noise.start();
+        }
+        
+        function playNurWarsSound(soundName) {
+            if (soundEnabled && nurWarsSounds[soundName]) {
+                try {
+                    nurWarsSounds[soundName]();
+                } catch (e) {
+                    console.warn('Could not play sound:', soundName);
+                }
+            }
+        }
+        
+        initNurWarsSounds();
+
+        function init3DBattleScene(battleLocation) {
+            // Switch to battle render mode
+            renderMode = 'battle';
+            
+            // Create 3D scene
+            nurWarsScene = new THREE.Scene();
+            nurWarsScene.background = new THREE.Color(0x000000);
+            
+            // Use existing camera
+            nurWarsCamera = camera; // Use the main camera
+            nurWarsCamera.lookAt(battleLocation);
+            
+            // Add both starfields from main scene to battle
+            scene.children.forEach(child => {
+                if (child.type === 'Points') {
+                    const battleStarfield = child.clone();
+                    nurWarsScene.add(battleStarfield);
+                }
+            });
+            
+            // Create Death Star
+            createDeathStar(battleLocation);
+            
+            // Create Imperial Star Destroyer
+            createStarDestroyer(battleLocation);
+            
+            // Create Millennium Falcon
+            createMillenniumFalcon(battleLocation);
+            
+            // Create X-Wings
+            createXWings(battleLocation);
+            
+            // Create TIE Fighters
+            createTIEFighters(battleLocation);
+            
+            // Add lighting for battle
+            const battleAmbient = new THREE.AmbientLight(0x404040, 0.4);
+            nurWarsScene.add(battleAmbient);
+            
+            const battleLight = new THREE.DirectionalLight(0xffffff, 1);
+            battleLight.position.set(500, 500, 500);
+            nurWarsScene.add(battleLight);
+        }
+
+        function createDeathStar(battleLocation) {
+            // Main Death Star sphere
+            const deathStarGeometry = new THREE.SphereGeometry(200, 32, 32);
+            const deathStarMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x666666,
+                shininess: 30
+            });
+            const deathStar = new THREE.Mesh(deathStarGeometry, deathStarMaterial);
+            deathStar.position.set(battleLocation.x, battleLocation.y, battleLocation.z - 1000);
+            
+            // Add surface details
+            const detailGeometry = new THREE.RingGeometry(180, 190, 16);
+            const detailMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x444444, 
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            for (let i = 0; i < 8; i++) {
+                const detail = new THREE.Mesh(detailGeometry, detailMaterial);
+                detail.position.copy(deathStar.position);
+                detail.rotation.x = Math.random() * Math.PI;
+                detail.rotation.y = Math.random() * Math.PI;
+                detail.rotation.z = Math.random() * Math.PI;
+                nurWarsScene.add(detail);
+            }
+            
+            // Superlaser dish
+            const dishGeometry = new THREE.CylinderGeometry(40, 50, 20, 16);
+            const dishMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+            const dish = new THREE.Mesh(dishGeometry, dishMaterial);
+            dish.position.set(battleLocation.x + 120, battleLocation.y - 50, battleLocation.z - 950);
+            dish.rotation.z = Math.PI / 6;
+            nurWarsScene.add(dish);
+            
+            // Exhaust port (vulnerable spot)
+            const exhaustGeometry = new THREE.SphereGeometry(12, 8, 8);
+            const exhaustMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xff0000,
+                emissive: 0x440000
+            });
+            const exhaustPort = new THREE.Mesh(exhaustGeometry, exhaustMaterial);
+            exhaustPort.position.set(battleLocation.x + 150, battleLocation.y - 80, battleLocation.z - 900);
+            nurWarsScene.add(exhaustPort);
+            
+            // Add lighting
+            const deathStarLight = new THREE.PointLight(0x666666, 2, 1000);
+            deathStarLight.position.copy(deathStar.position);
+            nurWarsScene.add(deathStarLight);
+            
+            nurWarsScene.add(deathStar);
+            nurWarsObjects.push({ 
+                type: 'deathstar', 
+                object: deathStar, 
+                exhaustPort: exhaustPort,
+                health: 100,
+                vulnerable: true
+            });
+        }
+
+        function createStarDestroyer(battleLocation) {
+            const destroyerGroup = new THREE.Group();
+            
+            // Main triangular hull - Imperial Star Destroyer signature shape
+            const hullShape = new THREE.Shape();
+            hullShape.moveTo(0, 0);
+            hullShape.lineTo(-400, -120);
+            hullShape.lineTo(400, -120);
+            hullShape.lineTo(0, 0);
+            
+            const extrudeSettings = {
+                depth: 800,
+                bevelEnabled: true,
+                bevelThickness: 20,
+                bevelSize: 10,
+                bevelSegments: 3
+            };
+            
+            const hullGeometry = new THREE.ExtrudeGeometry(hullShape, extrudeSettings);
+            const hullMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x8c8c8c,
+                metalness: 0.7,
+                roughness: 0.4
+            });
+            const hull = new THREE.Mesh(hullGeometry, hullMaterial);
+            hull.rotation.x = Math.PI / 2;
+            hull.position.z = -400;
+            destroyerGroup.add(hull);
+            
+            // Bridge tower - vertical command structure
+            const bridgeGeometry = new THREE.BoxGeometry(80, 150, 180);
+            const bridgeMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xa0a0a0,
+                metalness: 0.6,
+                roughness: 0.5
+            });
+            const bridge = new THREE.Mesh(bridgeGeometry, bridgeMaterial);
+            bridge.position.set(0, 75, 200);
+            destroyerGroup.add(bridge);
+            
+            // Bridge dome
+            const domeGeometry = new THREE.CylinderGeometry(30, 35, 40, 8);
+            const domeMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x404040,
+                metalness: 0.8,
+                roughness: 0.3
+            });
+            const dome1 = new THREE.Mesh(domeGeometry, domeMaterial);
+            dome1.position.set(-25, 155, 200);
+            destroyerGroup.add(dome1);
+            
+            const dome2 = new THREE.Mesh(domeGeometry, domeMaterial);
+            dome2.position.set(25, 155, 200);
+            destroyerGroup.add(dome2);
+            
+            // Engine glow - massive engines at rear
+            const enginePositions = [
+                [-120, -30, -400],
+                [-60, -30, -400],
+                [60, -30, -400],
+                [120, -30, -400]
+            ];
+            
+            enginePositions.forEach(pos => {
+                const engineGeometry = new THREE.CylinderGeometry(35, 30, 60, 16);
+                const engineMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x333333,
+                    metalness: 0.9,
+                    roughness: 0.2
+                });
+                const engine = new THREE.Mesh(engineGeometry, engineMaterial);
+                engine.position.set(pos[0], pos[1], pos[2]);
+                engine.rotation.x = Math.PI / 2;
+                destroyerGroup.add(engine);
+                
+                // Engine glow
+                const glowGeometry = new THREE.CylinderGeometry(25, 28, 30, 16);
+                const glowMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0x4488ff,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                glow.position.set(pos[0], pos[1], pos[2] - 45);
+                glow.rotation.x = Math.PI / 2;
+                destroyerGroup.add(glow);
+                
+                const engineLight = new THREE.PointLight(0x4488ff, 3, 300);
+                engineLight.position.set(pos[0], pos[1], pos[2] - 60);
+                destroyerGroup.add(engineLight);
+            });
+            
+            // Surface details - panels and greebling
+            for (let i = 0; i < 20; i++) {
+                const panelGeometry = new THREE.BoxGeometry(
+                    Math.random() * 40 + 20,
+                    Math.random() * 40 + 20,
+                    5
+                );
+                const panel = new THREE.Mesh(panelGeometry, new THREE.MeshStandardMaterial({ 
+                    color: 0x707070,
+                    metalness: 0.6,
+                    roughness: 0.6
+                }));
+                panel.position.set(
+                    (Math.random() - 0.5) * 300,
+                    Math.random() * 30 - 50,
+                    (Math.random() - 0.5) * 500
+                );
+                destroyerGroup.add(panel);
+            }
+            
+            // Position Star Destroyer
+            destroyerGroup.position.set(
+                battleLocation.x - 600,
+                battleLocation.y + 200,
+                battleLocation.z - 1200
+            );
+            destroyerGroup.rotation.y = -Math.PI / 6;
+            
+            nurWarsScene.add(destroyerGroup);
+            nurWarsObjects.push({ 
+                type: 'stardestroyer', 
+                object: destroyerGroup,
+                health: 1000,
+                isCapitalShip: true
+            });
+        }
+
+        function createMillenniumFalcon(battleLocation) {
+            const falconGroup = new THREE.Group();
+            
+            // Main saucer-shaped hull
+            const hullGeometry = new THREE.CylinderGeometry(50, 50, 15, 32);
+            const hullMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xb8b8b8,
+                metalness: 0.6,
+                roughness: 0.5
+            });
+            const hull = new THREE.Mesh(hullGeometry, hullMaterial);
+            falconGroup.add(hull);
+            
+            // Flatten one side to create asymmetric look
+            const sideGeometry = new THREE.BoxGeometry(30, 15, 40);
+            const sideMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xa0a0a0,
+                metalness: 0.6,
+                roughness: 0.5
+            });
+            const side = new THREE.Mesh(sideGeometry, sideMaterial);
+            side.position.x = 40;
+            falconGroup.add(side);
+            
+            // Forward mandibles (iconic pincer shape)
+            const mandibleGeometry = new THREE.BoxGeometry(15, 10, 60);
+            const mandibleMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x909090,
+                metalness: 0.7,
+                roughness: 0.4
+            });
+            
+            const leftMandible = new THREE.Mesh(mandibleGeometry, mandibleMaterial);
+            leftMandible.position.set(-25, 0, 50);
+            leftMandible.rotation.y = -0.3;
+            falconGroup.add(leftMandible);
+            
+            const rightMandible = new THREE.Mesh(mandibleGeometry, mandibleMaterial);
+            rightMandible.position.set(25, 0, 50);
+            rightMandible.rotation.y = 0.3;
+            falconGroup.add(rightMandible);
+            
+            // Cockpit - offset to starboard
+            const cockpitGeometry = new THREE.SphereGeometry(12, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+            const cockpitMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x333333,
+                transparent: true,
+                opacity: 0.6,
+                shininess: 100
+            });
+            const cockpit = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
+            cockpit.position.set(30, 8, 20);
+            falconGroup.add(cockpit);
+            
+            // Sensor dish (round radar dish on top)
+            const dishGeometry = new THREE.CylinderGeometry(12, 8, 5, 16);
+            const dishMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x707070,
+                metalness: 0.8,
+                roughness: 0.3
+            });
+            const dish = new THREE.Mesh(dishGeometry, dishMaterial);
+            dish.position.set(-15, 12, 0);
+            falconGroup.add(dish);
+            
+            // Engine nacelles at rear
+            const engineGeometry = new THREE.CylinderGeometry(8, 10, 25, 8);
+            const engineMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x404040,
+                metalness: 0.8,
+                roughness: 0.3
+            });
+            
+            const leftEngine = new THREE.Mesh(engineGeometry, engineMaterial);
+            leftEngine.position.set(-20, 0, -40);
+            leftEngine.rotation.x = Math.PI / 2;
+            falconGroup.add(leftEngine);
+            
+            const rightEngine = new THREE.Mesh(engineGeometry, engineMaterial);
+            rightEngine.position.set(20, 0, -40);
+            rightEngine.rotation.x = Math.PI / 2;
+            falconGroup.add(rightEngine);
+            
+            // Engine glow - blue sublight engines
+            const glowGeometry = new THREE.CylinderGeometry(6, 8, 15, 8);
+            const glowMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x4488ff,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const leftGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+            leftGlow.position.set(-20, 0, -52);
+            leftGlow.rotation.x = Math.PI / 2;
+            falconGroup.add(leftGlow);
+            
+            const rightGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+            rightGlow.position.set(20, 0, -52);
+            rightGlow.rotation.x = Math.PI / 2;
+            falconGroup.add(rightGlow);
+            
+            // Engine lights
+            const leftLight = new THREE.PointLight(0x4488ff, 2, 150);
+            leftLight.position.set(-20, 0, -60);
+            falconGroup.add(leftLight);
+            
+            const rightLight = new THREE.PointLight(0x4488ff, 2, 150);
+            rightLight.position.set(20, 0, -60);
+            falconGroup.add(rightLight);
+            
+            // Hull details and greebling
+            for (let i = 0; i < 15; i++) {
+                const detailGeometry = new THREE.BoxGeometry(
+                    Math.random() * 8 + 3,
+                    Math.random() * 3 + 1,
+                    Math.random() * 8 + 3
+                );
+                const detail = new THREE.Mesh(detailGeometry, new THREE.MeshStandardMaterial({ 
+                    color: 0x808080,
+                    metalness: 0.7,
+                    roughness: 0.5
+                }));
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 40 + 10;
+                detail.position.set(
+                    Math.cos(angle) * radius,
+                    8,
+                    Math.sin(angle) * radius
+                );
+                falconGroup.add(detail);
+            }
+            
+            // Position Millennium Falcon with Rebel fleet - moved forward to be visible
+            falconGroup.position.set(
+                battleLocation.x + 400,
+                battleLocation.y + 100,
+                battleLocation.z + 800 // Much closer to camera view
+            );
+            falconGroup.rotation.y = Math.PI;
+            falconGroup.rotation.z = -0.2; // Slight banking angle
+            
+            nurWarsScene.add(falconGroup);
+            nurWarsObjects.push({ 
+                type: 'falcon', 
+                object: falconGroup,
+                isPlayer: false,
+                isHero: true,
+                health: 150,
+                velocity: new THREE.Vector3(0, 0, -4),
+                target: null
+            });
+        }
+
+        function createXWings(battleLocation) {
+            for (let i = 0; i < 6; i++) {
+                const xwingGroup = new THREE.Group();
+                
+                // Main fuselage - elongated with rounded nose
+                const bodyGeometry = new THREE.CylinderGeometry(4, 6, 50, 16);
+                bodyGeometry.rotateX(Math.PI / 2);
+                const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                    color: i === 0 ? 0xe8c547 : 0xd4d4d4, // First X-Wing (Nur) is gold
+                    metalness: 0.7,
+                    roughness: 0.3
+                });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                xwingGroup.add(body);
+                
+                // Nose cone
+                const noseGeometry = new THREE.ConeGeometry(4, 15, 16);
+                noseGeometry.rotateX(-Math.PI / 2);
+                const nose = new THREE.Mesh(noseGeometry, bodyMaterial);
+                nose.position.z = 32;
+                xwingGroup.add(nose);
+                
+                // Cockpit canopy
+                const canopyGeometry = new THREE.SphereGeometry(5, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                const canopyMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x333333,
+                    transparent: true,
+                    opacity: 0.6,
+                    shininess: 100
+                });
+                const canopy = new THREE.Mesh(canopyGeometry, canopyMaterial);
+                canopy.position.z = 10;
+                canopy.position.y = 3;
+                xwingGroup.add(canopy);
+                
+                // S-Foils (Wings) - 4 wings in X configuration
+                const wingGeometry = new THREE.BoxGeometry(50, 2, 18);
+                const wingMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0xcccccc,
+                    metalness: 0.6,
+                    roughness: 0.4
+                });
+                
+                // Top-Right Wing
+                const wingTR = new THREE.Mesh(wingGeometry, wingMaterial);
+                wingTR.position.set(28, 15, -5);
+                wingTR.rotation.z = -0.3;
+                xwingGroup.add(wingTR);
+                
+                // Top-Left Wing
+                const wingTL = new THREE.Mesh(wingGeometry, wingMaterial);
+                wingTL.position.set(-28, 15, -5);
+                wingTL.rotation.z = 0.3;
+                xwingGroup.add(wingTL);
+                
+                // Bottom-Right Wing
+                const wingBR = new THREE.Mesh(wingGeometry, wingMaterial);
+                wingBR.position.set(28, -15, -5);
+                wingBR.rotation.z = 0.3;
+                xwingGroup.add(wingBR);
+                
+                // Bottom-Left Wing
+                const wingBL = new THREE.Mesh(wingGeometry, wingMaterial);
+                wingBL.position.set(-28, -15, -5);
+                wingBL.rotation.z = -0.3;
+                xwingGroup.add(wingBL);
+                
+                // Wing tip laser cannons
+                const cannonGeometry = new THREE.CylinderGeometry(1.5, 1.5, 15, 8);
+                const cannonMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x444444,
+                    metalness: 0.8,
+                    roughness: 0.2
+                });
+                
+                // 4 laser cannons at wing tips
+                const positions = [
+                    [50, 15, -5],
+                    [-50, 15, -5],
+                    [50, -15, -5],
+                    [-50, -15, -5]
+                ];
+                
+                positions.forEach(pos => {
+                    const cannon = new THREE.Mesh(cannonGeometry, cannonMaterial);
+                    cannon.position.set(pos[0], pos[1], pos[2]);
+                    cannon.rotation.z = Math.PI / 2;
+                    xwingGroup.add(cannon);
+                    
+                    // Cannon tip glow
+                    const glowGeometry = new THREE.SphereGeometry(1, 8, 8);
+                    const glowMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0xff3333,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    glow.position.set(pos[0] > 0 ? pos[0] + 8 : pos[0] - 8, pos[1], pos[2]);
+                    xwingGroup.add(glow);
+                });
+                
+                // Engine exhausts - 4 engines
+                positions.forEach(pos => {
+                    const engineGeometry = new THREE.CylinderGeometry(2.5, 3.5, 18, 8);
+                    const engineMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x666666,
+                        metalness: 0.8,
+                        roughness: 0.3
+                    });
+                    const engine = new THREE.Mesh(engineGeometry, engineMaterial);
+                    engine.position.set(pos[0] * 0.7, pos[1], -25);
+                    engine.rotation.x = Math.PI / 2;
+                    xwingGroup.add(engine);
+                    
+                    // Engine glow
+                    const exhaustGlow = new THREE.PointLight(0x4488ff, 2, 100);
+                    exhaustGlow.position.set(pos[0] * 0.7, pos[1], -35);
+                    xwingGroup.add(exhaustGlow);
+                    
+                    const exhaustGeometry = new THREE.CylinderGeometry(2, 3, 8, 8);
+                    const exhaustMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0x6699ff,
+                        transparent: true,
+                        opacity: 0.7
+                    });
+                    const exhaust = new THREE.Mesh(exhaustGeometry, exhaustMaterial);
+                    exhaust.position.set(pos[0] * 0.7, pos[1], -39);
+                    exhaust.rotation.x = Math.PI / 2;
+                    xwingGroup.add(exhaust);
+                });
+                
+                // R2 unit details
+                const r2Geometry = new THREE.CylinderGeometry(3, 3, 6, 16);
+                const r2Material = new THREE.MeshStandardMaterial({ 
+                    color: i === 0 ? 0x3366ff : 0xff6600,
+                    metalness: 0.6,
+                    roughness: 0.4
+                });
+                const r2 = new THREE.Mesh(r2Geometry, r2Material);
+                r2.position.set(0, 0, 5);
+                xwingGroup.add(r2);
+                
+                // Additional hull details - intake scoops
+                const scoopGeometry = new THREE.BoxGeometry(4, 4, 8);
+                const scoopMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x555555,
+                    metalness: 0.7,
+                    roughness: 0.5
+                });
+                
+                for (let j = 0; j < 4; j++) {
+                    const scoop = new THREE.Mesh(scoopGeometry, scoopMaterial);
+                    scoop.position.set((j % 2 === 0 ? -10 : 10), (j < 2 ? 5 : -5), 15 + j * 3);
+                    xwingGroup.add(scoop);
+                }
+                
+                // Hull plating details
+                for (let j = 0; j < 6; j++) {
+                    const platingGeometry = new THREE.BoxGeometry(1.5, 1.5, 45);
+                    const platingMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0xaaaaaa,
+                        metalness: 0.5,
+                        roughness: 0.6
+                    });
+                    const plating = new THREE.Mesh(platingGeometry, platingMaterial);
+                    plating.position.set((j - 2.5) * 7, 0, 0);
+                    xwingGroup.add(plating);
+                }
+                
+                // Position X-Wings relative to battle location
+                xwingGroup.position.set(
+                    battleLocation.x + (i - 2.5) * 150,
+                    battleLocation.y - 100 + Math.random() * 50,
+                    battleLocation.z + 1200 + i * 80
+                );
+                
+                xwingGroup.rotation.y = Math.PI;
+                
+                nurWarsScene.add(xwingGroup);
+                nurWarsObjects.push({ 
+                    type: 'xwing', 
+                    object: xwingGroup,
+                    isPlayer: i === 0,
+                    health: 100,
+                    velocity: new THREE.Vector3(0, 0, -3),
+                    target: null
+                });
+            }
+        }
+
+        function createTIEFighters(battleLocation) {
+            for (let i = 0; i < 8; i++) {
+                const tieGroup = new THREE.Group();
+                
+                // Cockpit ball - more detailed hexagonal sphere
+                const cockpitGeometry = new THREE.SphereGeometry(10, 12, 12);
+                const cockpitMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x1a1a1a,
+                    metalness: 0.8,
+                    roughness: 0.3
+                });
+                const cockpit = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
+                tieGroup.add(cockpit);
+                
+                // Viewport windows
+                const windowGeometry = new THREE.CircleGeometry(4, 8);
+                const windowMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0x00ff00,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                
+                // Front window
+                const frontWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+                frontWindow.position.z = 10;
+                tieGroup.add(frontWindow);
+                
+                // Back window
+                const backWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+                backWindow.position.z = -10;
+                backWindow.rotation.y = Math.PI;
+                tieGroup.add(backWindow);
+                
+                // Hexagonal solar panels - more detailed
+                const panelShape = new THREE.Shape();
+                const hexRadius = 35;
+                for (let j = 0; j < 6; j++) {
+                    const angle = (j / 6) * Math.PI * 2;
+                    const x = Math.cos(angle) * hexRadius;
+                    const y = Math.sin(angle) * hexRadius;
+                    if (j === 0) panelShape.moveTo(x, y);
+                    else panelShape.lineTo(x, y);
+                }
+                panelShape.closePath();
+                
+                const extrudeSettings = { depth: 2, bevelEnabled: false };
+                const panelGeometry = new THREE.ExtrudeGeometry(panelShape, extrudeSettings);
+                const panelMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x0a0a0a,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                    side: THREE.DoubleSide
+                });
+                
+                // Left solar panel
+                const leftPanel = new THREE.Mesh(panelGeometry, panelMaterial);
+                leftPanel.position.x = -18;
+                leftPanel.rotation.y = Math.PI / 2;
+                tieGroup.add(leftPanel);
+                
+                // Panel frame (left)
+                const frameGeometry = new THREE.TorusGeometry(35, 1.5, 6, 6);
+                const frameMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x333333,
+                    metalness: 0.8,
+                    roughness: 0.3
+                });
+                const leftFrame = new THREE.Mesh(frameGeometry, frameMaterial);
+                leftFrame.position.x = -18;
+                leftFrame.rotation.y = Math.PI / 2;
+                tieGroup.add(leftFrame);
+                
+                // Right solar panel
+                const rightPanel = new THREE.Mesh(panelGeometry, panelMaterial);
+                rightPanel.position.x = 18;
+                rightPanel.rotation.y = Math.PI / 2;
+                tieGroup.add(rightPanel);
+                
+                // Panel frame (right)
+                const rightFrame = new THREE.Mesh(frameGeometry, frameMaterial);
+                rightFrame.position.x = 18;
+                rightFrame.rotation.y = Math.PI / 2;
+                tieGroup.add(rightFrame);
+                
+                // Connecting struts
+                const strutGeometry = new THREE.CylinderGeometry(1.5, 1.5, 16, 8);
+                const strutMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x2a2a2a,
+                    metalness: 0.7,
+                    roughness: 0.4
+                });
+                
+                const leftStrut = new THREE.Mesh(strutGeometry, strutMaterial);
+                leftStrut.position.x = -9;
+                leftStrut.rotation.z = Math.PI / 2;
+                tieGroup.add(leftStrut);
+                
+                const rightStrut = new THREE.Mesh(strutGeometry, strutMaterial);
+                rightStrut.position.x = 9;
+                rightStrut.rotation.z = Math.PI / 2;
+                tieGroup.add(rightStrut);
+                
+                // Laser cannons
+                const cannonGeometry = new THREE.CylinderGeometry(0.8, 0.8, 12, 8);
+                const cannonMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x444444,
+                    metalness: 0.8,
+                    roughness: 0.2
+                });
+                
+                const leftCannon = new THREE.Mesh(cannonGeometry, cannonMaterial);
+                leftCannon.position.set(-3, -8, 6);
+                leftCannon.rotation.x = Math.PI / 6;
+                tieGroup.add(leftCannon);
+                
+                const rightCannon = new THREE.Mesh(cannonGeometry, cannonMaterial);
+                rightCannon.position.set(3, -8, 6);
+                rightCannon.rotation.x = Math.PI / 6;
+                tieGroup.add(rightCannon);
+                
+                // Engine glow
+                const engineGlow = new THREE.PointLight(0x00ff00, 1.5, 80);
+                engineGlow.position.z = -12;
+                tieGroup.add(engineGlow);
+                
+                // Ion engine exhaust
+                const exhaustGeometry = new THREE.CylinderGeometry(4, 5, 6, 8);
+                const exhaustMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0x00ff44,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const exhaust = new THREE.Mesh(exhaustGeometry, exhaustMaterial);
+                exhaust.position.z = -15;
+                exhaust.rotation.x = Math.PI / 2;
+                tieGroup.add(exhaust);
+                
+                // Position TIE Fighters relative to battle location
+                tieGroup.position.set(
+                    battleLocation.x + (Math.random() - 0.5) * 1000,
+                    battleLocation.y + (Math.random() - 0.5) * 300,
+                    battleLocation.z - 300 + Math.random() * 200
+                );
+                
+                nurWarsScene.add(tieGroup);
+                nurWarsObjects.push({ 
+                    type: 'tiefighter', 
+                    object: tieGroup,
+                    health: 50,
+                    velocity: new THREE.Vector3(
+                        (Math.random() - 0.5) * 3,
+                        (Math.random() - 0.5) * 2,
+                        Math.random() * 2 + 1
+                    )
+                });
+            }
+        }
+
+        let battlePhase = 'approach';
+        let battleTimer = 0;
+        let explosions = [];
+        let cameraTarget = new THREE.Vector3();
+        let finalExplosionStarted = false;
+
+        function updateBattleLogic() {
+            if (!nurWarsActive) return;
+            
+            battleTimer++;
+            
+            // Update battle phases - much longer duration for better cinematic experience
+            if (battlePhase === 'approach' && battleTimer > 900) { // Much longer approach
+                battlePhase = 'battle';
+            }
+            
+            // Dynamic camera movement for cinematic effect - closer and more dramatic
+            if (battlePhase === 'approach') {
+                // Wide establishing shot of the fleet approaching
+                const avgPos = new THREE.Vector3(0, 0, 0);
+                nurWarsObjects.filter(obj => obj.type === 'xwing').forEach(xw => {
+                    avgPos.add(xw.object.position);
+                });
+                avgPos.divideScalar(nurWarsObjects.filter(obj => obj.type === 'xwing').length);
+                
+                const cameraPos = avgPos.clone();
+                cameraPos.z += 400;
+                cameraPos.y += 150;
+                cameraPos.x += 100;
+                
+                nurWarsCamera.position.lerp(cameraPos, 0.02);
+                nurWarsCamera.lookAt(avgPos);
+            } else if (battlePhase === 'battle') {
+                // Multiple dynamic camera cuts for epic battle feel
+                const cyclePhase = (battleTimer % 300) / 300; // 5 second cycles
+                const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
+                const playerXWing = nurWarsObjects.find(obj => obj.type === 'xwing' && obj.isPlayer);
+                const falcon = nurWarsObjects.find(obj => obj.type === 'falcon');
+                
+                let cameraPos = new THREE.Vector3();
+                let lookTarget = new THREE.Vector3();
+                
+                if (cyclePhase < 0.25 && playerXWing && deathStar) {
+                    // Close follow on player X-Wing
+                    cameraPos = playerXWing.object.position.clone();
+                    cameraPos.z += 100;
+                    cameraPos.y += 40;
+                    lookTarget = deathStar.object.position.clone();
+                } else if (cyclePhase < 0.5) {
+                    // Wide shot of Millennium Falcon leading the assault
+                    if (falcon && deathStar) {
+                        cameraPos = falcon.object.position.clone();
+                        cameraPos.z += 150;
+                        cameraPos.y += 80;
+                        lookTarget = deathStar.object.position.clone();
+                    } else if (deathStar) {
+                        cameraPos = deathStar.object.position.clone().add(new THREE.Vector3(400, 300, 400));
+                        lookTarget = deathStar.object.position.clone();
+                    }
+                } else if (cyclePhase < 0.75 && playerXWing && deathStar) {
+                    // Death Star approach shot
+                    cameraPos = playerXWing.object.position.clone();
+                    cameraPos.z -= 50; // In front
+                    cameraPos.y += 60;
+                    lookTarget = deathStar.object.position.clone();
+                } else if (deathStar) {
+                    // Dynamic action shot - rotating around battle
+                    const angle = battleTimer * 0.005;
+                    const distance = 400;
+                    cameraPos = deathStar.object.position.clone();
+                    cameraPos.x += Math.cos(angle) * distance;
+                    cameraPos.z += Math.sin(angle) * distance;
+                    cameraPos.y += 200;
+                    lookTarget = deathStar.object.position.clone();
+                }
+                
+                if (cameraPos.length() > 0) {
+                    nurWarsCamera.position.lerp(cameraPos, 0.05);
+                    nurWarsCamera.lookAt(lookTarget);
+                }
+            }
+            
+            // Update X-Wings with more aggressive behavior
+            nurWarsObjects.filter(obj => obj.type === 'xwing').forEach(xwing => {
+                if (xwing.health <= 0) return;
+                
+                if (battlePhase === 'approach') {
+                    xwing.object.position.add(xwing.velocity);
+                } else if (battlePhase === 'battle') {
+                    if (xwing.isPlayer) {
+                        // Nur's X-Wing targets the exhaust port with more dramatic approach
+                        const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
+                        if (deathStar && deathStar.exhaustPort) {
+                            const target = deathStar.exhaustPort.position;
+                            const direction = target.clone().sub(xwing.object.position).normalize();
+                            xwing.object.position.add(direction.multiplyScalar(2.5)); // Slightly faster
+                            
+                            // Look at target
+                            xwing.object.lookAt(target);
+                            
+                            // Fire lasers much more frequently for intense battle
+                            if (battleTimer % 15 === 0) {
+                                createLaser(xwing.object.position.clone(), direction.clone(), 0x00ff00, true);
+                            }
+                        }
+                    } else {
+                        // Other X-Wings engage TIE fighters more aggressively
+                        xwing.object.position.add(xwing.velocity);
+                        
+                        // Fire at TIE fighters more frequently
+                        if (battleTimer % 25 === Math.floor(Math.random() * 25)) {
+                            const ties = nurWarsObjects.filter(obj => obj.type === 'tiefighter' && obj.health > 0);
+                            if (ties.length > 0) {
+                                const target = ties[Math.floor(Math.random() * ties.length)];
+                                const direction = target.object.position.clone().sub(xwing.object.position).normalize();
+                                createLaser(xwing.object.position.clone(), direction, 0x00ff00, false);
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Update TIE Fighters with more aggressive behavior
+            nurWarsObjects.filter(obj => obj.type === 'tiefighter').forEach(tie => {
+                if (tie.health <= 0) return;
+                
+                tie.object.position.add(tie.velocity);
+                tie.object.rotation.y += 0.15; // Faster rotation for more dynamic look
+                
+                // Keep in bounds
+                if (Math.abs(tie.object.position.x) > 1500) tie.velocity.x *= -1;
+                if (Math.abs(tie.object.position.y) > 500) tie.velocity.y *= -1;
+                
+                // Fire at X-Wings much more frequently for intense battle
+                if (battleTimer % 35 === Math.floor(Math.random() * 35)) {
+                    const xwings = nurWarsObjects.filter(obj => obj.type === 'xwing' && obj.health > 0);
+                    if (xwings.length > 0) {
+                        const target = xwings[Math.floor(Math.random() * xwings.length)];
+                        const direction = target.object.position.clone().sub(tie.object.position).normalize();
+                        createLaser(tie.object.position.clone(), direction, 0xff0000, false);
+                    }
+                }
+            });
+            
+            // Update lasers
+            updateLasers();
+            
+            // Update explosions
+            updateExplosions();
+            
+            // Check for victory condition
+            const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
+            if (!deathStar && battlePhase !== 'victory') {
+                battlePhase = 'victory';
+                showVictoryMessage();
+            }
+            
+            // Auto-close after much longer victory sequence
+            if (battlePhase === 'victory' && battleTimer > 18000) { // Much longer victory sequence
+                closeNurWars();
+                return;
+            }
+        }
+
+        function createLaser(position, direction, color, isPlayerShot) {
+            const laserGeometry = new THREE.CylinderGeometry(0.5, 0.5, 20);
+            const laserMaterial = new THREE.MeshPhongMaterial({ 
+                color: color,
+                emissive: color,
+                transparent: true,
+                opacity: 0.8
+            });
+            const laser = new THREE.Mesh(laserGeometry, laserMaterial);
+            laser.position.copy(position);
+            laser.lookAt(position.clone().add(direction));
+            laser.rotateX(Math.PI / 2);
+            
+            nurWarsScene.add(laser);
+            lasers.push({
+                object: laser,
+                velocity: direction.multiplyScalar(15),
+                life: 100,
+                isPlayerShot: isPlayerShot
+            });
+            
+            // Play laser sound
+            playNurWarsSound('laser');
+        }
+
+        function updateLasers() {
+            for (let i = lasers.length - 1; i >= 0; i--) {
+                const laser = lasers[i];
+                laser.object.position.add(laser.velocity);
+                laser.life--;
+                
+                // Check collisions
+                if (laser.isPlayerShot) {
+                    const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
+                    if (deathStar && deathStar.exhaustPort) {
+                        const distance = laser.object.position.distanceTo(deathStar.exhaustPort.position);
+                        if (distance < 20) {
+                            // Death Star hit! - Cinematic destruction sequence
+                            startDeathStarDestruction(deathStar);
+                            
+                            // Remove laser
+                            nurWarsScene.remove(laser.object);
+                            lasers.splice(i, 1);
+                            continue;
+                        }
+                    }
+                }
+                
+                // Remove old lasers
+                if (laser.life <= 0) {
+                    nurWarsScene.remove(laser.object);
+                    lasers.splice(i, 1);
+                }
+            }
+        }
+
+        function startDeathStarDestruction(deathStar) {
+            if (finalExplosionStarted) return;
+            finalExplosionStarted = true;
+            
+            // Zoom camera much closer to Death Star for ultra-dramatic effect
+            const deathStarPos = deathStar.object.position.clone();
+            
+            // Create multiple explosion stages with much closer camera work
+            setTimeout(() => {
+                // First explosion at exhaust port - zoom in immediately
+                createExplosion(deathStar.exhaustPort.position.clone(), 120);
+                
+                // Zoom camera much closer for intense destruction view
+                const ultraClosePos = deathStarPos.clone();
+                ultraClosePos.z += 250; // Much closer than before
+                ultraClosePos.y += 80;
+                ultraClosePos.x += 50; // Slight angle for better view
+                
+                const zoomDuration = 1500; // Faster zoom
+                const startTime = Date.now();
+                const startCameraPos = nurWarsCamera.position.clone();
+                
+                function zoomToDeathStar() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / zoomDuration, 1);
+                    
+                    nurWarsCamera.position.lerpVectors(startCameraPos, ultraClosePos, progress);
+                    
+                    // Look directly at the destruction point
+                    const lookTarget = deathStar.exhaustPort.position.clone();
+                    nurWarsCamera.lookAt(lookTarget);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(zoomToDeathStar);
+                    }
+                }
+                zoomToDeathStar();
+                
+            }, 300);
+            
+            setTimeout(() => {
+                // Secondary explosions - more dramatic and visible
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const explosionPos = deathStarPos.clone();
+                        explosionPos.x += (Math.random() - 0.5) * 400;
+                        explosionPos.y += (Math.random() - 0.5) * 400;
+                        explosionPos.z += (Math.random() - 0.5) * 400;
+                        createExplosion(explosionPos, 200 + Math.random() * 150);
+                        
+                        // Create additional smaller explosions for detail
+                        for (let j = 0; j < 3; j++) {
+                            setTimeout(() => {
+                                const smallExplosionPos = explosionPos.clone();
+                                smallExplosionPos.x += (Math.random() - 0.5) * 100;
+                                smallExplosionPos.y += (Math.random() - 0.5) * 100;
+                                smallExplosionPos.z += (Math.random() - 0.5) * 100;
+                                createExplosion(smallExplosionPos, 80 + Math.random() * 60);
+                            }, j * 150);
+                        }
+                    }, i * 200);
+                }
+            }, 1000);
+            
+            setTimeout(() => {
+                // Final massive explosion - ultra close and dramatic
+                createExplosion(deathStarPos, 1200); // Much larger explosion
+                
+                // Add shockwave ring
+                const ringGeo = new THREE.RingGeometry(10, 20, 64);
+                const ringMat = new THREE.MeshBasicMaterial({ 
+                    color: 0xffaa00, 
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const shockwave = new THREE.Mesh(ringGeo, ringMat);
+                shockwave.position.copy(deathStarPos);
+                shockwave.lookAt(nurWarsCamera.position);
+                nurWarsScene.add(shockwave);
+                
+                // Animate shockwave in updateExplosions or separate logic
+                explosions.push({
+                    object: shockwave,
+                    type: 'shockwave',
+                    maxSize: 80, // Scale factor
+                    currentSize: 1,
+                    life: 100,
+                    maxLife: 100
+                });
+                
+                // Create ring of explosions around Death Star
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2;
+                    const ringPos = deathStarPos.clone();
+                    ringPos.x += Math.cos(angle) * 300;
+                    ringPos.y += Math.sin(angle) * 300;
+                    createExplosion(ringPos, 300 + Math.random() * 200);
+                }
+                
+                // Remove Death Star objects
+                nurWarsScene.remove(deathStar.object);
+                nurWarsScene.remove(deathStar.exhaustPort);
+                nurWarsObjects.splice(nurWarsObjects.indexOf(deathStar), 1);
+                
+                // Intense camera shake effect
+                const originalPos = nurWarsCamera.position.clone();
+                let shakeTimer = 0;
+                const shakeIntensity = 40; // Much more intense shake
+                
+                function cameraShake() {
+                    if (shakeTimer < 90) { // Longer shake
+                        nurWarsCamera.position.x = originalPos.x + (Math.random() - 0.5) * shakeIntensity;
+                        nurWarsCamera.position.y = originalPos.y + (Math.random() - 0.5) * shakeIntensity;
+                        nurWarsCamera.position.z = originalPos.z + (Math.random() - 0.5) * shakeIntensity;
+                        shakeTimer++;
+                        requestAnimationFrame(cameraShake);
+                    } else {
+                        // Pull back camera for victory view
+                        const victoryPos = originalPos.clone();
+                        victoryPos.z += 500;
+                        victoryPos.y += 200;
+                        
+                        const pullBackDuration = 3000;
+                        const pullBackStart = Date.now();
+                        
+                        function pullBackCamera() {
+                            const elapsed = Date.now() - pullBackStart;
+                            const progress = Math.min(elapsed / pullBackDuration, 1);
+                            
+                            nurWarsCamera.position.lerpVectors(originalPos, victoryPos, progress);
+                            nurWarsCamera.lookAt(deathStarPos); // Look at explosion site
+                            
+                            if (progress < 1) {
+                                requestAnimationFrame(pullBackCamera);
+                            }
+                        }
+                        pullBackCamera();
+                    }
+                }
+                cameraShake();
+                
+            }, 2500);
+        }
+
+        function createExplosion(position, maxSize) {
+            const explosionGeometry = new THREE.SphereGeometry(1, 16, 16);
+            const explosionMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xff6600,
+                transparent: true,
+                opacity: 1
+            });
+            const explosion = new THREE.Mesh(explosionGeometry, explosionMaterial);
+            explosion.position.copy(position);
+            
+            nurWarsScene.add(explosion);
+            explosions.push({
+                object: explosion,
+                maxSize: maxSize,
+                currentSize: 1,
+                life: 120,
+                maxLife: 120
+            });
+            
+            // Play explosion sound
+            playNurWarsSound('explosion');
+        }
+
+        function updateExplosions() {
+            for (let i = explosions.length - 1; i >= 0; i--) {
+                const explosion = explosions[i];
+                explosion.life--;
+                
+                if (explosion.type === 'shockwave') {
+                    explosion.currentSize += 1.5;
+                    explosion.object.scale.setScalar(explosion.currentSize);
+                    explosion.object.material.opacity = explosion.life / explosion.maxLife;
+                } else {
+                // Grow explosion
+                if (explosion.currentSize < explosion.maxSize) {
+                    explosion.currentSize += explosion.maxSize / 60;
+                    explosion.object.scale.setScalar(explosion.currentSize);
+                }
+                
+                // Fade out
+                const alpha = explosion.life / explosion.maxLife;
+                explosion.object.material.opacity = alpha;
+                
+                // Change color over time
+                const hue = (1 - alpha) * 0.1; // From red to yellow
+                explosion.object.material.color.setHSL(hue, 1, 0.5);
+                }
+                
+                // Remove old explosions
+                if (explosion.life <= 0) {
+                    nurWarsScene.remove(explosion.object);
+                    explosions.splice(i, 1);
+                }
+            }
+        }
+
+        function showVictoryMessage() {
+            // Play victory fanfare with conclusion theme
+            playNurWarsSound('victory');
+            
+            // Create enhanced 3D text for victory message
+            setTimeout(() => {
+                const battleHud = document.getElementById('battle-hud');
+                battleHud.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 40px #FFD700; animation: pulse 2s infinite; color: #FFD700; font-weight: 900;">THE LEGACY SYSTEM IS DESTROYED!</div>
+                    <div style="font-size: 32px; margin-bottom: 25px; color: #87CEEB; text-shadow: 0 0 20px #87CEEB;">NUR DAWOODANI HAS SAVED THE GALAXY!</div>
+                    <div style="font-size: 24px; opacity: 0.9; margin-bottom: 25px; color: #FFFFFF;">The Force of Business Analysis is strong with this one...</div>
+                    <div style="font-size: 20px; opacity: 0.8; margin-bottom: 25px; color: #98FB98;">The Death Star of Technical Debt has been eliminated!</div>
+                    <div style="font-size: 18px; opacity: 0.7; margin-bottom: 35px; color: #DDA0DD;">The Rebel Alliance celebrates another victory against the Empire of Legacy Systems!</div>
+                    <div style="font-size: 16px; opacity: 0.6; margin-bottom: 40px; color: #F0E68C; font-style: italic;">"That's one small step for Business Analysis, one giant leap for Digital Transformation!"</div>
+                    <button onclick="closeNurWars()" style="margin-top: 25px; background: rgba(255,215,0,0.3); border: 3px solid #FFD700; color: #FFD700; padding: 20px 40px; border-radius: 12px; font-family: 'Orbitron', serif; font-size: 22px; font-weight: bold; cursor: pointer; backdrop-filter: blur(15px); box-shadow: 0 0 25px rgba(255,215,0,0.6); transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px;">
+                        RETURN TO MISSION CONTROL
+                    </button>
+                `;
+                
+                // Add enhanced hover effect to button
+                const button = battleHud.querySelector('button');
+                button.addEventListener('mouseenter', () => {
+                    button.style.transform = 'scale(1.15)';
+                    button.style.boxShadow = '0 0 40px rgba(255,215,0,0.9)';
+                    button.style.background = 'rgba(255,215,0,0.5)';
+                });
+                button.addEventListener('mouseleave', () => {
+                    button.style.transform = 'scale(1)';
+                    button.style.boxShadow = '0 0 25px rgba(255,215,0,0.6)';
+                    button.style.background = 'rgba(255,215,0,0.3)';
+                });
+            }, 1500);
+        }
+        
+        // Make functions global
+        window.startNurWars = startNurWars;
+        window.closeNurWars = closeNurWars;
+
         function closeSkyModal() {
             document.getElementById('sky-details').style.display = 'none';
             
@@ -5071,8 +6687,27 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Clean sun animation - no corona layers
+            // Handle Nur Wars Battle Rendering
+            if (nurWarsActive && renderMode === 'battle') {
+                updateBattleLogic();
+                webGLRenderer.render(nurWarsScene, camera);
+                return; // Skip normal rendering
+            }
+
+            // Continue rendering main scene during NUR WARS opening crawl for starfield
             const time = Date.now() * 0.001;
+            
+            // Add subtle parallax movement to starfields during NUR WARS for depth perception
+            if (nurWarsActive) {
+                starMesh.rotation.y += 0.0001;
+                starMesh.rotation.x += 0.00005;
+                if (window.upperStarMesh) {
+                    upperStarMesh.rotation.y -= 0.00015; // Opposite direction for depth
+                    upperStarMesh.rotation.x -= 0.00008;
+                }
+            }
+            
+            // Clean sun animation - no corona layers
             sun.rotation.y += 0.001; // Rotate sun counterclockwise (same as planets)
             
             // Animate sun glow
@@ -5352,9 +6987,6 @@
                 }
             }
 
-            // Animate Star Wars elements
-            animateStarWarsElements();
-
             controls.update();
             webGLRenderer.render(scene, camera);
         }
@@ -5363,6 +6995,10 @@
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
+            if (nurWarsCamera) {
+                nurWarsCamera.aspect = window.innerWidth / window.innerHeight;
+                nurWarsCamera.updateProjectionMatrix();
+            }
             webGLRenderer.setSize(window.innerWidth, window.innerHeight);
         });
         
@@ -5374,52 +7010,8 @@
                 animate();
             }, 1000);
         }, 1000);
-        }
-    </script>
-</body>
-
-
-</html>
-</html>
-
-
-</html>     webGLRenderer.render(scene, camera);
-        }
-
-        // === RESIZE ===
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            webGLRenderer.setSize(window.innerWidth, window.innerHeight);
-        });
         
-        // === INITIALIZATION ===
-        setTimeout(() => {
-            document.getElementById('loading').style.opacity = 0;
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-                animate();
-            }, 1000);
-        }, 1000);
         }
     </script>
 </body>
-
-
-</html>
-</html>
-
-
-</html>         animate();
-            }, 1000);
-        }, 1000);
-        }
-    </script>
-</body>
-
-
-</html>
-</html>
-
-
 </html>
