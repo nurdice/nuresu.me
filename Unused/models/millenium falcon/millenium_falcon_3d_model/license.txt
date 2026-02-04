@@ -1,0 +1,11 @@
+Model Information:
+* title:	Millenium Falcon 3D model
+* source:	https://sketchfab.com/3d-models/millenium-falcon-3d-model-f650d09674a24baca5d857ef474dadc7
+* author:	Yehor.Yanush (https://sketchfab.com/Yehor.Yanush)
+
+Model License:
+* license type:	CC-BY-NC-ND-4.0 (http://creativecommons.org/licenses/by-nc-nd/4.0/)
+* requirements:	Author must be credited. No commercial use. Modified versions can not be distributed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Millenium Falcon 3D model" (https://sketchfab.com/3d-models/millenium-falcon-3d-model-f650d09674a24baca5d857ef474dadc7) by Yehor.Yanush (https://sketchfab.com/Yehor.Yanush) licensed under CC-BY-NC-ND-4.0 (http://creativecommons.org/licenses/by-nc-nd/4.0/)

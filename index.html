@@ -27,6 +27,30 @@
             z-index: 1;
         }
 
+        #solar-loading-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.88);
+            color: #dbeafe;
+            font-family: 'Poppins', sans-serif;
+            font-size: 18px;
+            z-index: 6;
+            letter-spacing: 0.5px;
+        }
+
+        #blackhole-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: none;
+            z-index: 8;
+            pointer-events: none;
+        }
+
         #ui-layer {
             position: fixed;
             top: 0;
@@ -54,6 +78,11 @@
             border: none;
             backdrop-filter: none;
             text-align: center;
+        }
+
+        body.labels-hidden .label {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .label:hover {
@@ -164,7 +193,7 @@
         }
 
         #nur-wars-btn:hover {
-            background: url('nurwars.png') no-repeat center/contain !important;
+            background: url('assets/images/nurwars.png') no-repeat center/contain !important;
             background-color: transparent !important;
             transform: scale(1.1) translateY(-2px) !important;
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.4) !important;
@@ -215,7 +244,7 @@
             text-align: center;
             color: #fff;
             text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-            pointer-events: none;
+            pointer-events: auto;
             z-index: 25; /* Increased from 15 to be above controls */
             display: none;
             width: 94%;
@@ -382,6 +411,35 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s ease-out;
+        }
+
+        /* Audio controls - hidden by default, shown on hover or during NUR WARS */
+        #audio-controls {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .nur-wars-active #audio-controls {
+            display: flex !important;
+            opacity: 0;
+            pointer-events: auto;
+        }
+
+        .nur-wars-active #audio-controls:hover {
+            opacity: 1 !important;
+        }
+
+        @keyframes slideInAudio {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         /* Language Card Glow Effect */
@@ -596,12 +654,17 @@
         }
     </style>
 </head>
-<body>
+<body class="labels-hidden">
 
-    <div id="loading"><div class="loader"></div></div>
+    <div id="loading" style="display:none;"><div class="loader"></div></div>
     <div id="mobile-view"></div>
-    <div id="canvas-container"></div>
-    <div id="ui-layer"></div>
+    <div id="canvas-container" style="display:none;"></div>
+    <div id="solar-loading-overlay" style="display:flex;">
+        <div style="font-weight:600; margin-bottom:6px;">Loading solar system…</div>
+        <div id="solar-loading-progress" style="opacity:0.8; font-size:14px;">0%</div>
+    </div>
+    <div id="blackhole-overlay"></div>
+    <div id="ui-layer" style="display:none;"></div>
     <div id="sky-details">
         <div id="sky-close" onclick="closeSkyModal()">✕</div>
         <h1 id="sky-title">Moon Title</h1>
@@ -643,12 +706,20 @@
     </div>
 
     <div id="controls">
-        <button class="hud-btn" onclick="resetView()">⊙ Reset View</button>
+        <button class="hud-btn" onclick="event.stopPropagation(); resetView()">⊙ Reset View</button>
         <button class="hud-btn" onclick="toggleSound()" id="sound-btn">🔇 Sound Off</button>
         <button class="hud-btn" onclick="toggleOrbits()" id="orbits-btn">🪐 Show Orbits</button>
         <button class="hud-btn" onclick="goToPreviousView()" id="back-btn" style="display: none;">← Back</button>
-        <button class="hud-btn" onclick="startNurWars()" id="nur-wars-btn" aria-label="Nur Wars" style="background: url('nurwars.png') no-repeat center/contain; background-color: transparent; border: none; width: 120px; height: 60px; padding: 0; min-width: auto; box-shadow: none; backdrop-filter: none;"></button>
+        <button class="hud-btn" onclick="startNurWars()" id="nur-wars-btn" aria-label="Nur Wars" style="background: url('assets/images/nurwars.png') no-repeat center/contain; background-color: transparent; border: none; width: 120px; height: 60px; padding: 0; min-width: auto; box-shadow: none; backdrop-filter: none;"></button>
         <button class="hud-btn" onclick="document.getElementById('pdf-modal').style.display='flex'">📄 PDF Resume</button>
+    </div>
+
+    <!-- Movie Controls (NUR WARS only) -->
+    <div id="audio-controls" style="position: fixed; top: 30px; right: 30px; display: flex; gap: 10px; z-index: 1002; flex-wrap: nowrap; align-items: center;">
+        <button class="hud-btn" onclick="toggleSound()" id="nur-wars-sound-btn" aria-label="Toggle sound" style="padding: 10px 16px; font-size: 14px;">🔊</button>
+        <button class="hud-btn" onclick="skipMovie(-5)" id="movie-back-btn" aria-label="Back 5 seconds" style="padding: 10px 16px; font-size: 14px;">⏪ -5s</button>
+        <button class="hud-btn" onclick="toggleMoviePlayPause()" id="movie-play-btn" aria-label="Play or pause movie" style="padding: 10px 16px; font-size: 14px;">⏸️ Pause</button>
+        <button class="hud-btn" onclick="skipMovie(5)" id="movie-forward-btn" aria-label="Forward 5 seconds" style="padding: 10px 16px; font-size: 14px;">⏩ +5s</button>
     </div>
 
     <!-- NUR WARS Experience -->
@@ -660,7 +731,7 @@
             
             <!-- Nur Wars image - fixed position overlay, animated separately -->
             <div id="nurwars-image-container" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 999; width: 90%; max-width: 600px;">
-                <img src="nurwars opening.png" alt="NUR WARS" style="width: 100%; height: auto;">
+                <img src="assets/images/nurwars opening.png" alt="NUR WARS" style="width: 100%; height: auto;">
             </div>
             
             <div id="crawl-text" style="position: absolute; top: 100vh; left: 50%; transform: translateX(-50%) rotateX(0deg) scale(1); transform-origin: 50% bottom; width: 98%; max-width: 1200px; color: #feda4a; font-family: 'Arial Black', 'Franklin Gothic', sans-serif; font-size: 36px; line-height: 1.8; text-align: center; letter-spacing: 2px; font-weight: bold;">
@@ -694,8 +765,8 @@
         </div>
         
         <!-- Close Button -->
-        <button onclick="closeNurWars()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,215,0,0.2); border: 2px solid #FFD700; color: #FFD700; padding: 10px 20px; border-radius: 5px; font-family: 'Orbitron', serif; cursor: pointer; z-index: 1001;">
-            EXIT HYPERSPACE
+        <button id="exit-hyperspace-btn" style="position: fixed; top: 20px; left: 20px; background: rgba(255,100,100,0.3); border: 2px solid #FF6464; color: #FF6464; padding: 12px 20px; border-radius: 5px; font-family: 'Orbitron', serif; cursor: pointer; z-index: 1003; display: none; font-weight: bold; pointer-events: auto;">
+            ⏹ EXIT HYPERSPACE
         </button>
     </div>
 
@@ -704,8 +775,8 @@
     <script type="importmap">
         {
             "imports": {
-                "three": "https://esm.sh/three@r128",
-                "three/addons/controls/OrbitControls.js": "https://esm.sh/three@r128/examples/jsm/controls/OrbitControls.js"
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
             }
         }
     </script>
@@ -713,9 +784,13 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
         const RESUME_DATA = window.RESUME_DATA;
         const { jsPDF } = window.jspdf;
+        
+        // Initialize GLTF Loader for 3D models (supports KHR_materials_pbrSpecularGlossiness natively)
+        const gltfLoader = new GLTFLoader();
 
         // Check if RESUME_DATA is loaded properly
         if (!RESUME_DATA) {
@@ -735,8 +810,11 @@
         const objects = [];
         const clickableObjects = [];
         const labels = [];
+        let revealLabelsOnNextFrame = false;
         const orbitPaths = [];
         const moonOrbitPaths = []; // Separate array for moon orbits
+        let activeSuctionAnimations = {};
+        let stopSuctionAnimation = false; // Flag to stop animation updates // Store animation tweens for cleanup
         let focusedObject = null;
         let isCenterView = false;
         let previousCameraPos = new THREE.Vector3();
@@ -748,6 +826,10 @@
         const comets = [];
         const cometParticles = [];
         const lasers = [];
+        let falconModel = null;
+        let falconModelPromise = null;
+        let tieFighterModel = null;
+        let tieFighterModelPromise = null;
         
         // View history system variables (functions defined after camera creation)
         const viewHistory = [];
@@ -1008,10 +1090,126 @@
         
         // Container for Sun and Planets to move together
         const solarSystem = new THREE.Group();
+        solarSystem.userData.isSucked = false;
         scene.add(solarSystem);
 
+        // Black hole in the far background
+        const blackHoleGroup = new THREE.Group();
+        blackHoleGroup.userData = { isBlackHole: true, name: 'Black Hole' };
+        blackHoleGroup.position.set(900, 260, -250);
+        blackHoleGroup.renderOrder = 0;
+        scene.add(blackHoleGroup);
+        clickableObjects.push(blackHoleGroup);
+        objects.push({ mesh: blackHoleGroup, speed: 0.0006, type: 'rotate' });
+
+        blackHoleGroup.rotation.x = 0;
+
+        const blackHoleLight = new THREE.PointLight(0xffffff, 35.0, 3600);
+        blackHoleLight.position.set(0, 0, 0);
+        blackHoleGroup.add(blackHoleLight);
+
+        const blackHoleHitGeo = new THREE.SphereGeometry(160, 24, 24);
+        const blackHoleHitMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.02
+        });
+        const blackHoleHit = new THREE.Mesh(blackHoleHitGeo, blackHoleHitMat);
+        blackHoleHit.frustumCulled = false;
+        blackHoleHit.userData = { isBlackHole: true };
+        blackHoleGroup.add(blackHoleHit);
+
+        // Add black sphere at center to hide stars
+        const blackCenterGeo = new THREE.SphereGeometry(100, 32, 32);
+        const blackCenterMat = new THREE.MeshBasicMaterial({
+            color: 0x000000,
+            transparent: false
+        });
+        const blackCenter = new THREE.Mesh(blackCenterGeo, blackCenterMat);
+        blackCenter.frustumCulled = false;
+        blackCenter.position.z = 0;
+        blackHoleGroup.add(blackCenter);
+
+        gltfLoader.load(
+            'assets/models/blackhole/scene.gltf',
+            (gltf) => {
+                const blackHoleModel = gltf.scene;
+                blackHoleModel.traverse(child => {
+                    if (child.isMesh) {
+                        child.castShadow = false;
+                        child.receiveShadow = false;
+                        child.renderOrder = 0;
+                        if (child.material) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach((m) => {
+                                if (!m) return;
+                                m.depthTest = true;
+                                m.depthWrite = true;
+                                m.needsUpdate = true;
+                            });
+                        }
+                        const mat = child.material;
+                        // Keep materials as-is without emissive boost
+                        if (Array.isArray(mat)) {
+                            // Materials are arrays
+                        } else {
+                            // Single material
+                        }
+                    }
+                });
+                blackHoleModel.scale.set(140, 140, 140);
+                blackHoleGroup.add(blackHoleModel);
+            },
+            undefined,
+            (error) => {
+                console.error('Failed to load black hole model', error);
+            }
+        );
+
+        // UI layer hidden initially (labels, etc)
+        const uiLayer = document.getElementById('ui-layer');
+        const blackHoleOverlay = document.getElementById('blackhole-overlay');
+        document.body.classList.add('labels-hidden');
+
+        // Solar system loading state
+        let solarModelsToLoad = 0;
+        let solarModelsLoaded = 0;
+        let solarLoadTimeoutId = null;
+
+        const solarLoadingOverlay = document.getElementById('solar-loading-overlay');
+
+        function updateSolarLoadingOverlay() {
+            const progressEl = document.getElementById('solar-loading-progress');
+            if (!progressEl) return;
+            const percent = solarModelsToLoad === 0 ? 0 : Math.round((solarModelsLoaded / solarModelsToLoad) * 100);
+            progressEl.textContent = `${percent}%`;
+        }
+
+        function checkSolarModelsReady() {
+            updateSolarLoadingOverlay();
+            if (solarModelsToLoad > 0 && solarModelsLoaded >= solarModelsToLoad) {
+                // Show everything at once
+                container.style.display = 'block';
+                uiLayer.style.display = 'flex';
+                solarLoadingOverlay.style.display = 'none';
+                revealLabelsOnNextFrame = true;
+                if (solarLoadTimeoutId) {
+                    clearTimeout(solarLoadTimeoutId);
+                    solarLoadTimeoutId = null;
+                }
+            }
+        }
+
+        // Failsafe: never block the UI forever
+        solarLoadTimeoutId = setTimeout(() => {
+            container.style.display = 'block';
+            uiLayer.style.display = 'flex';
+            solarLoadingOverlay.style.display = 'none';
+            revealLabelsOnNextFrame = true;
+        }, 15000);
+
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 5000);
-        camera.position.set(0, 200, 800); // More zoomed in from (0, 300, 1200)
+        camera.position.set(0, 150, 900); // High viewpoint for better perspective
         
         let webGLRenderer;
         try {
@@ -1025,6 +1223,12 @@
         webGLRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         webGLRenderer.shadowMap.enabled = true;
         webGLRenderer.shadowMap.type = THREE.PCFShadowShadowMap;
+        if ('outputColorSpace' in webGLRenderer) {
+            webGLRenderer.outputColorSpace = THREE.SRGBColorSpace;
+        } else if ('outputEncoding' in webGLRenderer) {
+            webGLRenderer.outputEncoding = THREE.sRGBEncoding;
+        }
+        webGLRenderer.toneMapping = THREE.NoToneMapping;
         container.appendChild(webGLRenderer.domElement);
 
         const controls = new OrbitControls(camera, webGLRenderer.domElement);
@@ -1114,9 +1318,7 @@
         window.goToPreviousView = goToPreviousView;
 
         // === LIGHTING ===
-        const ambientLight = new THREE.AmbientLight(0xcccccc, 0.3); // Reduced ambient light to show planet colors better
-        scene.remove(ambientLight);
-        scene.add(ambientLight);
+        // Ambient light now configured with sun setup for better brightness
         
         const sunLight = new THREE.PointLight(0xffffff, 6, 2000);
         sunLight.position.set(0, 0, 0);
@@ -2230,22 +2432,32 @@
         window.toggleSound = () => {
             soundEnabled = !soundEnabled;
             const btn = document.getElementById('sound-btn');
+            const movieBtn = document.getElementById('nur-wars-sound-btn');
 
             if (soundEnabled) {
                 btn.textContent = '🔊 Sound On';
-                if (!backgroundAudio) initAudio();
-                // must resume audio context on user gesture and ramp gain
-                const ctx = backgroundAudio.audioContext;
-                ctx.resume().then(() => {
-                    const now = ctx.currentTime;
-                    try {
-                        backgroundAudio.gainNode.gain.cancelScheduledValues(now);
-                        backgroundAudio.gainNode.gain.setValueAtTime(backgroundAudio.gainNode.gain.value || 0, now);
-                        backgroundAudio.gainNode.gain.linearRampToValueAtTime(0.01, now + 0.5);
-                    } catch(e) { backgroundAudio.gainNode.gain.value = 0.01; }
-                }).catch(()=>{ /* ignore resume errors */ });
+                if (movieBtn) movieBtn.textContent = '🔊';
+                // Only resume background audio if NOT in NUR WARS movie
+                if (!nurWarsActive && backgroundAudio) {
+                    if (!backgroundAudio) initAudio();
+                    // must resume audio context on user gesture and ramp gain
+                    const ctx = backgroundAudio.audioContext;
+                    ctx.resume().then(() => {
+                        const now = ctx.currentTime;
+                        try {
+                            backgroundAudio.gainNode.gain.cancelScheduledValues(now);
+                            backgroundAudio.gainNode.gain.setValueAtTime(backgroundAudio.gainNode.gain.value || 0, now);
+                            backgroundAudio.gainNode.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                        } catch(e) { backgroundAudio.gainNode.gain.value = 0.01; }
+                    }).catch(()=>{ /* ignore resume errors */ });
+                }
+                // Resume movie audio if playing
+                if (currentAudio && currentAudio.paused && nurWarsActive && !moviePaused) {
+                    currentAudio.play().catch(() => {});
+                }
             } else {
                 btn.textContent = '🔇 Sound Off';
+                if (movieBtn) movieBtn.textContent = '🔇';
                 if (backgroundAudio) {
                     const now = backgroundAudio.audioContext.currentTime;
                     try {
@@ -2253,6 +2465,52 @@
                         backgroundAudio.gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
                     } catch(e) { backgroundAudio.gainNode.gain.value = 0; }
                 }
+                // Pause movie audio if playing
+                if (currentAudio && !currentAudio.paused) {
+                    currentAudio.pause();
+                }
+            }
+        };
+
+        function updatePlayPauseButton() {
+            const btn = document.getElementById('audio-play-btn');
+            if (!btn) return;
+            if (!currentAudio) {
+                btn.textContent = '⏯️ Play';
+                return;
+            }
+            btn.textContent = currentAudio.paused ? '▶️ Play' : '⏸️ Pause';
+        }
+
+        window.togglePlayPause = () => {
+            if (!currentAudio) {
+                updatePlayPauseButton();
+                return;
+            }
+
+            if (currentAudio.paused) {
+                if (!soundEnabled) {
+                    window.toggleSound();
+                }
+                currentAudio.play().then(() => {
+                    updatePlayPauseButton();
+                }).catch(() => {
+                    updatePlayPauseButton();
+                });
+            } else {
+                currentAudio.pause();
+                updatePlayPauseButton();
+            }
+        };
+
+        window.skipAudio = (seconds) => {
+            if (!currentAudio || Number.isNaN(currentAudio.currentTime)) return;
+            const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : null;
+            const newTime = currentAudio.currentTime + seconds;
+            if (duration !== null && duration > 0) {
+                currentAudio.currentTime = Math.min(Math.max(newTime, 0), Math.max(duration - 0.1, 0));
+            } else {
+                currentAudio.currentTime = Math.max(newTime, 0);
             }
         };
 
@@ -2322,7 +2580,7 @@
                         console.warn("Profile image failed to load (likely CORS). Continuing without it.");
                         resolve(null);
                     };
-                    img.src = 'Profile.jpg';
+                    img.src = 'assets/images/Profile.jpg';
                 });
             } catch (e) {
                 console.warn("Image load error", e);
@@ -2761,6 +3019,24 @@
             document.getElementById('overlay-panel').classList.remove('active');
         }
 
+        function scaleModelToRadius(model, targetRadius) {
+            const initialBox = new THREE.Box3().setFromObject(model);
+            const initialSize = new THREE.Vector3();
+            initialBox.getSize(initialSize);
+            const maxDim = Math.max(initialSize.x, initialSize.y, initialSize.z) || 1;
+            const scale = (targetRadius * 2) / maxDim;
+            model.scale.setScalar(scale);
+
+            const scaledBox = new THREE.Box3().setFromObject(model);
+            const scaledCenter = new THREE.Vector3();
+            scaledBox.getCenter(scaledCenter);
+            model.position.sub(scaledCenter);
+        }
+
+        function applyModelColorSpace(model) {
+            // Do nothing - use models as-is
+        }
+
         // === BRIGHT GLOWING SUN LIKE A FIREBALL ===
         const sunGeo = new THREE.SphereGeometry(85, 256, 256);
         
@@ -2834,14 +3110,19 @@
         });
         
         // Bright emissive material that glows like a light bulb
-        const sunMat = new THREE.MeshBasicMaterial({ 
+        const sunMat = new THREE.MeshStandardMaterial({ 
             map: sunTexture,
             toneMapped: false,
             fog: false,
-            transparent: false
+            transparent: false,
+            emissive: 0xffffff,
+            emissiveIntensity: 4.0,
+            emissiveMap: sunTexture,
+            metalness: 0,
+            roughness: 1
         });
         
-        const sun = new THREE.Mesh(sunGeo, sunMat);
+        const sun = new THREE.Group();
         sun.userData = {
             name: RESUME_DATA.name,
             role: RESUME_DATA.role,
@@ -2849,10 +3130,42 @@
             isSun: true
         };
         solarSystem.add(sun);
+
+        const sunPlaceholder = new THREE.Mesh(sunGeo, sunMat);
+        sunPlaceholder.castShadow = false;
+        sunPlaceholder.receiveShadow = false;
+        sun.add(sunPlaceholder);
+
+        solarModelsToLoad++;
+        updateSolarLoadingOverlay();
+        gltfLoader.load(
+            'assets/models/the_star_sun/scene.gltf',
+            (gltf) => {
+                const sunModel = gltf.scene;
+                applyModelColorSpace(sunModel);
+                sunModel.traverse(child => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                scaleModelToRadius(sunModel, 85);
+                sun.add(sunModel);
+                sun.remove(sunPlaceholder);
+                solarModelsLoaded++;
+                checkSolarModelsReady();
+            },
+            undefined,
+            (error) => {
+                console.error('Error loading sun model:', error);
+                solarModelsLoaded++;
+                checkSolarModelsReady();
+            }
+        );
         
         // Add realistic sun glow effect
-        const glowGeo = new THREE.SphereGeometry(120, 64, 64); // Larger than sun
-        const glowMat = new THREE.ShaderMaterial({
+        const sunGlowGeo = new THREE.SphereGeometry(120, 64, 64); // Larger than sun
+        const sunGlowMat = new THREE.ShaderMaterial({
             uniforms: {
                 time: { value: 0.0 },
                 glowColor: { value: new THREE.Color(0xffaa33) }
@@ -2882,11 +3195,11 @@
             transparent: true
         });
         
-        const sunGlow = new THREE.Mesh(glowGeo, glowMat);
-        solarSystem.add(sunGlow);
+        const sunGlow = new THREE.Mesh(sunGlowGeo, sunGlowMat);
+        sun.add(sunGlow);
         
         // Store glow material for animation
-        sun.userData.glowMaterial = glowMat;
+        sun.userData.glowMaterial = sunGlowMat;
         
         // Make Sun clickable
         clickableObjects.push(sun);
@@ -2895,21 +3208,25 @@
         // Just the sun itself with enhanced brightness and glow
 
         // Intense sun lighting like a bright bulb
-        const sunCoreLight = new THREE.PointLight(0xffffff, 8, 2500);
+        const sunCoreLight = new THREE.PointLight(0xffffff, 60, 3500);
         sunCoreLight.position.set(0, 0, 0);
         solarSystem.add(sunCoreLight);
 
-        const sunBrightLight = new THREE.PointLight(0xffffff, 6, 2000);
+        const sunBrightLight = new THREE.PointLight(0xffffff, 48, 3000);
         sunBrightLight.position.set(0, 0, 0);
         solarSystem.add(sunBrightLight);
 
-        const sunWarmLight = new THREE.PointLight(0xffffff, 4, 1500);
+        const sunWarmLight = new THREE.PointLight(0xffffff, 36, 2500);
         sunWarmLight.position.set(0, 0, 0);
         solarSystem.add(sunWarmLight);
 
-        const sunAmbientLight = new THREE.PointLight(0xffffff, 2, 1000);
+        const sunAmbientLight = new THREE.PointLight(0xffffff, 18, 2000);
         sunAmbientLight.position.set(0, 0, 0);
         solarSystem.add(sunAmbientLight);
+
+        // Add ambient light for overall scene brightness
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+        scene.add(ambientLight);
 
         createLabel("NUR<br><span style='font-size:0.6em; opacity:0.8; color: #38bdf8;'>Business Analyst</span>", sun, true);
 
@@ -3135,13 +3452,13 @@
 
         // Add realistic galaxies with varied colors
         const galaxyPositions = [
-            { x: 600, y: 400, z: -1200, color: 0 },
-            { x: -700, y: -300, z: -1400, color: 1 },
-            { x: 400, y: -600, z: -1100, color: 2 },
-            { x: -500, y: 500, z: -1300, color: 3 },
-            { x: 800, y: -400, z: -1500, color: 0 },
-            { x: -300, y: 700, z: -1000, color: 1 },
-            { x: 300, y: 200, z: -1250, color: 2 }
+            { x: 600, y: 400, z: -2500, color: 0 },
+            { x: -700, y: -300, z: -2700, color: 1 },
+            { x: 400, y: -600, z: -2400, color: 2 },
+            { x: -500, y: 500, z: -2600, color: 3 },
+            { x: 800, y: -400, z: -2800, color: 0 },
+            { x: -300, y: 700, z: -2300, color: 1 },
+            { x: 300, y: 200, z: -2550, color: 2 }
         ];
 
         galaxyPositions.forEach((pos, idx) => {
@@ -3149,6 +3466,32 @@
             galaxy.position.set(pos.x, pos.y, pos.z);
             scene.add(galaxy);
         });
+
+        function getPlanetModelPath(planetName) {
+            const name = (planetName || '').toLowerCase();
+            
+            // Map resume planet names to GLTF model folders
+            if (name.includes('skills')) return 'assets/models/planet_of_phoenix/scene.gltf';      // Jupiter-like for Skills
+            if (name.includes('experience')) return 'assets/models/lava_planet/scene.gltf';        // Mars-like for Experience
+            if (name.includes('expertise')) return 'assets/models/saturn_planet/scene.gltf';       // Saturn for Expertise
+            if (name.includes('projects')) return 'assets/models/dathomir/scene.gltf';             // Dathomir for Projects
+            if (name.includes('education')) return 'assets/models/jupiter/scene.gltf';             // Jupiter for Education
+            if (name.includes('certifications')) return 'assets/models/neptune/scene.gltf';        // Neptune for Certifications
+            if (name.includes('contact')) return 'assets/models/uranus/scene.gltf';               // Uranus for Contact
+            
+            // Fallback for old mappings
+            if (name.includes('earth')) return 'assets/models/planet_earth/scene.gltf';
+            if (name.includes('saturn')) return 'assets/models/saturn_planet/scene.gltf';
+            if (name.includes('uranus')) return 'assets/models/uranus/scene.gltf';
+            if (name.includes('neptune')) return 'assets/models/neptune/scene.gltf';
+            if (name.includes('mars')) return 'assets/models/lava_planet/scene.gltf';
+            if (name.includes('venus')) return 'assets/models/planet_afroditi/scene.gltf';
+            if (name.includes('jupiter')) return 'assets/models/jupiter/scene.gltf';
+            
+            return 'assets/models/planet/scene.gltf';
+        }
+
+        // Moon models removed - use simple procedural spheres for performance
 
         // === CREATE PLANETS ===
         RESUME_DATA.planets.forEach((data, idx) => {
@@ -3196,20 +3539,8 @@
             orbitGroup.add(path);
             orbitPaths.push(path);
 
-            const geometry = new THREE.SphereGeometry(config.size, 128, 128);
-            const texture = createCanvasTexture(2048, 1024, config.texture);
-            
-            const material = new THREE.MeshPhongMaterial({
-                map: texture,
-                shininess: 40,
-                side: THREE.FrontSide,
-                flatShading: false
-            });
-
-            const planet = new THREE.Mesh(geometry, material);
-            planet.castShadow = true;
-            planet.receiveShadow = true;
-            planet.userData = { ...data, isPlanet: true };
+            const planetGroup = new THREE.Group();
+            planetGroup.userData = { ...data, isPlanet: true };
 
             // Planet Pivot handles the angle (theta)
             const planetPivot = new THREE.Group();
@@ -3227,8 +3558,8 @@
             radialGroup.add(tiltGroup);
 
             // Planet is at 0,0,0 inside tiltGroup
-            tiltGroup.add(planet);
-            planet.position.set(0, 0, 0);
+            tiltGroup.add(planetGroup);
+            planetGroup.position.set(0, 0, 0);
 
             // Calculate initial radius
             const initialR = (config.distance * (1 - config.eccentricity * config.eccentricity)) / (1 + config.eccentricity * Math.cos(initialTheta));
@@ -3236,28 +3567,55 @@
 
             // Push elliptical orbit object
             objects.push({ type: 'ellipticalOrbit', pivot: planetPivot, radial: radialGroup, a: config.distance, e: config.eccentricity, speed: config.speed, theta: initialTheta });
-            objects.push({ mesh: planet, speed: 0.003, type: 'rotate' });
-            clickableObjects.push(planet);
-            backgroundObjects.push(planet); // Add planet to background objects for dimming
-            createLabel(data.name, planet);
+            objects.push({ mesh: planetGroup, speed: 0.003, type: 'rotate' });
+            clickableObjects.push(planetGroup);
+            backgroundObjects.push(planetGroup); // Add planet to background objects for dimming
+            createLabel(data.name, planetGroup);
 
-            // Rings for Saturn
-            if (config.hasRings) {
-                const ringGeo = new THREE.RingGeometry(config.size + 2, config.size + 6, 64);
-                const ringMat = new THREE.MeshStandardMaterial({
-                    color: 0xfff5e1,
-                    transparent: true,
-                    opacity: 0.95,
-                    side: THREE.DoubleSide,
-                    roughness: 0.6,
-                    emissive: 0x0a0a0a,
-                    emissiveIntensity: 0.05
-                });
-                const ring = new THREE.Mesh(ringGeo, ringMat);
-                ring.rotation.x = Math.PI / 3.5;
-                ring.receiveShadow = true;
-                planet.add(ring);
-            }
+            // Planet model rings are included in GLTF - don't add old canvas ring
+
+            const planetModelPath = getPlanetModelPath(data.name);
+            
+            solarModelsToLoad++;
+            updateSolarLoadingOverlay();
+            gltfLoader.load(
+                planetModelPath,
+                (gltf) => {
+                    const planetModel = gltf.scene;
+                    const isContactPlanet = data.name === 'Contact';
+                    const boostContactEmissive = (material) => {
+                        if (!material || !('emissive' in material)) return;
+                        material.emissive.set(0x7fffd4);
+                        material.emissiveIntensity = Math.max(material.emissiveIntensity || 0, 1.6);
+                        material.needsUpdate = true;
+                    };
+                    
+                    planetModel.traverse(child => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            if (isContactPlanet) {
+                                if (Array.isArray(child.material)) {
+                                    child.material.forEach(boostContactEmissive);
+                                } else {
+                                    boostContactEmissive(child.material);
+                                }
+                            }
+                        }
+                    });
+                    
+                    scaleModelToRadius(planetModel, config.size);
+                    planetGroup.add(planetModel);
+                    solarModelsLoaded++;
+                    checkSolarModelsReady();
+                },
+                undefined,
+                (error) => {
+                    console.error(`✗ FAILED to load ${data.name}: ${planetModelPath}`, error);
+                    solarModelsLoaded++;
+                    checkSolarModelsReady();
+                }
+            );
 
             // Moons
             if (data.moons) {
@@ -3267,33 +3625,11 @@
                     const specificTex = texName && textureMap[texName] ? createCanvasTexture(512, 512, textureMap[texName]) : null;
 
                     const moonGeo = new THREE.SphereGeometry(moonData.size, 64, 64);
-                    
-                    // Determine moon texture based on planet and moon type
-                    let moonTexture;
-                    if (specificTex) {
-                        // Use the specific texture defined in moon data
-                        moonTexture = specificTex;
-                    } else if (data.name === "Skills & Tools") { // Skills planet - Use different textures for variety
-                        const textures = [drawGreen, drawBlue, drawUranus, drawYellow];
-                        moonTexture = createCanvasTexture(1024, 1024, textures[moonIdx % textures.length]);
-                    } else if (data.name === "Education") { // Education planet - Use different educational textures
-                        const textures = [drawBlue, drawTeal, drawGreen];
-                        moonTexture = createCanvasTexture(1024, 1024, textures[moonIdx % textures.length]);
-                    } else if (data.name === "Contact Station") { // Contact Station - Contact info surfaces
-                        moonTexture = moonIdx % 3 === 0 ? 
-                            createCanvasTexture(1024, 1024, drawEmailSurface) : 
-                            moonIdx % 3 === 1 ?
-                            createCanvasTexture(1024, 1024, drawPhoneSurface) :
-                            createCanvasTexture(1024, 1024, drawLocationSurface);
-                    } else {
-                        moonTexture = createCanvasTexture(1024, 1024, drawRocky);
-                    }
-
+                    const moonTexture = specificTex || createCanvasTexture(1024, 1024, drawRocky);
                     const moonMat = new THREE.MeshPhongMaterial({
                         map: moonTexture,
                         shininess: 25,
                         side: THREE.FrontSide,
-                        // Add emissive color based on moon's color for better visibility
                         emissive: moonData.color ? new THREE.Color(moonData.color) : new THREE.Color(0x222222),
                         emissiveIntensity: 0.15
                     });
@@ -3303,11 +3639,12 @@
                     moon.userData = { 
                         ...moonData, 
                         isMoon: true, 
-                        parentPlanet: planet,
+                        parentPlanet: planetGroup,
                         name: moonData.name,
                         moonDetails: moonData.moonDetails || "",
                         renderType: moonData.renderType // Ensure renderType is preserved
                     };
+                    const moonGroup = moon;
 
                     // Create moon pivot centered on the planet
                     const moonPivot = new THREE.Group();
@@ -3330,14 +3667,19 @@
                     // Create moon orbit path visualization
                     const moonPathGeo = new THREE.BufferGeometry();
                     const moonPathPoints = [];
-                    const moonOrbitRadius = moonData.distance;
+                    const planetRadius = data.size || 10;
+                    const moonRadius = moonData.size || 1;
+                    const baseMoonDistance = moonData.distance || (planetRadius * 2.6);
+                    const minMoonDistance = planetRadius + moonRadius + 8;
+                    const separation = (moonRadius * 2.2) + 8;
+                    const moonOrbitRadius = Math.max(baseMoonDistance, minMoonDistance) + (moonIdx * separation);
                     
-                    // Create elliptical orbit for moon (slight eccentricity for realism)
-                    const moonEccentricity = Math.random() * 0.1 + 0.02; // Small eccentricity between 0.02 and 0.12
+                    // Use circular orbit so moons stay on their path
+                    const moonEccentricity = 0;
                     
                     for(let i = 0; i <= 128; i++) {
                         const angle = (i / 128) * Math.PI * 2;
-                        const r = (moonOrbitRadius * (1 - moonEccentricity * moonEccentricity)) / (1 + moonEccentricity * Math.cos(angle));
+                        const r = moonOrbitRadius;
                         moonPathPoints.push(
                             Math.cos(angle) * r,
                             0,
@@ -3362,7 +3704,7 @@
                     // Store moon orbit data for visibility control
                     moonOrbitPaths.push({
                         path: moonOrbitPath,
-                        parentPlanet: planet,
+                        parentPlanet: planetGroup,
                         moon: moon
                     });
                     
@@ -3370,12 +3712,12 @@
                     
                     // Add moon to the inclination group instead of directly to moonPivot for proper orbital mechanics
                     moonOrbitInclinationGroup.add(moon);
-                    moon.position.x = moonData.distance;
+                    moon.position.x = moonOrbitRadius;
 
                     // SLOWER MOON SPEEDS - proper orbiting
                     objects.push({ 
                         mesh: moonOrbitPlaneGroup, // Use the plane group for rotation instead of moonPivot
-                        speed: moonData.speed, 
+                        speed: moonData.speed || 0.0025, 
                         type: 'orbit',
                         isExperienceMoon: data.name === 'Experience'
                     });
@@ -3432,15 +3774,51 @@
         // === INTERACTION ===
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+        let isDragging = false;
+        let mouseDownPos = { x: 0, y: 0 };
 
         window.addEventListener('mousemove', (event) => {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            if (mouseDownPos) {
+                const dx = event.clientX - mouseDownPos.x;
+                const dy = event.clientY - mouseDownPos.y;
+                if (Math.hypot(dx, dy) > 6) {
+                    isDragging = true;
+                }
+            }
+
+            // Hover-target the black hole so scroll zoom moves toward it
+            if (!solarSystem.userData.isSucked && !isDragging) {
+                raycaster.setFromCamera(mouse, camera);
+                const hoverHits = raycaster.intersectObjects([blackHoleGroup], true);
+                if (hoverHits.length > 0) {
+                    const targetPos = new THREE.Vector3();
+                    blackHoleGroup.getWorldPosition(targetPos);
+                    controls.target.copy(targetPos);
+                }
+            }
+        });
+
+        window.addEventListener('mousedown', (event) => {
+            mouseDownPos = { x: event.clientX, y: event.clientY };
+            isDragging = false;
+        });
+
+        window.addEventListener('mouseup', () => {
+            setTimeout(() => {
+                isDragging = false;
+            }, 0);
         });
 
         window.addEventListener('click', onMouseClick);
 
         function onMouseClick() {
+            if (isDragging) {
+                isDragging = false;
+                return;
+            }
+            isDragging = false;
             raycaster.setFromCamera(mouse, camera);
             // Recursive true to hit parts of the spaceship group
             const intersects = raycaster.intersectObjects(clickableObjects, true);
@@ -3448,11 +3826,13 @@
             if (intersects.length > 0) {
                 // Traverse up to find the object with userData (like the spaceship group)
                 let target = intersects[0].object;
-                while(target.parent && !target.userData.isSpaceship && !target.userData.isPlanet && !target.userData.isMoon && !target.userData.isSun) { 
+                while(target.parent && !target.userData.isSpaceship && !target.userData.isPlanet && !target.userData.isMoon && !target.userData.isSun && !target.userData.isBlackHole) { 
                     target = target.parent; 
                 }
                 
-                if (target.userData.isSpaceship) {
+                if (target.userData.isBlackHole) {
+                    triggerBlackHoleSuction();
+                } else if (target.userData.isSpaceship) {
                     fireLasers(target);
                 } else {
                     focusOnObject(target);
@@ -3488,6 +3868,144 @@
             }
         }
 
+        function triggerBlackHoleSuction() {
+            // Safety check - prevent animation from starting if already sucked in
+            if (solarSystem.userData.isSucked) {
+                console.log('Animation already in progress, ignoring click');
+                return;
+            }
+            solarSystem.userData.isSucked = true;
+
+            const blackHoleWorldPos = new THREE.Vector3();
+            blackHoleGroup.getWorldPosition(blackHoleWorldPos);
+
+            const uiLayer = document.getElementById('ui-layer');
+            uiLayer.style.display = 'none';
+            
+            // Hide all buttons during animation
+            const buttons = document.querySelectorAll('.hud-btn');
+            buttons.forEach(btn => btn.style.display = 'none');
+
+            // Disable controls during animation
+            controls.enabled = false;
+
+            blackHoleGroup.scale.set(1, 1, 1);
+
+            // Get initial sun position (relative to solar system)
+            const initialSunWorldPos = new THREE.Vector3();
+            sun.getWorldPosition(initialSunWorldPos);
+
+            // Calculate direction from sun to black hole
+            const directionToHole = blackHoleWorldPos.clone().sub(initialSunWorldPos).normalize();
+
+            // Position camera to see both sun (fully visible) and black hole centered on screen
+            // Camera positioned perpendicular to the sun-to-black-hole line for best view
+            const distanceBehind = 500;
+            const verticalOffset = 70; // Center camera at midpoint height between sun and black hole
+            const targetCameraPos = initialSunWorldPos.clone().add(directionToHole.clone().multiplyScalar(-distanceBehind)).add(new THREE.Vector3(0, verticalOffset, 0));
+
+            // Smooth transition to camera position behind the sun
+            const transitionDuration = 2.0;
+            gsap.to(camera.position, {
+                x: targetCameraPos.x,
+                y: targetCameraPos.y,
+                z: targetCameraPos.z,
+                duration: transitionDuration,
+                ease: 'sine.inOut'
+            });
+
+            // Look at midpoint between sun and black hole to keep both centered on screen
+            const lookAtPoint = initialSunWorldPos.clone().add(blackHoleWorldPos).multiplyScalar(0.5);
+            gsap.to(controls.target, {
+                x: lookAtPoint.x,
+                y: lookAtPoint.y,
+                z: lookAtPoint.z,
+                duration: transitionDuration,
+                ease: 'sine.inOut'
+            });
+
+            const totalDuration = 107.822; // Main animation starts after transition (10% slower from 98.02)
+
+            // After transition, start the suction animation
+            setTimeout(() => {
+                // Animate solar system moving towards black hole
+                activeSuctionAnimations.position = gsap.to(solarSystem.position, {
+                    x: blackHoleWorldPos.x,
+                    y: blackHoleWorldPos.y,
+                    z: blackHoleWorldPos.z,
+                    duration: totalDuration,
+                    ease: 'sine.inOut',
+                    onUpdate: () => {
+                        // Check if reset was called
+                        if (stopSuctionAnimation) {
+                            this.kill();
+                            return;
+                        }
+                        
+                        // Every frame, keep camera positioned to see both sun and black hole centered
+                        const sunWorldPos = new THREE.Vector3();
+                        sun.getWorldPosition(sunWorldPos);
+                        
+                        // Calculate current direction to black hole
+                        const currentDirToHole = blackHoleWorldPos.clone().sub(sunWorldPos).normalize();
+                        
+                        // Keep camera at constant distance behind sun, at same height as midpoint for alignment
+                        const distanceBehind = 500;
+                        const verticalOffset = 70; // Align camera with midpoint height
+                        const newCameraPos = sunWorldPos.clone().add(currentDirToHole.clone().multiplyScalar(-distanceBehind)).add(new THREE.Vector3(0, verticalOffset, 0));
+                        camera.position.copy(newCameraPos);
+                        
+                        // Look at midpoint between sun and black hole to keep both centered on screen
+                        const midpoint = sunWorldPos.clone().add(blackHoleWorldPos).multiplyScalar(0.5);
+                        controls.target.copy(midpoint);
+                    },
+                    onComplete: () => {
+                        controls.enabled = true;
+                        stopSuctionAnimation = false;
+                    }
+                });
+
+                // Black hole grows at 10% faster rate - 33.745 seconds (37.12 / 1.1)
+                activeSuctionAnimations.scale = gsap.to(blackHoleGroup.scale, {
+                    x: 26.0,
+                    y: 26.0,
+                    z: 26.0,
+                    duration: 33.745,
+                    ease: 'sine.inOut',
+                    onUpdate: () => {
+                        // Check if reset was called
+                        if (stopSuctionAnimation) {
+                            this.kill();
+                        }
+                    }
+                });
+
+                // Solar system spins as it's pulled in
+                activeSuctionAnimations.rotation = gsap.to(solarSystem.rotation, {
+                    y: solarSystem.rotation.y + Math.PI * 8,
+                    duration: totalDuration,
+                    ease: 'sine.inOut'
+                });
+
+                // Shrink and fade at the very end
+                gsap.to(solarSystem.scale, {
+                    x: 0.001,
+                    y: 0.001,
+                    z: 0.001,
+                    duration: totalDuration * 0.15,
+                    delay: totalDuration * 0.85,
+                    ease: 'sine.inOut',
+                    onComplete: () => {
+                        solarSystem.visible = false;
+                        blackHoleOverlay.style.display = 'block';
+                        document.body.classList.add('labels-hidden');
+                        // Reload page immediately when screen goes all black
+                        window.location.reload();
+                    }
+                });
+            }, transitionDuration * 1000);
+        }
+
         // Double Click to Zoom
         window.addEventListener('dblclick', () => {
             if (isMobile) return;
@@ -3515,6 +4033,17 @@
         });
 
         // === BACKGROUND DIMMING SYSTEM ===
+        function getDimmableMeshes(obj) {
+            const meshes = [];
+            if (!obj) return meshes;
+            obj.traverse(child => {
+                if (child.isMesh && child.material) {
+                    meshes.push(child);
+                }
+            });
+            return meshes;
+        }
+
         function dimBackground(focusedPlanet) {
             if (backgroundDimming) return; // Already dimmed
             
@@ -3527,14 +4056,8 @@
                 // Don't dim moons of the focused planet
                 if (obj.userData.isMoon && obj.userData.parentPlanet === focusedPlanet) return;
                 
-                // Store original material properties if not already stored
-                if (!obj.userData.originalMaterial) {
-                    obj.userData.originalMaterial = {
-                        emissive: obj.material.emissive.clone(),
-                        emissiveIntensity: obj.material.emissiveIntensity,
-                        opacity: obj.material.opacity || 1.0
-                    };
-                }
+                const meshes = getDimmableMeshes(obj);
+                if (meshes.length === 0) return;
                 
                 // Different dimming levels: planets vs moons of other planets
                 let dimFactor, opacityFactor;
@@ -3543,32 +4066,59 @@
                     dimFactor = 0.02; // Very dim
                     opacityFactor = 0.05; // Nearly transparent
                 } else {
-                    // Other planets: dim but still visible (like distant planets)
+                    // Other planets: dim but still visible (no transparency)
                     dimFactor = 0.08; // Dim but visible
-                    opacityFactor = 0.2; // More visible than moons
+                    opacityFactor = 1.0; // Keep opaque
                 }
-                
-                // Dim the object by reducing emissive properties and opacity
-                gsap.to(obj.material.emissive, {
-                    r: obj.userData.originalMaterial.emissive.r * dimFactor,
-                    g: obj.userData.originalMaterial.emissive.g * dimFactor,
-                    b: obj.userData.originalMaterial.emissive.b * dimFactor,
-                    duration: 1.0
-                });
-                
-                gsap.to(obj.material, {
-                    emissiveIntensity: obj.userData.originalMaterial.emissiveIntensity * dimFactor,
-                    duration: 1.0
-                });
-                
-                // Make material transparent if it wasn't already
-                if (!obj.material.transparent) {
-                    obj.material.transparent = true;
-                }
-                
-                gsap.to(obj.material, {
-                    opacity: obj.userData.originalMaterial.opacity * opacityFactor,
-                    duration: 1.0
+
+                meshes.forEach(mesh => {
+                    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+
+                    if (!mesh.userData.originalMaterial) {
+                        mesh.userData.originalMaterial = materials.map(mat => ({
+                            emissive: mat.emissive ? mat.emissive.clone() : null,
+                            emissiveIntensity: typeof mat.emissiveIntensity === 'number' ? mat.emissiveIntensity : null,
+                            opacity: typeof mat.opacity === 'number' ? mat.opacity : 1.0,
+                            transparent: !!mat.transparent
+                        }));
+                    }
+
+                    materials.forEach((mat, idx) => {
+                        const original = mesh.userData.originalMaterial[idx];
+                        if (mat.emissive && original && original.emissive) {
+                            gsap.to(mat.emissive, {
+                                r: original.emissive.r * dimFactor,
+                                g: original.emissive.g * dimFactor,
+                                b: original.emissive.b * dimFactor,
+                                duration: 1.0
+                            });
+                        }
+
+                        if (typeof mat.emissiveIntensity === 'number' && original && original.emissiveIntensity !== null) {
+                            gsap.to(mat, {
+                                emissiveIntensity: original.emissiveIntensity * dimFactor,
+                                duration: 1.0
+                            });
+                        }
+
+                        if (obj.userData.isMoon) {
+                            if (!mat.transparent) {
+                                mat.transparent = true;
+                            }
+                            gsap.to(mat, {
+                                opacity: (original ? original.opacity : 1.0) * opacityFactor,
+                                duration: 1.0
+                            });
+                        } else {
+                            if (mat.transparent) {
+                                mat.transparent = false;
+                            }
+                            gsap.to(mat, {
+                                opacity: 1.0,
+                                duration: 0.5
+                            });
+                        }
+                    });
                 });
             });
             
@@ -3605,20 +4155,32 @@
             
             // Restore all objects to their original brightness
             backgroundObjects.forEach(obj => {
-                if (!obj.userData.originalMaterial) return; // No original material stored
-                
-                // Restore original material properties
-                gsap.to(obj.material.emissive, {
-                    r: obj.userData.originalMaterial.emissive.r,
-                    g: obj.userData.originalMaterial.emissive.g,
-                    b: obj.userData.originalMaterial.emissive.b,
-                    duration: 1.0
-                });
-                
-                gsap.to(obj.material, {
-                    emissiveIntensity: obj.userData.originalMaterial.emissiveIntensity,
-                    opacity: obj.userData.originalMaterial.opacity,
-                    duration: 1.0
+                const meshes = getDimmableMeshes(obj);
+                if (meshes.length === 0) return;
+
+                meshes.forEach(mesh => {
+                    if (!mesh.userData.originalMaterial) return;
+                    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+
+                    materials.forEach((mat, idx) => {
+                        const original = mesh.userData.originalMaterial[idx];
+                        if (!original) return;
+
+                        if (mat.emissive && original.emissive) {
+                            gsap.to(mat.emissive, {
+                                r: original.emissive.r,
+                                g: original.emissive.g,
+                                b: original.emissive.b,
+                                duration: 1.0
+                            });
+                        }
+
+                        gsap.to(mat, {
+                            emissiveIntensity: original.emissiveIntensity !== null ? original.emissiveIntensity : mat.emissiveIntensity,
+                            opacity: original.opacity,
+                            duration: 1.0
+                        });
+                    });
                 });
             });
             
@@ -4372,7 +4934,7 @@
                             <!-- Main 3D Container -->
                             <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; transform: rotateX(10deg) rotateY(-5deg); box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s ease;">
                                 <!-- Image Layer -->
-                                <img src="einstien.jpg" alt="Einstein" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.2) brightness(1.1) saturate(1.2);">
+                                <img src="assets/images/einstien.jpg" alt="Einstein" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.2) brightness(1.1) saturate(1.2);">
                                 
                                 <!-- 3D Depth Layers -->
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.2) 100%); transform: translateZ(2px);"></div>
@@ -4392,7 +4954,7 @@
                             <!-- Main 3D Container -->
                             <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; transform: rotateX(8deg) rotateY(3deg); box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s ease;">
                                 <!-- Image Layer -->
-                                <img src="newton.jpg" alt="Newton" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.15) brightness(1.05) saturate(1.1) sepia(0.1);">
+                                <img src="assets/images/newton.jpg" alt="Newton" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.15) brightness(1.05) saturate(1.1) sepia(0.1);">
                                 
                                 <!-- 3D Depth Layers -->
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: linear-gradient(120deg, rgba(255,255,255,0.25) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.15) 100%); transform: translateZ(2px);"></div>
@@ -4417,7 +4979,7 @@
                             <!-- Main 3D Container -->
                             <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; transform: rotateX(5deg) rotateY(-8deg); box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s ease;">
                                 <!-- Image Layer -->
-                                <img src="gandhi.avif" alt="Gandhi" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.1) brightness(1.08) saturate(1.15) sepia(0.05);">
+                                <img src="assets/images/gandhi.avif" alt="Gandhi" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.1) brightness(1.08) saturate(1.15) sepia(0.05);">
                                 
                                 <!-- 3D Depth Layers -->
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: linear-gradient(150deg, rgba(255,255,255,0.2) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.1) 100%); transform: translateZ(2px);"></div>
@@ -4441,7 +5003,7 @@
                             <!-- Main 3D Container -->
                             <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; transform: rotateX(12deg) rotateY(0deg); box-shadow: 0 10px 30px rgba(255,215,0,0.3), 0 6px 15px rgba(0,0,0,0.4); transition: transform 0.3s ease;">
                                 <!-- Image Layer -->
-                                <img src="buddha.png" alt="Buddha" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.1) brightness(1.1) saturate(1.3) hue-rotate(10deg);">
+                                <img src="assets/images/buddha.png" alt="Buddha" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.1) brightness(1.1) saturate(1.3) hue-rotate(10deg);">
                                 
                                 <!-- 3D Depth Layers -->
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: linear-gradient(135deg, rgba(255,215,0,0.2) 0%, transparent 30%, transparent 70%, rgba(255,140,0,0.15) 100%); transform: translateZ(2px);"></div>
@@ -4562,6 +5124,13 @@
         let nurWarsScene = null;
         let nurWarsObjects = [];
         let nurWarsTimeouts = [];
+        let movieTimeoutsPaused = [];
+        let moviePaused = false;
+        let movieStartTime = 0;
+        let moviePauseTime = 0;
+        let modelsToLoad = 0;
+        let modelsLoaded = 0;
+        let battleReady = false;
         
         function setNurWarsTimeout(callback, delay) {
             const id = setTimeout(callback, delay);
@@ -4574,10 +5143,60 @@
             nurWarsTimeouts = [];
         }
 
+        window.toggleMoviePlayPause = () => {
+            moviePaused = !moviePaused;
+            const btn = document.getElementById('movie-play-btn');
+            if (moviePaused) {
+                btn.textContent = '▶️ Play';
+                moviePauseTime = Date.now() - movieStartTime;
+                // Pause ALL audio during pause
+                if (currentAudio && !currentAudio.paused) {
+                    currentAudio.pause();
+                }
+                // Also pause any synth sounds
+                if (audioContext && audioContext.state === 'running') {
+                    audioContext.suspend().catch(() => {});
+                }
+            } else {
+                btn.textContent = '⏸️ Pause';
+                movieStartTime = Date.now() - moviePauseTime;
+                // Resume audio
+                if (currentAudio && currentAudio.paused) {
+                    currentAudio.play().catch(() => {});
+                }
+                // Resume synth sounds
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().catch(() => {});
+                }
+            }
+        };
+
+        window.skipMovie = (seconds) => {
+            const skipMs = seconds * 1000;
+            if (moviePaused) {
+                moviePauseTime = Math.max(0, moviePauseTime + skipMs);
+            } else {
+                movieStartTime -= skipMs; // Move start time back to jump forward/back
+            }
+            // Skip audio too
+            if (currentAudio && !Number.isNaN(currentAudio.currentTime)) {
+                const newTime = currentAudio.currentTime + seconds;
+                const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : null;
+                if (duration !== null && duration > 0) {
+                    currentAudio.currentTime = Math.min(Math.max(newTime, 0), Math.max(duration - 0.1, 0));
+                } else {
+                    currentAudio.currentTime = Math.max(newTime, 0);
+                }
+            }
+        };
+
         function startNurWars() {
             if (nurWarsActive) return;
             
             nurWarsActive = true;
+            moviePaused = false;
+            movieStartTime = Date.now();
+            moviePauseTime = 0;
             renderMode = 'default'; // Start in default mode (solar system view)
             
             // Enable sound automatically for NUR WARS
@@ -4586,10 +5205,47 @@
                 document.getElementById('sound-btn').textContent = '🔊 Sound On';
             }
             
+            // Update sound button in movie controls
+            const nurWarsSoundBtn = document.getElementById('nur-wars-sound-btn');
+            if (nurWarsSoundBtn) {
+                nurWarsSoundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+            }
+            
+            // Reset movie play button
+            const moviePlayBtn = document.getElementById('movie-play-btn');
+            if (moviePlayBtn) {
+                moviePlayBtn.textContent = '⏸️ Pause';
+            }
+            
             // Stop default solar system sounds and hide UI
             stopCurrentAudio();
             stopCometSounds(); // Stop comet sounds
+            // Pause background audio completely during NUR WARS
+            if (backgroundAudio) {
+                const now = backgroundAudio.audioContext.currentTime;
+                try {
+                    backgroundAudio.gainNode.gain.cancelScheduledValues(now);
+                    backgroundAudio.gainNode.gain.setValueAtTime(0, now);
+                } catch(e) { backgroundAudio.gainNode.gain.value = 0; }
+            }
             document.body.classList.add('nur-wars-active');
+            
+            // Show audio controls and exit button for NUR WARS
+            const audioControls = document.getElementById('audio-controls');
+            if (audioControls) {
+                audioControls.style.opacity = '1';
+                audioControls.style.pointerEvents = 'auto';
+            }
+            
+            const exitBtn = document.getElementById('exit-hyperspace-btn');
+            if (exitBtn) {
+                exitBtn.style.display = 'block';
+                exitBtn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeNurWars();
+                };
+            }
             
             // Save current camera state
             const originalCameraPos = camera.position.clone();
@@ -4603,7 +5259,7 @@
             const panTarget = originalCameraPos.clone().add(new THREE.Vector3(0, 15000, 0));
             const targetShift = originalTarget.clone().add(new THREE.Vector3(0, 15000, 0));
             const panStart = Date.now();
-            const panDuration = 6000; // 6 second silent pan
+            const panDuration = 2000; // 2 second quick pan
             
             function animatePanToCrawl() {
                 const elapsed = Date.now() - panStart;
@@ -4666,23 +5322,44 @@
             crawl.style.display = 'block';
             battle.style.display = 'none';
             
+            // Track timeline events
+            let openingSoundPlayed = false;
+            let battleTransitioned = false;
+            const crawlStartTime = movieStartTime;
+            const totalDuration = 35000; // Total crawl duration - reduced for faster battle start
+            
             // Start scroll animation immediately
-            const scrollDuration = start3DCrawlAnimation(crawlText);
+            start3DCrawlAnimation(crawlText);
             
-            // Start music earlier (at 2.8 seconds, before image appears)
-            setNurWarsTimeout(() => {
-                playNurWarsSound('opening'); // This is the main theme
-            }, 2800);
+            // Check for timeline events on every frame
+            function checkCrawlTimeline() {
+                if (!nurWarsActive) return;
+                
+                const elapsed = moviePaused ? moviePauseTime : (Date.now() - movieStartTime);
+                
+                // Play opening sound at 2.8 seconds
+                if (!openingSoundPlayed && elapsed >= 2800) {
+                    playNurWarsSound('opening');
+                    openingSoundPlayed = true;
+                }
+                
+                // Transition to battle when scroll completes (at totalDuration)
+                if (!battleTransitioned && elapsed >= totalDuration) {
+                    battleTransitioned = true;
+                    transitionToBattle(crawlLocation);
+                    return; // Stop checking timeline
+                }
+                
+                if (elapsed < totalDuration) {
+                    requestAnimationFrame(checkCrawlTimeline);
+                }
+            }
             
-            // Transition to battle when scroll completely vanishes
-            setNurWarsTimeout(() => {
-                transitionToBattle(crawlLocation);
-            }, scrollDuration);
+            checkCrawlTimeline();
         }
         
         function start3DCrawlAnimation(element) {
-            const startTime = Date.now();
-            const totalDuration = 50000; // Reduced from 70s to 50s for faster scroll
+            const totalDuration = 35000; // Reduced to 35s for faster transition to battle
             
             // Start large at bottom, move up and get smaller
             element.style.top = '100vh';
@@ -4696,7 +5373,8 @@
             function animateFrame() {
                 if (!nurWarsActive) return;
                 
-                const elapsed = Date.now() - startTime;
+                // Get elapsed time respecting pause state
+                const elapsed = moviePaused ? moviePauseTime : (Date.now() - movieStartTime);
                 const progress = Math.min(elapsed / totalDuration, 1); // Clamp progress to 0-1
                 
                 // Show opening text for first 2.5 seconds (static, no scroll effect)
@@ -4749,8 +5427,6 @@
             }
             
             animateFrame();
-            // Return total duration so battle starts when scroll completely vanishes
-            return totalDuration;
         }
         
         function transitionToBattle(currentLocation) {
@@ -4772,7 +5448,7 @@
             const endLookAt = battleLocation.clone();
             
             const transitionStart = Date.now();
-            const transitionDuration = 5000; // 5 seconds pan
+            const transitionDuration = 2000; // 2 seconds quick transition to battle
             
             function animateToBattle() {
                 if (!nurWarsActive) return;
@@ -4817,6 +5493,18 @@
             const container = document.getElementById('nur-wars-container');
             container.style.display = 'none';
             
+            // Hide audio controls and exit button when exiting NUR WARS
+            const audioControls = document.getElementById('audio-controls');
+            if (audioControls) {
+                audioControls.style.opacity = '0';
+                audioControls.style.pointerEvents = 'none';
+            }
+            
+            const exitBtn = document.getElementById('exit-hyperspace-btn');
+            if (exitBtn) {
+                exitBtn.style.display = 'none';
+            }
+            
             // Restore UI
             document.body.classList.remove('nur-wars-active');
             
@@ -4855,8 +5543,8 @@
                 if (progress < 1) {
                     requestAnimationFrame(animateReturn);
                 } else {
-                    // Fully restore original state
-                    resetView();
+                    // Reload page after battle completes naturally
+                    window.location.reload();
                 }
             }
             
@@ -4904,6 +5592,7 @@
                 currentAudio.currentTime = 0;
                 currentAudio = null;
             }
+            updatePlayPauseButton();
             // Fix backgroundAudio reference error - check if it exists and has pause method
             if (typeof backgroundAudio !== 'undefined' && backgroundAudio && typeof backgroundAudio.pause === 'function') {
                 try {
@@ -4916,11 +5605,12 @@
         
         function playRealStarWarsTheme() {
             stopCurrentAudio();
-            const audio = new Audio('Star%20Wars%20Main%20Theme.mp3');
+            const audio = new Audio('assets/audio/Star Wars Main Theme.mp3');
             audio.volume = 1.0;
             // Ensure audio plays through user interaction
             audio.play().then(() => {
                 currentAudio = audio;
+                updatePlayPauseButton();
             }).catch(e => {
                 console.warn("Audio play failed, falling back to synth", e);
                 playStarWarsTheme();
@@ -4934,11 +5624,12 @@
         
         function playRealBattleMusic() {
             stopCurrentAudio();
-            const audio = new Audio('Star%20Wars%20Battle%20Background.mp3');
+            const audio = new Audio('assets/audio/Star Wars Battle Background.mp3');
             audio.volume = 0.6;
             audio.loop = true;
             audio.play().then(() => {
                 currentAudio = audio;
+                updatePlayPauseButton();
             }).catch(e => {
                 console.warn("Audio play failed", e);
                 playBattleMusic();
@@ -4947,11 +5638,12 @@
         
         function playVictoryFanfare() {
             stopCurrentAudio();
-            const audio = new Audio('Epic%20Star%20Wars%20Compilation.mp3');
+            const audio = new Audio('assets/audio/Epic Star Wars Compilation.mp3');
             audio.currentTime = 952; // 15:52
             audio.volume = 1.0;
             audio.play().then(() => {
                 currentAudio = audio;
+                updatePlayPauseButton();
             }).catch(e => {
                 console.warn("Audio play failed", e);
                 playVictoryMusic();
@@ -5249,18 +5941,340 @@
             }
         }
         
+        // Battle scene creation functions
+        function createDeathStar(battleLocation) {
+            const battleSceneRef = nurWarsScene || scene;
+            modelsToLoad++;
+            
+            // Load Death Star GLTF model
+            gltfLoader.load(
+                'assets/models/death_star_-_star_wars/scene.gltf',
+                (gltf) => {
+                    const deathStar = gltf.scene;
+                    deathStar.scale.set(150, 150, 150);
+                    deathStar.position.copy(battleLocation);
+                    deathStar.rotation.y = Math.PI / 4;
+                    
+                    battleSceneRef.add(deathStar);
+                    nurWarsObjects.push({ 
+                        object: deathStar, 
+                        type: 'deathstar' 
+                    });
+                    
+                    modelsLoaded++;
+                    console.log('Death Star loaded', modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading Death Star:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                    // Fallback to procedural geometry
+                    const deathStarGeo = new THREE.SphereGeometry(300, 32, 32);
+                    const deathStarMat = new THREE.MeshStandardMaterial({ 
+                        color: 0x333333, 
+                        metalness: 0.8, 
+                        roughness: 0.3 
+                    });
+                    const deathStar = new THREE.Mesh(deathStarGeo, deathStarMat);
+                    deathStar.position.copy(battleLocation);
+                    battleSceneRef.add(deathStar);
+                    nurWarsObjects.push({ 
+                        object: deathStar, 
+                        type: 'deathstar' 
+                    });
+                }
+            );
+        }
+        
+        function createStarDestroyer(battleLocation) {
+            const battleSceneRef = nurWarsScene || scene;
+            modelsToLoad++;
+            
+            // Load Star Destroyer GLTF model
+            gltfLoader.load(
+                'assets/models/republic_venator_star_destroyer/scene.gltf',
+                (gltf) => {
+                    const destroyer = gltf.scene;
+                    destroyer.scale.set(0.8, 0.8, 0.8);
+                    destroyer.position.set(
+                        battleLocation.x - 800,
+                        battleLocation.y + 200,
+                        battleLocation.z + 500
+                    );
+                    destroyer.rotation.y = -Math.PI / 4;
+                    destroyer.rotation.z = Math.PI / 12;
+                    
+                    battleSceneRef.add(destroyer);
+                    nurWarsObjects.push({ 
+                        object: destroyer, 
+                        type: 'destroyer',
+                        isCapitalShip: true
+                    });
+
+                    modelsLoaded++;
+                    console.log('Star Destroyer loaded', modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading Star Destroyer:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                    // Fallback
+                    const destroyerGroup = new THREE.Group();
+                    const hullGeo = new THREE.ConeGeometry(150, 600, 4);
+                    const hullMat = new THREE.MeshStandardMaterial({ 
+                        color: 0x444444, 
+                        metalness: 0.9, 
+                        roughness: 0.2 
+                    });
+                    const hull = new THREE.Mesh(hullGeo, hullMat);
+                    hull.rotation.z = Math.PI / 2;
+                    destroyerGroup.add(hull);
+                    destroyerGroup.position.set(
+                        battleLocation.x - 800,
+                        battleLocation.y + 200,
+                        battleLocation.z + 500
+                    );
+                    battleSceneRef.add(destroyerGroup);
+                    nurWarsObjects.push({ 
+                        object: destroyerGroup, 
+                        type: 'destroyer',
+                        isCapitalShip: true
+                    });
+                }
+            );
+        }
+        
+        function createMillenniumFalcon(battleLocation) {
+            const battleSceneRef = nurWarsScene || scene;
+            modelsToLoad++;
+            
+            // Load Millennium Falcon GLTF model
+            gltfLoader.load(
+                'assets/models/star_wars_-_halcon_milenario/scene.gltf',
+                (gltf) => {
+                    const falcon = gltf.scene;
+                    falcon.scale.set(25, 25, 25);
+                    falcon.position.set(
+                        battleLocation.x + 400,
+                        battleLocation.y - 100,
+                        battleLocation.z - 600
+                    );
+                    falcon.rotation.y = Math.PI / 6;
+                    
+                    battleSceneRef.add(falcon);
+                    nurWarsObjects.push({ 
+                        object: falcon, 
+                        type: 'falcon' 
+                    });
+                    
+                    modelsLoaded++;
+                    console.log('Millennium Falcon loaded', modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading Millennium Falcon:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                }
+            );
+        }
+        
+        function createXWings(battleLocation) {
+            const battleSceneRef = nurWarsScene || scene;
+            
+            // Create 2 X-Wings using GLTF models
+            for (let i = 0; i < 2; i++) {
+                modelsToLoad++;
+                gltfLoader.load(
+                    'assets/models/x-wing_cockpit_version_3/scene.gltf',
+                    (gltf) => {
+                        const xwing = gltf.scene.clone();
+                        xwing.scale.set(12, 12, 12);
+                        xwing.position.set(
+                            battleLocation.x + (i === 0 ? 200 : 350),
+                            battleLocation.y - 200,
+                            battleLocation.z - 400
+                        );
+                        xwing.rotation.y = Math.PI / 8;
+                        
+                        battleSceneRef.add(xwing);
+                        nurWarsObjects.push({
+                            object: xwing,
+                            type: 'xwing',
+                            isPlayer: i === 0,
+                            health: 100,
+                            velocity: new THREE.Vector3(0, 0, -3),
+                            target: null
+                        });
+                        
+                        modelsLoaded++;
+                        console.log(`X-Wing ${i+1} loaded`, modelsLoaded, '/', modelsToLoad);
+                        checkBattleReady();
+                    },
+                    undefined,
+                    (error) => {
+                        console.error('Error loading X-Wing:', error);
+                        modelsLoaded++;
+                        checkBattleReady();
+                    }
+                );
+            }
+            
+            // Add Anakin's Interceptor
+            modelsToLoad++;
+            gltfLoader.load(
+                'assets/models/swbf2custom_-_anakins_eta-2_actis_interceptor/scene.gltf',
+                (gltf) => {
+                    const interceptor = gltf.scene;
+                    interceptor.scale.set(15, 15, 15);
+                    interceptor.position.set(
+                        battleLocation.x + 150,
+                        battleLocation.y - 150,
+                        battleLocation.z - 500
+                    );
+                    interceptor.rotation.y = Math.PI / 6;
+                    
+                    battleSceneRef.add(interceptor);
+                    nurWarsObjects.push({
+                        object: interceptor,
+                        type: 'interceptor',
+                        isPlayer: false,
+                        health: 120,
+                        velocity: new THREE.Vector3(0, 0, -3.5),
+                        target: null
+                    });
+                    
+                    modelsLoaded++;
+                    console.log('Interceptor loaded', modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading Interceptor:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                }
+            );
+        }
+        
+        function createTIEFighters(battleLocation) {
+            const battleSceneRef = nurWarsScene || scene;
+            
+            // Create 3 TIE Fighters using GLTF models
+            for (let i = 0; i < 3; i++) {
+                modelsToLoad++;
+                gltfLoader.load(
+                    'assets/models/3d_t.i.e_fighter_-_star_wars_model/scene.gltf',
+                    (gltf) => {
+                        const tie = gltf.scene.clone();
+                        tie.scale.set(8, 8, 8);
+                        tie.position.set(
+                            battleLocation.x + (i - 1) * 300 - 500,
+                            battleLocation.y + (Math.random() - 0.5) * 200,
+                            battleLocation.z + 400
+                        );
+                        tie.rotation.y = Math.PI + Math.PI / 6;
+                        
+                        battleSceneRef.add(tie);
+                        nurWarsObjects.push({
+                            object: tie,
+                            type: 'tiefighter',
+                            health: 50,
+                            velocity: new THREE.Vector3(
+                                (Math.random() - 0.5) * 3,
+                                (Math.random() - 0.5) * 2,
+                                Math.random() * 2 + 1
+                            )
+                        });
+                        
+                        modelsLoaded++;
+                        console.log(`TIE Fighter ${i+1} loaded`, modelsLoaded, '/', modelsToLoad);
+                        checkBattleReady();
+                    },
+                    undefined,
+                    (error) => {
+                        console.error('Error loading TIE Fighter:', error);
+                        modelsLoaded++;
+                        checkBattleReady();
+                    }
+                );
+            }
+            
+            // Add Phantom ship as an enemy
+            modelsToLoad++;
+            gltfLoader.load(
+                'assets/models/phantom/scene.gltf',
+                (gltf) => {
+                    const phantom = gltf.scene;
+                    phantom.scale.set(10, 10, 10);
+                    phantom.position.set(
+                        battleLocation.x - 400,
+                        battleLocation.y + 80,
+                        battleLocation.z + 350
+                    );
+                    phantom.rotation.y = Math.PI + Math.PI / 4;
+                    
+                    battleSceneRef.add(phantom);
+                    nurWarsObjects.push({
+                        object: phantom,
+                        type: 'phantom',
+                        health: 80,
+                        velocity: new THREE.Vector3(
+                            (Math.random() - 0.5) * 2.5,
+                            (Math.random() - 0.5) * 2,
+                            Math.random() * 2.5 + 0.5
+                        )
+                    });
+                    
+                    modelsLoaded++;
+                    console.log('Phantom loaded', modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading Phantom:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                }
+            );
+        }
+        
         initNurWarsSounds();
+        
+        function checkBattleReady() {
+            if (modelsLoaded >= modelsToLoad && !battleReady) {
+                battleReady = true;
+                console.log('All models loaded! Battle ready with', nurWarsObjects.length, 'objects');
+            }
+        }
 
         function init3DBattleScene(battleLocation) {
-            // Switch to battle render mode
-            renderMode = 'battle';
+            // Reset loading counters
+            modelsToLoad = 0;
+            modelsLoaded = 0;
+            battleReady = false;
             
-            // Create 3D scene
+            // Create 3D scene FIRST before calling create functions
             nurWarsScene = new THREE.Scene();
             nurWarsScene.background = new THREE.Color(0x000000);
             
+            // Switch to battle render mode
+            renderMode = 'battle';
+            
             // Use existing camera
             nurWarsCamera = camera; // Use the main camera
+            
+            // Set fallback camera position immediately
+            nurWarsCamera.position.set(
+                battleLocation.x,
+                battleLocation.y + 200,
+                battleLocation.z + 800
+            );
             nurWarsCamera.lookAt(battleLocation);
             
             // Add both starfields from main scene to battle
@@ -5271,6 +6285,7 @@
                 }
             });
             
+            // NOW create all battle objects - they will be added to nurWarsScene
             // Create Death Star
             createDeathStar(battleLocation);
             
@@ -5285,613 +6300,107 @@
             
             // Create TIE Fighters
             createTIEFighters(battleLocation);
+
+            // Wait for models to load before adjusting camera
+            const waitForModels = setInterval(() => {
+                if (battleReady && nurWarsObjects.length > 0) {
+                    clearInterval(waitForModels);
+                    console.log('Adjusting camera for', nurWarsObjects.length, 'loaded objects');
+                    
+                    // Frame the battle so all ships are visible
+                    const allShips = nurWarsObjects.filter(obj => 
+                        obj.type === 'xwing' || obj.type === 'tiefighter' || 
+                        obj.type === 'falcon' || obj.type === 'interceptor' || obj.type === 'phantom'
+                    );
+                    
+                    if (allShips.length > 0) {
+                        const focusCenter = new THREE.Vector3();
+                        const tempPos = new THREE.Vector3();
+                        allShips.forEach(obj => {
+                            obj.object.getWorldPosition(tempPos);
+                            focusCenter.add(tempPos);
+                        });
+                        focusCenter.multiplyScalar(1 / allShips.length);
+                        console.log('Camera focusing on center:', focusCenter);
+                        
+                        nurWarsCamera.position.copy(focusCenter).add(new THREE.Vector3(0, 300, 1000));
+                        nurWarsCamera.lookAt(focusCenter);
+                    }
+                }
+            }, 100);
             
             // Add lighting for battle
-            const battleAmbient = new THREE.AmbientLight(0x404040, 0.4);
+            const battleAmbient = new THREE.AmbientLight(0xffffff, 0.8);
             nurWarsScene.add(battleAmbient);
             
-            const battleLight = new THREE.DirectionalLight(0xffffff, 1);
-            battleLight.position.set(500, 500, 500);
+            const battleLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            battleLight.position.set(100, 200, 300);
             nurWarsScene.add(battleLight);
-        }
-
-        function createDeathStar(battleLocation) {
-            // Main Death Star sphere
-            const deathStarGeometry = new THREE.SphereGeometry(200, 32, 32);
-            const deathStarMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0x666666,
-                shininess: 30
-            });
-            const deathStar = new THREE.Mesh(deathStarGeometry, deathStarMaterial);
-            deathStar.position.set(battleLocation.x, battleLocation.y, battleLocation.z - 1000);
             
-            // Add surface details
-            const detailGeometry = new THREE.RingGeometry(180, 190, 16);
-            const detailMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x444444, 
-                side: THREE.DoubleSide,
-                transparent: true,
-                opacity: 0.7
-            });
+            const battleLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
+            battleLight2.position.set(-100, -100, 200);
+            nurWarsScene.add(battleLight2);
             
-            for (let i = 0; i < 8; i++) {
-                const detail = new THREE.Mesh(detailGeometry, detailMaterial);
-                detail.position.copy(deathStar.position);
-                detail.rotation.x = Math.random() * Math.PI;
-                detail.rotation.y = Math.random() * Math.PI;
-                detail.rotation.z = Math.random() * Math.PI;
-                nurWarsScene.add(detail);
-            }
-            
-            // Superlaser dish
-            const dishGeometry = new THREE.CylinderGeometry(40, 50, 20, 16);
-            const dishMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
-            const dish = new THREE.Mesh(dishGeometry, dishMaterial);
-            dish.position.set(battleLocation.x + 120, battleLocation.y - 50, battleLocation.z - 950);
-            dish.rotation.z = Math.PI / 6;
-            nurWarsScene.add(dish);
-            
-            // Exhaust port (vulnerable spot)
-            const exhaustGeometry = new THREE.SphereGeometry(12, 8, 8);
-            const exhaustMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xff0000,
-                emissive: 0x440000
-            });
-            const exhaustPort = new THREE.Mesh(exhaustGeometry, exhaustMaterial);
-            exhaustPort.position.set(battleLocation.x + 150, battleLocation.y - 80, battleLocation.z - 900);
-            nurWarsScene.add(exhaustPort);
-            
-            // Add lighting
-            const deathStarLight = new THREE.PointLight(0x666666, 2, 1000);
-            deathStarLight.position.copy(deathStar.position);
-            nurWarsScene.add(deathStarLight);
-            
-            nurWarsScene.add(deathStar);
-            nurWarsObjects.push({ 
-                type: 'deathstar', 
-                object: deathStar, 
-                exhaustPort: exhaustPort,
-                health: 100,
-                vulnerable: true
-            });
-        }
-
-        function createStarDestroyer(battleLocation) {
-            const destroyerGroup = new THREE.Group();
-            
-            // Main triangular hull - Imperial Star Destroyer signature shape
-            const hullShape = new THREE.Shape();
-            hullShape.moveTo(0, 0);
-            hullShape.lineTo(-400, -120);
-            hullShape.lineTo(400, -120);
-            hullShape.lineTo(0, 0);
-            
-            const extrudeSettings = {
-                depth: 800,
-                bevelEnabled: true,
-                bevelThickness: 20,
-                bevelSize: 10,
-                bevelSegments: 3
-            };
-            
-            const hullGeometry = new THREE.ExtrudeGeometry(hullShape, extrudeSettings);
-            const hullMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x8c8c8c,
-                metalness: 0.7,
-                roughness: 0.4
-            });
-            const hull = new THREE.Mesh(hullGeometry, hullMaterial);
-            hull.rotation.x = Math.PI / 2;
-            hull.position.z = -400;
-            destroyerGroup.add(hull);
-            
-            // Bridge tower - vertical command structure
-            const bridgeGeometry = new THREE.BoxGeometry(80, 150, 180);
-            const bridgeMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xa0a0a0,
-                metalness: 0.6,
-                roughness: 0.5
-            });
-            const bridge = new THREE.Mesh(bridgeGeometry, bridgeMaterial);
-            bridge.position.set(0, 75, 200);
-            destroyerGroup.add(bridge);
-            
-            // Bridge dome
-            const domeGeometry = new THREE.CylinderGeometry(30, 35, 40, 8);
-            const domeMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x404040,
-                metalness: 0.8,
-                roughness: 0.3
-            });
-            const dome1 = new THREE.Mesh(domeGeometry, domeMaterial);
-            dome1.position.set(-25, 155, 200);
-            destroyerGroup.add(dome1);
-            
-            const dome2 = new THREE.Mesh(domeGeometry, domeMaterial);
-            dome2.position.set(25, 155, 200);
-            destroyerGroup.add(dome2);
-            
-            // Engine glow - massive engines at rear
-            const enginePositions = [
-                [-120, -30, -400],
-                [-60, -30, -400],
-                [60, -30, -400],
-                [120, -30, -400]
-            ];
-            
-            enginePositions.forEach(pos => {
-                const engineGeometry = new THREE.CylinderGeometry(35, 30, 60, 16);
-                const engineMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x333333,
-                    metalness: 0.9,
-                    roughness: 0.2
-                });
-                const engine = new THREE.Mesh(engineGeometry, engineMaterial);
-                engine.position.set(pos[0], pos[1], pos[2]);
-                engine.rotation.x = Math.PI / 2;
-                destroyerGroup.add(engine);
-                
-                // Engine glow
-                const glowGeometry = new THREE.CylinderGeometry(25, 28, 30, 16);
-                const glowMaterial = new THREE.MeshBasicMaterial({ 
-                    color: 0x4488ff,
-                    transparent: true,
-                    opacity: 0.7
-                });
-                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-                glow.position.set(pos[0], pos[1], pos[2] - 45);
-                glow.rotation.x = Math.PI / 2;
-                destroyerGroup.add(glow);
-                
-                const engineLight = new THREE.PointLight(0x4488ff, 3, 300);
-                engineLight.position.set(pos[0], pos[1], pos[2] - 60);
-                destroyerGroup.add(engineLight);
-            });
-            
-            // Surface details - panels and greebling
-            for (let i = 0; i < 20; i++) {
-                const panelGeometry = new THREE.BoxGeometry(
-                    Math.random() * 40 + 20,
-                    Math.random() * 40 + 20,
-                    5
-                );
-                const panel = new THREE.Mesh(panelGeometry, new THREE.MeshStandardMaterial({ 
-                    color: 0x707070,
-                    metalness: 0.6,
-                    roughness: 0.6
-                }));
-                panel.position.set(
-                    (Math.random() - 0.5) * 300,
-                    Math.random() * 30 - 50,
-                    (Math.random() - 0.5) * 500
-                );
-                destroyerGroup.add(panel);
-            }
-            
-            // Position Star Destroyer
-            destroyerGroup.position.set(
-                battleLocation.x - 600,
-                battleLocation.y + 200,
-                battleLocation.z - 1200
-            );
-            destroyerGroup.rotation.y = -Math.PI / 6;
-            
-            nurWarsScene.add(destroyerGroup);
-            nurWarsObjects.push({ 
-                type: 'stardestroyer', 
-                object: destroyerGroup,
-                health: 1000,
-                isCapitalShip: true
-            });
-        }
-
-        function createMillenniumFalcon(battleLocation) {
-            const falconGroup = new THREE.Group();
-            
-            // Main saucer-shaped hull
-            const hullGeometry = new THREE.CylinderGeometry(50, 50, 15, 32);
-            const hullMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xb8b8b8,
-                metalness: 0.6,
-                roughness: 0.5
-            });
-            const hull = new THREE.Mesh(hullGeometry, hullMaterial);
-            falconGroup.add(hull);
-            
-            // Flatten one side to create asymmetric look
-            const sideGeometry = new THREE.BoxGeometry(30, 15, 40);
-            const sideMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xa0a0a0,
-                metalness: 0.6,
-                roughness: 0.5
-            });
-            const side = new THREE.Mesh(sideGeometry, sideMaterial);
-            side.position.x = 40;
-            falconGroup.add(side);
-            
-            // Forward mandibles (iconic pincer shape)
-            const mandibleGeometry = new THREE.BoxGeometry(15, 10, 60);
-            const mandibleMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x909090,
-                metalness: 0.7,
-                roughness: 0.4
-            });
-            
-            const leftMandible = new THREE.Mesh(mandibleGeometry, mandibleMaterial);
-            leftMandible.position.set(-25, 0, 50);
-            leftMandible.rotation.y = -0.3;
-            falconGroup.add(leftMandible);
-            
-            const rightMandible = new THREE.Mesh(mandibleGeometry, mandibleMaterial);
-            rightMandible.position.set(25, 0, 50);
-            rightMandible.rotation.y = 0.3;
-            falconGroup.add(rightMandible);
-            
-            // Cockpit - offset to starboard
-            const cockpitGeometry = new THREE.SphereGeometry(12, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-            const cockpitMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0x333333,
-                transparent: true,
-                opacity: 0.6,
-                shininess: 100
-            });
-            const cockpit = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
-            cockpit.position.set(30, 8, 20);
-            falconGroup.add(cockpit);
-            
-            // Sensor dish (round radar dish on top)
-            const dishGeometry = new THREE.CylinderGeometry(12, 8, 5, 16);
-            const dishMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x707070,
-                metalness: 0.8,
-                roughness: 0.3
-            });
-            const dish = new THREE.Mesh(dishGeometry, dishMaterial);
-            dish.position.set(-15, 12, 0);
-            falconGroup.add(dish);
-            
-            // Engine nacelles at rear
-            const engineGeometry = new THREE.CylinderGeometry(8, 10, 25, 8);
-            const engineMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x404040,
-                metalness: 0.8,
-                roughness: 0.3
-            });
-            
-            const leftEngine = new THREE.Mesh(engineGeometry, engineMaterial);
-            leftEngine.position.set(-20, 0, -40);
-            leftEngine.rotation.x = Math.PI / 2;
-            falconGroup.add(leftEngine);
-            
-            const rightEngine = new THREE.Mesh(engineGeometry, engineMaterial);
-            rightEngine.position.set(20, 0, -40);
-            rightEngine.rotation.x = Math.PI / 2;
-            falconGroup.add(rightEngine);
-            
-            // Engine glow - blue sublight engines
-            const glowGeometry = new THREE.CylinderGeometry(6, 8, 15, 8);
-            const glowMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x4488ff,
-                transparent: true,
-                opacity: 0.8
-            });
-            
-            const leftGlow = new THREE.Mesh(glowGeometry, glowMaterial);
-            leftGlow.position.set(-20, 0, -52);
-            leftGlow.rotation.x = Math.PI / 2;
-            falconGroup.add(leftGlow);
-            
-            const rightGlow = new THREE.Mesh(glowGeometry, glowMaterial);
-            rightGlow.position.set(20, 0, -52);
-            rightGlow.rotation.x = Math.PI / 2;
-            falconGroup.add(rightGlow);
-            
-            // Engine lights
-            const leftLight = new THREE.PointLight(0x4488ff, 2, 150);
-            leftLight.position.set(-20, 0, -60);
-            falconGroup.add(leftLight);
-            
-            const rightLight = new THREE.PointLight(0x4488ff, 2, 150);
-            rightLight.position.set(20, 0, -60);
-            falconGroup.add(rightLight);
-            
-            // Hull details and greebling
-            for (let i = 0; i < 15; i++) {
-                const detailGeometry = new THREE.BoxGeometry(
-                    Math.random() * 8 + 3,
-                    Math.random() * 3 + 1,
-                    Math.random() * 8 + 3
-                );
-                const detail = new THREE.Mesh(detailGeometry, new THREE.MeshStandardMaterial({ 
-                    color: 0x808080,
-                    metalness: 0.7,
-                    roughness: 0.5
-                }));
-                const angle = Math.random() * Math.PI * 2;
-                const radius = Math.random() * 40 + 10;
-                detail.position.set(
-                    Math.cos(angle) * radius,
-                    8,
-                    Math.sin(angle) * radius
-                );
-                falconGroup.add(detail);
-            }
-            
-            // Position Millennium Falcon with Rebel fleet - moved forward to be visible
-            falconGroup.position.set(
-                battleLocation.x + 400,
-                battleLocation.y + 100,
-                battleLocation.z + 800 // Much closer to camera view
-            );
-            falconGroup.rotation.y = Math.PI;
-            falconGroup.rotation.z = -0.2; // Slight banking angle
-            
-            nurWarsScene.add(falconGroup);
-            nurWarsObjects.push({ 
-                type: 'falcon', 
-                object: falconGroup,
-                isPlayer: false,
-                isHero: true,
-                health: 150,
-                velocity: new THREE.Vector3(0, 0, -4),
-                target: null
-            });
-        }
-
-        function createXWings(battleLocation) {
-            for (let i = 0; i < 6; i++) {
-                const xwingGroup = new THREE.Group();
-                
-                // Main fuselage - elongated with rounded nose
-                const bodyGeometry = new THREE.CylinderGeometry(4, 6, 50, 16);
-                bodyGeometry.rotateX(Math.PI / 2);
-                const bodyMaterial = new THREE.MeshStandardMaterial({ 
-                    color: i === 0 ? 0xe8c547 : 0xd4d4d4, // First X-Wing (Nur) is gold
-                    metalness: 0.7,
-                    roughness: 0.3
-                });
-                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-                xwingGroup.add(body);
-                
-                // Nose cone
-                const noseGeometry = new THREE.ConeGeometry(4, 15, 16);
-                noseGeometry.rotateX(-Math.PI / 2);
-                const nose = new THREE.Mesh(noseGeometry, bodyMaterial);
-                nose.position.z = 32;
-                xwingGroup.add(nose);
-                
-                // Cockpit canopy
-                const canopyGeometry = new THREE.SphereGeometry(5, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-                const canopyMaterial = new THREE.MeshPhongMaterial({ 
-                    color: 0x333333,
-                    transparent: true,
-                    opacity: 0.6,
-                    shininess: 100
-                });
-                const canopy = new THREE.Mesh(canopyGeometry, canopyMaterial);
-                canopy.position.z = 10;
-                canopy.position.y = 3;
-                xwingGroup.add(canopy);
-                
-                // S-Foils (Wings) - 4 wings in X configuration
-                const wingGeometry = new THREE.BoxGeometry(50, 2, 18);
-                const wingMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0xcccccc,
-                    metalness: 0.6,
-                    roughness: 0.4
-                });
-                
-                // Top-Right Wing
-                const wingTR = new THREE.Mesh(wingGeometry, wingMaterial);
-                wingTR.position.set(28, 15, -5);
-                wingTR.rotation.z = -0.3;
-                xwingGroup.add(wingTR);
-                
-                // Top-Left Wing
-                const wingTL = new THREE.Mesh(wingGeometry, wingMaterial);
-                wingTL.position.set(-28, 15, -5);
-                wingTL.rotation.z = 0.3;
-                xwingGroup.add(wingTL);
-                
-                // Bottom-Right Wing
-                const wingBR = new THREE.Mesh(wingGeometry, wingMaterial);
-                wingBR.position.set(28, -15, -5);
-                wingBR.rotation.z = 0.3;
-                xwingGroup.add(wingBR);
-                
-                // Bottom-Left Wing
-                const wingBL = new THREE.Mesh(wingGeometry, wingMaterial);
-                wingBL.position.set(-28, -15, -5);
-                wingBL.rotation.z = -0.3;
-                xwingGroup.add(wingBL);
-                
-                // Wing tip laser cannons
-                const cannonGeometry = new THREE.CylinderGeometry(1.5, 1.5, 15, 8);
-                const cannonMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x444444,
-                    metalness: 0.8,
-                    roughness: 0.2
-                });
-                
-                // 4 laser cannons at wing tips
-                const positions = [
-                    [50, 15, -5],
-                    [-50, 15, -5],
-                    [50, -15, -5],
-                    [-50, -15, -5]
-                ];
-                
-                positions.forEach(pos => {
-                    const cannon = new THREE.Mesh(cannonGeometry, cannonMaterial);
-                    cannon.position.set(pos[0], pos[1], pos[2]);
-                    cannon.rotation.z = Math.PI / 2;
-                    xwingGroup.add(cannon);
-                    
-                    // Cannon tip glow
-                    const glowGeometry = new THREE.SphereGeometry(1, 8, 8);
-                    const glowMaterial = new THREE.MeshBasicMaterial({ 
-                        color: 0xff3333,
-                        transparent: true,
-                        opacity: 0.8
-                    });
-                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-                    glow.position.set(pos[0] > 0 ? pos[0] + 8 : pos[0] - 8, pos[1], pos[2]);
-                    xwingGroup.add(glow);
-                });
-                
-                // Engine exhausts - 4 engines
-                positions.forEach(pos => {
-                    const engineGeometry = new THREE.CylinderGeometry(2.5, 3.5, 18, 8);
-                    const engineMaterial = new THREE.MeshStandardMaterial({ 
-                        color: 0x666666,
-                        metalness: 0.8,
-                        roughness: 0.3
-                    });
-                    const engine = new THREE.Mesh(engineGeometry, engineMaterial);
-                    engine.position.set(pos[0] * 0.7, pos[1], -25);
-                    engine.rotation.x = Math.PI / 2;
-                    xwingGroup.add(engine);
-                    
-                    // Engine glow
-                    const exhaustGlow = new THREE.PointLight(0x4488ff, 2, 100);
-                    exhaustGlow.position.set(pos[0] * 0.7, pos[1], -35);
-                    xwingGroup.add(exhaustGlow);
-                    
-                    const exhaustGeometry = new THREE.CylinderGeometry(2, 3, 8, 8);
-                    const exhaustMaterial = new THREE.MeshBasicMaterial({ 
-                        color: 0x6699ff,
-                        transparent: true,
-                        opacity: 0.7
-                    });
-                    const exhaust = new THREE.Mesh(exhaustGeometry, exhaustMaterial);
-                    exhaust.position.set(pos[0] * 0.7, pos[1], -39);
-                    exhaust.rotation.x = Math.PI / 2;
-                    xwingGroup.add(exhaust);
-                });
-                
-                // R2 unit details
-                const r2Geometry = new THREE.CylinderGeometry(3, 3, 6, 16);
-                const r2Material = new THREE.MeshStandardMaterial({ 
-                    color: i === 0 ? 0x3366ff : 0xff6600,
-                    metalness: 0.6,
-                    roughness: 0.4
-                });
-                const r2 = new THREE.Mesh(r2Geometry, r2Material);
-                r2.position.set(0, 0, 5);
-                xwingGroup.add(r2);
-                
-                // Additional hull details - intake scoops
-                const scoopGeometry = new THREE.BoxGeometry(4, 4, 8);
-                const scoopMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x555555,
-                    metalness: 0.7,
-                    roughness: 0.5
-                });
-                
-                for (let j = 0; j < 4; j++) {
-                    const scoop = new THREE.Mesh(scoopGeometry, scoopMaterial);
-                    scoop.position.set((j % 2 === 0 ? -10 : 10), (j < 2 ? 5 : -5), 15 + j * 3);
-                    xwingGroup.add(scoop);
-                }
-                
-                // Hull plating details
-                for (let j = 0; j < 6; j++) {
-                    const platingGeometry = new THREE.BoxGeometry(1.5, 1.5, 45);
-                    const platingMaterial = new THREE.MeshStandardMaterial({ 
-                        color: 0xaaaaaa,
-                        metalness: 0.5,
-                        roughness: 0.6
-                    });
-                    const plating = new THREE.Mesh(platingGeometry, platingMaterial);
-                    plating.position.set((j - 2.5) * 7, 0, 0);
-                    xwingGroup.add(plating);
-                }
-                
-                // Position X-Wings relative to battle location
-                xwingGroup.position.set(
-                    battleLocation.x + (i - 2.5) * 150,
-                    battleLocation.y - 100 + Math.random() * 50,
-                    battleLocation.z + 1200 + i * 80
-                );
-                
-                xwingGroup.rotation.y = Math.PI;
-                
-                nurWarsScene.add(xwingGroup);
-                nurWarsObjects.push({ 
-                    type: 'xwing', 
-                    object: xwingGroup,
-                    isPlayer: i === 0,
-                    health: 100,
-                    velocity: new THREE.Vector3(0, 0, -3),
-                    target: null
-                });
-            }
-        }
-
-        function createTIEFighters(battleLocation) {
-            for (let i = 0; i < 8; i++) {
+            function buildProceduralTIEFighter() {
                 const tieGroup = new THREE.Group();
-                
+
                 // Cockpit ball - more detailed hexagonal sphere
                 const cockpitGeometry = new THREE.SphereGeometry(10, 12, 12);
                 const cockpitMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x1a1a1a,
+                    color: 0x333333,
                     metalness: 0.8,
                     roughness: 0.3
                 });
                 const cockpit = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
                 tieGroup.add(cockpit);
-                
+
                 // Viewport windows
                 const windowGeometry = new THREE.CircleGeometry(4, 8);
                 const windowMaterial = new THREE.MeshBasicMaterial({ 
-                    color: 0x00ff00,
+                    color: 0x88aaff,
                     transparent: true,
                     opacity: 0.3
                 });
-                
+
                 // Front window
                 const frontWindow = new THREE.Mesh(windowGeometry, windowMaterial);
                 frontWindow.position.z = 10;
                 tieGroup.add(frontWindow);
-                
+
                 // Back window
                 const backWindow = new THREE.Mesh(windowGeometry, windowMaterial);
                 backWindow.position.z = -10;
                 backWindow.rotation.y = Math.PI;
                 tieGroup.add(backWindow);
-                
+
                 // Hexagonal solar panels - more detailed
                 const panelShape = new THREE.Shape();
                 const hexRadius = 35;
                 for (let j = 0; j < 6; j++) {
-                    const angle = (j / 6) * Math.PI * 2;
-                    const x = Math.cos(angle) * hexRadius;
-                    const y = Math.sin(angle) * hexRadius;
-                    if (j === 0) panelShape.moveTo(x, y);
-                    else panelShape.lineTo(x, y);
+                    const angle = j * Math.PI / 3;
+                    panelShape.lineTo(Math.cos(angle) * hexRadius, Math.sin(angle) * hexRadius);
                 }
                 panelShape.closePath();
-                
+
                 const extrudeSettings = { depth: 2, bevelEnabled: false };
                 const panelGeometry = new THREE.ExtrudeGeometry(panelShape, extrudeSettings);
                 const panelMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x0a0a0a,
+                    color: 0x1a1a1a,
                     metalness: 0.9,
-                    roughness: 0.1,
+                    roughness: 0.4,
                     side: THREE.DoubleSide
                 });
-                
+
                 // Left solar panel
                 const leftPanel = new THREE.Mesh(panelGeometry, panelMaterial);
                 leftPanel.position.x = -18;
                 leftPanel.rotation.y = Math.PI / 2;
                 tieGroup.add(leftPanel);
-                
+
                 // Panel frame (left)
                 const frameGeometry = new THREE.TorusGeometry(35, 1.5, 6, 6);
                 const frameMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x333333,
+                    color: 0x444444,
                     metalness: 0.8,
                     roughness: 0.3
                 });
@@ -5899,92 +6408,42 @@
                 leftFrame.position.x = -18;
                 leftFrame.rotation.y = Math.PI / 2;
                 tieGroup.add(leftFrame);
-                
+
                 // Right solar panel
                 const rightPanel = new THREE.Mesh(panelGeometry, panelMaterial);
                 rightPanel.position.x = 18;
                 rightPanel.rotation.y = Math.PI / 2;
                 tieGroup.add(rightPanel);
-                
+
                 // Panel frame (right)
                 const rightFrame = new THREE.Mesh(frameGeometry, frameMaterial);
                 rightFrame.position.x = 18;
                 rightFrame.rotation.y = Math.PI / 2;
                 tieGroup.add(rightFrame);
-                
+
                 // Connecting struts
                 const strutGeometry = new THREE.CylinderGeometry(1.5, 1.5, 16, 8);
                 const strutMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x2a2a2a,
+                    color: 0x666666,
                     metalness: 0.7,
                     roughness: 0.4
                 });
-                
+
                 const leftStrut = new THREE.Mesh(strutGeometry, strutMaterial);
                 leftStrut.position.x = -9;
                 leftStrut.rotation.z = Math.PI / 2;
                 tieGroup.add(leftStrut);
-                
+
                 const rightStrut = new THREE.Mesh(strutGeometry, strutMaterial);
                 rightStrut.position.x = 9;
                 rightStrut.rotation.z = Math.PI / 2;
                 tieGroup.add(rightStrut);
-                
-                // Laser cannons
-                const cannonGeometry = new THREE.CylinderGeometry(0.8, 0.8, 12, 8);
-                const cannonMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x444444,
-                    metalness: 0.8,
-                    roughness: 0.2
-                });
-                
-                const leftCannon = new THREE.Mesh(cannonGeometry, cannonMaterial);
-                leftCannon.position.set(-3, -8, 6);
-                leftCannon.rotation.x = Math.PI / 6;
-                tieGroup.add(leftCannon);
-                
-                const rightCannon = new THREE.Mesh(cannonGeometry, cannonMaterial);
-                rightCannon.position.set(3, -8, 6);
-                rightCannon.rotation.x = Math.PI / 6;
-                tieGroup.add(rightCannon);
-                
-                // Engine glow
-                const engineGlow = new THREE.PointLight(0x00ff00, 1.5, 80);
-                engineGlow.position.z = -12;
-                tieGroup.add(engineGlow);
-                
-                // Ion engine exhaust
-                const exhaustGeometry = new THREE.CylinderGeometry(4, 5, 6, 8);
-                const exhaustMaterial = new THREE.MeshBasicMaterial({ 
-                    color: 0x00ff44,
-                    transparent: true,
-                    opacity: 0.5
-                });
-                const exhaust = new THREE.Mesh(exhaustGeometry, exhaustMaterial);
-                exhaust.position.z = -15;
-                exhaust.rotation.x = Math.PI / 2;
-                tieGroup.add(exhaust);
-                
-                // Position TIE Fighters relative to battle location
-                tieGroup.position.set(
-                    battleLocation.x + (Math.random() - 0.5) * 1000,
-                    battleLocation.y + (Math.random() - 0.5) * 300,
-                    battleLocation.z - 300 + Math.random() * 200
-                );
-                
-                nurWarsScene.add(tieGroup);
-                nurWarsObjects.push({ 
-                    type: 'tiefighter', 
-                    object: tieGroup,
-                    health: 50,
-                    velocity: new THREE.Vector3(
-                        (Math.random() - 0.5) * 3,
-                        (Math.random() - 0.5) * 2,
-                        Math.random() * 2 + 1
-                    )
-                });
+
+                return tieGroup;
             }
         }
+
+
 
         let battlePhase = 'approach';
         let battleTimer = 0;
@@ -5993,7 +6452,7 @@
         let finalExplosionStarted = false;
 
         function updateBattleLogic() {
-            if (!nurWarsActive) return;
+            if (!nurWarsActive || moviePaused || !battleReady) return;
             
             battleTimer++;
             
@@ -6005,11 +6464,13 @@
             // Dynamic camera movement for cinematic effect - closer and more dramatic
             if (battlePhase === 'approach') {
                 // Wide establishing shot of the fleet approaching
+                const xwings = nurWarsObjects.filter(obj => obj.type === 'xwing' || obj.type === 'interceptor');
+                if (xwings.length === 0) return;
                 const avgPos = new THREE.Vector3(0, 0, 0);
-                nurWarsObjects.filter(obj => obj.type === 'xwing').forEach(xw => {
+                xwings.forEach(xw => {
                     avgPos.add(xw.object.position);
                 });
-                avgPos.divideScalar(nurWarsObjects.filter(obj => obj.type === 'xwing').length);
+                avgPos.divideScalar(xwings.length);
                 
                 const cameraPos = avgPos.clone();
                 cameraPos.z += 400;
@@ -6446,19 +6907,27 @@
         window.closeNurWars = closeNurWars;
 
         function closeSkyModal() {
-            document.getElementById('sky-details').style.display = 'none';
+            const skyDetails = document.getElementById('sky-details');
+            skyDetails.style.display = 'none';
             
             if (isCenterView) {
-                // If we were in center view (sun), reset to overview
+                // Force reset when closing the sun modal
                 isCenterView = false;
+                focusedObject = null;
                 controls.enableZoom = true;
                 controls.maxDistance = 2000;
                 controls.minDistance = 5;
                 camera.fov = 60;
                 camera.updateProjectionMatrix();
-                
-                // Reset to overview position
-                resetView();
+                undimBackground();
+                updateMoonOrbitVisibility();
+                viewHistory.length = 0;
+                currentViewIndex = -1;
+                updateBackButton();
+                gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 0.8 });
+                gsap.to(camera.position, { x: 0, y: 200, z: 800, duration: 0.8 });
+                closeOverlay();
+                return;
             } else if (focusedObject) {
                 // Return to following the focused object closely
                 const targetPos = new THREE.Vector3();
@@ -6502,8 +6971,19 @@
             }
         }
 
-        // basic helpers to avoid missing-function errors
         function resetView() {
+            // Set flag to stop animation updates
+            stopSuctionAnimation = true;
+            
+            // Kill all stored animation references
+            if (activeSuctionAnimations.position) activeSuctionAnimations.position.kill();
+            if (activeSuctionAnimations.scale) activeSuctionAnimations.scale.kill();
+            if (activeSuctionAnimations.rotation) activeSuctionAnimations.rotation.kill();
+            activeSuctionAnimations = {};
+            
+            // Re-enable controls
+            controls.enabled = true;
+            
             if (isCenterView) {
                 isCenterView = false;
                 controls.enableZoom = true;
@@ -6512,20 +6992,54 @@
                 camera.fov = 60;
                 camera.updateProjectionMatrix();
             }
-        	focusedObject = null;
-        	undimBackground(); // Undim background when returning to overview
-        	updateMoonOrbitVisibility(); // Update moon orbit visibility when resetting
-        	
-        	// Clear view history when resetting
-        	viewHistory.length = 0;
-        	currentViewIndex = -1;
-        	updateBackButton();
-        	
-        	gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 0.8 });
+            
+            if (solarSystem && solarSystem.userData && solarSystem.userData.isSucked) {
+                // Restore solar system immediately
+                solarSystem.userData.isSucked = false;
+                solarSystem.visible = true;
+                solarSystem.position.set(0, 0, 0);
+                solarSystem.scale.set(1, 1, 1);
+                solarSystem.rotation.set(0, 0, 0);
+                
+                // Restore UI
+                const uiLayer = document.getElementById('ui-layer');
+                if (uiLayer) uiLayer.style.display = 'flex';
+                const blackHoleOverlay = document.getElementById('blackhole-overlay');
+                if (blackHoleOverlay) blackHoleOverlay.style.display = 'none';
+                document.body.classList.remove('labels-hidden');
+            }
+            
+            // Reset black hole
+            if (blackHoleGroup) {
+                blackHoleGroup.position.set(900, 260, -250);
+                blackHoleGroup.scale.set(1, 1, 1);
+                blackHoleGroup.rotation.set(0, 0, 0);
+                blackHoleGroup.updateMatrix();
+                blackHoleGroup.updateMatrixWorld(true);
+            }
+            
+            focusedObject = null;
+            undimBackground();
+            updateMoonOrbitVisibility();
+            viewHistory.length = 0;
+            currentViewIndex = -1;
+            updateBackButton();
             document.getElementById('sky-details').style.display = 'none';
-        	gsap.to(camera.position, { x: 0, y: 200, z: 800, duration: 0.8 }); // More zoomed in
             closeOverlay();
+            
+            // Animate camera back smoothly
+            gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.0 });
+            gsap.to(camera.position, { 
+                x: 0, 
+                y: 150, 
+                z: 900, 
+                duration: 1.0,
+                onComplete: () => {
+                    controls.enabled = true;
+                }
+            });
         }
+
         window.resetView = resetView;
         window.closeOverlay = closeOverlay;
         window.closeSkyModal = closeSkyModal;
@@ -6548,17 +7062,6 @@
                 newFov = Math.max(10, Math.min(60, newFov));
                 camera.fov = newFov;
                 camera.updateProjectionMatrix();
-            } else {
-                // Check if we're getting close to the sun during zoom
-                const sunDistance = camera.position.distanceTo(sun.position);
-                if (sunDistance < 150 && e.deltaY < 0) { // Zooming in towards sun
-                    // Auto-trigger sun modal when getting close
-                    setTimeout(() => {
-                        if (camera.position.distanceTo(sun.position) < 120) {
-                            focusOnObject(sun);
-                        }
-                    }, 100);
-                }
             }
         });
 
@@ -6571,7 +7074,7 @@
                 const skyDetails = document.getElementById('sky-details');
                 const overlayPanel = document.getElementById('overlay-panel');
                 
-                if (skyDetails.style.display === 'block') {
+                if (skyDetails.style.display !== 'none') {
                     closeSkyModal();
                 } else if (overlayPanel.classList.contains('active')) {
                     closeOverlay();
@@ -6730,10 +7233,12 @@
             }
             
             // Move entire solar system slightly (Drift)
-            solarSystem.position.x = Math.sin(time * 0.1) * 20;
-            solarSystem.position.z = Math.cos(time * 0.15) * 20;
-            solarSystem.position.y = Math.sin(time * 0.05) * 5;
-            solarSystem.rotation.y = Math.sin(time * 0.02) * 0.05; // Slight system rotation
+            if (!solarSystem.userData.isSucked) {
+                solarSystem.position.x = Math.sin(time * 0.1) * 20;
+                solarSystem.position.z = Math.cos(time * 0.15) * 20;
+                solarSystem.position.y = Math.sin(time * 0.05) * 5;
+                solarSystem.rotation.y = Math.sin(time * 0.02) * 0.05; // Slight system rotation
+            }
 
             // Rotate orbits and planets
             objects.forEach(obj => {
@@ -6965,8 +7470,15 @@
                 }
             });
 
+            if (revealLabelsOnNextFrame) {
+                document.body.classList.remove('labels-hidden');
+                revealLabelsOnNextFrame = false;
+            }
+
             // Continuous object following
             if (focusedObject && !isCenterView) {
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
                 const targetPos = new THREE.Vector3();
                 focusedObject.getWorldPosition(targetPos);
                 
@@ -6985,6 +7497,14 @@
                         camera.position.lerp(newPos, 0.02); // Gentle distance correction
                     }
                 }
+            } else if (!focusedObject && !isCenterView && !solarSystem.userData.isSucked) {
+                // Allow normal controls - user can freely explore
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+            } else if (!isDragging) {
+                // Re-enable damping when dragging is done
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
             }
 
             controls.update();

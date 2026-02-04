@@ -1,0 +1,11 @@
+Model Information:
+* title:	Enceladus
+* source:	https://sketchfab.com/3d-models/enceladus-65f5f87d930c4f35a4039656c266272a
+* author:	Mieke Roth (https://sketchfab.com/miekeroth)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Enceladus" (https://sketchfab.com/3d-models/enceladus-65f5f87d930c4f35a4039656c266272a) by Mieke Roth (https://sketchfab.com/miekeroth) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

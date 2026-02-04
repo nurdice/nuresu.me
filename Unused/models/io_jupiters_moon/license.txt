@@ -1,0 +1,11 @@
+Model Information:
+* title:	Io (Jupiter's moon
+* source:	https://sketchfab.com/3d-models/io-jupiters-moon-c546de17066f4a9c977b14e4ee41dc63
+* author:	Novel (https://sketchfab.com/romanmisenko13)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Io (Jupiter's moon" (https://sketchfab.com/3d-models/io-jupiters-moon-c546de17066f4a9c977b14e4ee41dc63) by Novel (https://sketchfab.com/romanmisenko13) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

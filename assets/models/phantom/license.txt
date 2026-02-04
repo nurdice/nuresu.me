@@ -1,0 +1,11 @@
+Model Information:
+* title:	Phantom
+* source:	https://sketchfab.com/3d-models/phantom-fc54544abbd2405f9a1ad2c48640d5c2
+* author:	KLGaming (https://sketchfab.com/klgaming)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Phantom" (https://sketchfab.com/3d-models/phantom-fc54544abbd2405f9a1ad2c48640d5c2) by KLGaming (https://sketchfab.com/klgaming) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
