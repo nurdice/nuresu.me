@@ -252,6 +252,14 @@
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
         }
 
+        .hud-btn:disabled,
+        #solar-loading-overlay:not([style*="display: none"]) ~ #controls .hud-btn,
+        #solar-loading-overlay:not([style*="display: none"]) ~ .hud-btn,
+        body.loading .hud-btn {
+            display: none;
+            pointer-events: none;
+        }
+
         #nur-wars-btn:hover {
             background: url('assets/images/nurwars.png') no-repeat center/contain !important;
             background-color: transparent !important;
@@ -1268,6 +1276,7 @@
         const uiLayer = document.getElementById('ui-layer');
         const blackHoleOverlay = document.getElementById('blackhole-overlay');
         document.body.classList.add('labels-hidden');
+        document.body.classList.add('loading');
 
         // Solar system loading state
         let solarModelsToLoad = 0;
@@ -1290,6 +1299,7 @@
                 container.style.display = 'block';
                 uiLayer.style.display = 'flex';
                 solarLoadingOverlay.style.display = 'none';
+                document.body.classList.remove('loading');
                 revealLabelsOnNextFrame = true;
                 if (solarLoadTimeoutId) {
                     clearTimeout(solarLoadTimeoutId);
@@ -1303,6 +1313,7 @@
             container.style.display = 'block';
             uiLayer.style.display = 'flex';
             solarLoadingOverlay.style.display = 'none';
+            document.body.classList.remove('loading');
             revealLabelsOnNextFrame = true;
         }, 15000);
 
@@ -3349,88 +3360,6 @@
         upperStarMesh.layers.set(0);
         scene.add(upperStarMesh);
         window.upperStarMesh = upperStarMesh; // Make accessible globally for animation
-
-        // === ADD DISTANT GALAXIES TO SOLAR SYSTEM ===
-        const solarGalaxyPositions = [
-            { x: -1800, y: 700, z: -2200, rotX: 0.3, rotY: 0.8, rotZ: 0.2, scale: 320 },
-            { x: 1600, y: -500, z: -2600, rotX: -0.5, rotY: 1.2, rotZ: -0.3, scale: 300 },
-            { x: 1100, y: 900, z: -2000, rotX: 0.8, rotY: -0.4, rotZ: 0.6, scale: 280 },
-            { x: -1400, y: -800, z: -2400, rotX: -0.2, rotY: 1.5, rotZ: 0.4, scale: 310 },
-            { x: 2000, y: 450, z: -3200, rotX: 0.6, rotY: -1.1, rotZ: -0.5, scale: 340 },
-            { x: -2200, y: 200, z: -2800, rotX: -0.7, rotY: 0.5, rotZ: 0.8, scale: 330 }
-        ];
-        
-        gltfLoader.load(
-            'assets/models/galaxy/scene.gltf',
-            (gltf) => {
-                solarGalaxyPositions.forEach((pos, index) => {
-                    const galaxy = gltf.scene.clone();
-                    galaxy.traverse((node) => {
-                        if (node.isMesh) {
-                            node.castShadow = false;
-                            node.receiveShadow = false;
-                            if (node.material) {
-                                node.material.side = THREE.DoubleSide;
-                                if (node.material.emissive) {
-                                    node.material.emissive.setHex(0xffffff);
-                                    node.material.emissiveIntensity = 1.2;
-                                }
-                            }
-                        }
-                    });
-                    galaxy.scale.set(pos.scale, pos.scale, pos.scale);
-                    galaxy.position.set(pos.x, pos.y, pos.z);
-                    galaxy.rotation.set(pos.rotX, pos.rotY, pos.rotZ);
-                    scene.add(galaxy);
-                });
-                console.log('Galaxies added to solar system:', solarGalaxyPositions.length);
-            },
-            undefined,
-            (error) => {
-                console.error('Error loading galaxies for solar system:', error);
-            }
-        );
-
-        // === ADD NEBULA CLOUDS IN CRAWL AREA FOR DEPTH ===
-        for (let i = 0; i < 3; i++) {
-            const nebulaGeo = new THREE.PlaneGeometry(3000, 2000);
-            const nebulaCanvas = document.createElement('canvas');
-            nebulaCanvas.width = 512;
-            nebulaCanvas.height = 512;
-            const ctx = nebulaCanvas.getContext('2d');
-            
-            // Create gradient nebula
-            const gradient = ctx.createRadialGradient(256, 256, 50, 256, 256, 300);
-            const colors = [
-                ['rgba(100, 50, 150, 0.15)', 'rgba(100, 50, 150, 0)'],
-                ['rgba(50, 100, 200, 0.15)', 'rgba(50, 100, 200, 0)'],
-                ['rgba(150, 50, 100, 0.15)', 'rgba(150, 50, 100, 0)']
-            ];
-            gradient.addColorStop(0, colors[i][0]);
-            gradient.addColorStop(1, colors[i][1]);
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 512, 512);
-            
-            const nebulaTex = new THREE.CanvasTexture(nebulaCanvas);
-            const nebulaMat = new THREE.MeshBasicMaterial({
-                map: nebulaTex,
-                transparent: true,
-                opacity: 0.4,
-                side: THREE.DoubleSide,
-                depthWrite: false
-            });
-            
-            const nebulaMesh = new THREE.Mesh(nebulaGeo, nebulaMat);
-            nebulaMesh.position.set(
-                (Math.random() - 0.5) * 6000,
-                Math.random() * 8000 + 12000,
-                (Math.random() - 0.5) * 6000 - 2000
-            );
-            nebulaMesh.rotation.x = Math.random() * Math.PI;
-            nebulaMesh.rotation.y = Math.random() * Math.PI;
-            nebulaMesh.layers.set(0);
-            scene.add(nebulaMesh);
-        }
 
         function getPlanetModelPath(planetName) {
             const name = (planetName || '').toLowerCase();

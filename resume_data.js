@@ -46,7 +46,7 @@ window.RESUME_DATA = {
                 { 
                     name: "Leadership & Analysis", 
                     size: 4.0, // Largest moon - most important
-                    distance: 16, 
+                    distance: 2, 
                     speed: 0.004,
                     color: 0x27ae60, // Green
                     texture: "drawGreen",
@@ -68,7 +68,7 @@ window.RESUME_DATA = {
                 { 
                     name: "Technical Tools", 
                     size: 3.5, // Second largest
-                    distance: 25, 
+                    distance: 3, 
                     speed: 0.003,
                     color: 0x3498db, // Blue
                     texture: "drawBlue",
@@ -91,7 +91,7 @@ window.RESUME_DATA = {
                 { 
                     name: "Project Management", 
                     size: 3.0, // Medium size
-                    distance: 34, 
+                    distance: 4, 
                     speed: 0.002,
                     color: 0x9b59b6, // Purple
                     texture: "drawUranus",
@@ -113,7 +113,7 @@ window.RESUME_DATA = {
                 { 
                     name: "Languages", 
                     size: 3.2, // Distinctive size for Languages
-                    distance: 43, 
+                    distance: 5, 
                     speed: 0.0018,
                     color: 0xf39c12, // Orange/Gold
                     texture: "drawYellow",
@@ -166,7 +166,7 @@ window.RESUME_DATA = {
             order: 1,
             renderType: "experience",
             size: 56,
-            distance: 360,
+            distance: 500,
             speed: 0.0008,
             type: "planet",
             inclination: 0.05,
@@ -181,7 +181,7 @@ window.RESUME_DATA = {
                 {
                     name: "lululemon athletica",
                     size: 5.5,
-                    distance: 20,
+                    distance: 2,
                     speed: 0.003,
                     color: 0xc0392b,
                     details: "2020-Present | Business Analyst | Architectural Revamp | AI-Driven Highlights | SAFe Delivery",
@@ -204,7 +204,7 @@ window.RESUME_DATA = {
                 {
                     name: "Vancity",
                     size: 4.8,
-                    distance: 26,
+                    distance: 3,
                     speed: 0.0025,
                     color: 0xd35400,
                     details: "2019-2020 | System Migration | Stakeholder Management | Gap Analysis",
@@ -224,7 +224,7 @@ window.RESUME_DATA = {
                 {
                     name: "HSBC — Digital Platform",
                     size: 5.0,
-                    distance: 32,
+                    distance: 4,
                     speed: 0.002,
                     color: 0xe67e22,
                     details: "2016-2019 | Digital Transformation | Process Improvement",
@@ -243,7 +243,7 @@ window.RESUME_DATA = {
                 {
                     name: "HSBC — ITQA Test Lead",
                     size: 3.2,
-                    distance: 38,
+                    distance: 5,
                     speed: 0.0015,
                     color: 0xb86b2b,
                     details: "2015-2016 | QA Leadership | Test Strategy | UFT Automation",
@@ -261,7 +261,7 @@ window.RESUME_DATA = {
                 {
                     name: "HSBC — Business Analysis",
                     size: 3.0,
-                    distance: 44,
+                    distance: 6,
                     speed: 0.0012,
                     color: 0x9b5d2b,
                     details: "2011-2015 | Core Banking | Regulatory Compliance",
@@ -280,7 +280,7 @@ window.RESUME_DATA = {
                 {
                     name: "HSBC Global Technology",
                     size: 6.0,
-                    distance: 52,
+                    distance: 7,
                     speed: 0.0008,
                     color: 0x8b7a57,
                     details: "2005-2011 | System Development | Modernization | Mainframe/zOS",
@@ -307,7 +307,7 @@ window.RESUME_DATA = {
             order: 2,
             renderType: "projects",
             size: 45,
-            distance: 580,
+            distance: 810,
             speed: 0.0004,
             type: "planet",
             inclination: -0.1,
@@ -323,7 +323,7 @@ window.RESUME_DATA = {
                 { 
                     name: "E-commerce & Digital Retail", 
                     size: 2.0, 
-                    distance: 14, 
+                    distance: 2, 
                     speed: 0.005,
                     color: 0xe67e22,
                     pdfDetails: {
@@ -347,7 +347,7 @@ window.RESUME_DATA = {
                 { 
                     name: "Banking & Financial Systems", 
                     size: 2.2, 
-                    distance: 20, 
+                    distance: 3, 
                     speed: 0.004,
                     color: 0x3498db,
                     pdfDetails: {
@@ -371,7 +371,7 @@ window.RESUME_DATA = {
                 { 
                     name: "Agile & SAFe Delivery", 
                     size: 1.8, 
-                    distance: 26, 
+                    distance: 4, 
                     speed: 0.003,
                     color: 0x9b59b6,
                     pdfDetails: {
@@ -395,7 +395,7 @@ window.RESUME_DATA = {
                 { 
                     name: "System Integration & QA", 
                     size: 2.0, 
-                    distance: 32, 
+                    distance: 5, 
                     speed: 0.0025,
                     color: 0x1abc9c,
                     pdfDetails: {
@@ -427,7 +427,7 @@ window.RESUME_DATA = {
             order: 3,
             renderType: "projects",
             size: 24,
-            distance: 720,
+            distance: 985,
             speed: 0.0003,
             type: "planet",
             inclination: 0.08,
@@ -442,7 +442,7 @@ window.RESUME_DATA = {
                 {
                     name: "AI Product Highlights",
                     size: 2.8,
-                    distance: 15,
+                    distance: 2,
                     speed: 0.004,
                     color: 0xff6b6b,
                     texture: "drawRed",
@@ -463,7 +463,7 @@ window.RESUME_DATA = {
                 {
                     name: "Architecture Revamp",
                     size: 2.5,
-                    distance: 22,
+                    distance: 3,
                     speed: 0.003,
                     color: 0xe67e22,
                     texture: "drawYellow",
@@ -484,7 +484,7 @@ window.RESUME_DATA = {
                 {
                     name: "Digital Banking Platform",
                     size: 2.3,
-                    distance: 29,
+                    distance: 4,
                     speed: 0.0025,
                     color: 0x3498db,
                     texture: "drawBlue",
@@ -513,7 +513,7 @@ window.RESUME_DATA = {
             order: 3,
             renderType: "education",
             size: 14,
-            distance: 840,
+            distance: 1194,
             speed: 0.00025,
             type: "planet",
             inclination: 0.1,
@@ -528,7 +528,7 @@ window.RESUME_DATA = {
                 {
                     name: "B.E. Computer Science",
                     size: 2.5, // Increased size for better visibility
-                    distance: 18, // Increased distance from planet for better spacing
+                    distance: 2, // Increased distance from planet for better spacing
                     speed: 0.003,
                     color: 0x3498db,
                     texture: "drawBlue",
@@ -561,7 +561,7 @@ window.RESUME_DATA = {
                 {
                     name: "H.S.C Science",
                     size: 2.0, // Increased size
-                    distance: 28, // Increased distance for better spacing
+                    distance: 3, // Increased distance for better spacing
                     speed: 0.0025,
                     color: 0x2980b9,
                     texture: "drawTeal",
@@ -592,7 +592,7 @@ window.RESUME_DATA = {
                 {
                     name: "S.S.C",
                     size: 1.8, // Increased size for better visibility
-                    distance: 38, // Increased distance for proper spacing
+                    distance: 4, // Increased distance for proper spacing
                     speed: 0.002,
                     color: 0x1abc9c,
                     texture: "drawGreen",
@@ -631,7 +631,7 @@ window.RESUME_DATA = {
             order: 4,
             renderType: "list",
             size: 12,
-            distance: 960,
+            distance: 1374,
             speed: 0.0002,
             type: "planet",
             inclination: -0.12,
@@ -646,7 +646,7 @@ window.RESUME_DATA = {
                 {
                     name: "Business Analysis",
                     size: 2.0,
-                    distance: 14,
+                    distance: 2,
                     speed: 0.004,
                     color: 0x8e44ad,
                     texture: "drawUranus",
@@ -668,7 +668,7 @@ window.RESUME_DATA = {
                 {
                     name: "Agile & SAFe",
                     size: 1.8,
-                    distance: 20,
+                    distance: 3,
                     speed: 0.003,
                     color: 0x9b59b6,
                     texture: "drawUranus",
@@ -690,7 +690,7 @@ window.RESUME_DATA = {
                 {
                     name: "Technical Certifications",
                     size: 1.6,
-                    distance: 26,
+                    distance: 4,
                     speed: 0.0025,
                     color: 0x663399,
                     texture: "drawUranus",
@@ -720,7 +720,7 @@ window.RESUME_DATA = {
             order: 5,
             renderType: "contact",
             size: 32,
-            distance: 1080,
+            distance: 1594,
             speed: 0.00015,
             type: "planet",
             inclination: 0.05,
@@ -735,7 +735,7 @@ window.RESUME_DATA = {
                 {
                     name: "Email",
                     size: 1.5,
-                    distance: 12,
+                    distance: 2,
                     speed: 0.005,
                     color: 0x16a085,
                     texture: "drawEmailSurface",
@@ -755,7 +755,7 @@ window.RESUME_DATA = {
                 {
                     name: "LinkedIn",
                     size: 1.4,
-                    distance: 17,
+                    distance: 3,
                     speed: 0.004,
                     color: 0x0077b5,
                     texture: "drawBlue",
@@ -775,7 +775,7 @@ window.RESUME_DATA = {
                 {
                     name: "Phone",
                     size: 1.3,
-                    distance: 22,
+                    distance: 4,
                     speed: 0.003,
                     color: 0x27ae60,
                     texture: "drawPhoneSurface",
@@ -795,7 +795,7 @@ window.RESUME_DATA = {
                 {
                     name: "Location",
                     size: 1.2,
-                    distance: 27,
+                    distance: 5,
                     speed: 0.0025,
                     color: 0x2ecc71,
                     texture: "drawLocationSurface",
