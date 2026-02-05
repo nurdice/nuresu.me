@@ -6,6 +6,11 @@
     <meta name="theme-color" content="#000000">
     <title>Nur | Mission Control</title>
     <link rel="icon" href="data:,">
+    <!-- Preconnect to CDN servers for faster resource loading -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Preload critical UI assets for faster button appearance -->
     <link rel="preload" href="assets/images/nurwars.png" as="image">
     <style>
@@ -878,8 +883,8 @@
         </button>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="resume_data.js"></script>
+    <!-- jsPDF loaded on-demand when needed for PDF generation -->
+    <script src="resume_data.js" async></script>
     <script type="importmap">
         {
             "imports": {
@@ -894,8 +899,20 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+        // Wait for RESUME_DATA to be available (loaded asynchronously)
+        await new Promise(resolve => {
+            if (window.RESUME_DATA) resolve();
+            else {
+                const checkInterval = setInterval(() => {
+                    if (window.RESUME_DATA) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
+
         const RESUME_DATA = window.RESUME_DATA;
-        const { jsPDF } = window.jspdf;
         
         // Initialize GLTF Loader for 3D models (supports KHR_materials_pbrSpecularGlossiness natively)
         const gltfLoader = new GLTFLoader();
@@ -2580,6 +2597,27 @@
 
         // === PDF GENERATION ===
         window.generatePDF = async (theme) => {
+            // Load jsPDF library if not already loaded
+            if (!window.jspdf) {
+                const modal = document.getElementById('pdf-modal');
+                const originalText = modal.innerHTML;
+                modal.innerHTML = '<div style="color:white;text-align:center">Loading PDF library...<br>Please wait.</div>';
+                
+                try {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                } catch (error) {
+                    modal.innerHTML = '<div style="color:white;text-align:center">Failed to load PDF library.<br>Please try again.</div>';
+                    setTimeout(() => modal.innerHTML = originalText, 2000);
+                    return;
+                }
+            }
+            
             const modal = document.getElementById('pdf-modal');
             const originalText = modal.innerHTML;
             modal.innerHTML = '<div style="color:white;text-align:center">Generating PDF...<br>Please wait.</div>';
