@@ -27,6 +27,66 @@
             z-index: 1;
         }
 
+        .video-story {
+            position: fixed;
+            top: 14%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 86%;
+            max-width: 980px;
+            color: #feda4a;
+            font-family: 'Arial Black', 'Franklin Gothic', sans-serif;
+            font-size: 28px;
+            line-height: 1.8;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            text-shadow: 0 0 28px rgba(254, 218, 74, 0.5);
+        }
+
+        .video-story.active {
+            animation: videoStoryScroll 40s linear forwards;
+            opacity: 1;
+        }
+
+        @keyframes videoStoryScroll {
+            0% { transform: translate(-50%, 30%); opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { transform: translate(-50%, -140%); opacity: 0; }
+        }
+
+        .video-credits {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 40px;
+            overflow: hidden;
+            color: #feda4a;
+            font-family: 'Arial Black', 'Franklin Gothic', sans-serif;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            text-shadow: 0 0 28px rgba(254, 218, 74, 0.5);
+        }
+
+        .video-credits.active {
+            animation: videoCreditsScroll 35s linear forwards;
+            opacity: 1;
+        }
+
+        @keyframes videoCreditsScroll {
+            0% { transform: translateY(100%); opacity: 0; }
+            2% { opacity: 1; }
+            98% { opacity: 1; }
+            100% { transform: translateY(-100%); opacity: 0; }
+        }
+
         #solar-loading-overlay {
             position: fixed;
             inset: 0;
@@ -289,6 +349,7 @@
             cursor: pointer;
             transition: background 0.3s;
             pointer-events: auto;
+            z-index: 2;
         }
         #sky-close:hover { background: rgba(255, 255, 255, 0.3); }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -581,7 +642,7 @@
             .resume-main {
                 order: 0;
             }
-            .mobile-header {
+            if (battlePhase === 'approach') {
                 display: grid;
                 grid-template-columns: 320px 1fr;
                 gap: 40px;
@@ -593,7 +654,12 @@
                 padding-right: 30px;
             }
             .mobile-contact {
-                flex-direction: row;
+                if (deathStar) {
+                    const lookTarget = focusPos.clone().lerp(deathStar.object.position, 0.35);
+                    battleCameraDesiredLook.copy(lookTarget);
+                } else {
+                    battleCameraDesiredLook.copy(focusPos);
+                }
                 flex-wrap: wrap;
                 gap: 12px;
                 align-items: center;
@@ -602,7 +668,12 @@
         }
         
         #back-to-top {
-            position: fixed;
+                if (deathStar) {
+                    const lookTarget = focus.clone().lerp(deathStar.object.position, 0.4);
+                    battleCameraDesiredLook.copy(lookTarget);
+                } else {
+                    battleCameraDesiredLook.copy(focus);
+                }
             bottom: 90px;
             right: 20px;
             width: 40px;
@@ -618,25 +689,30 @@
             transition: transform 0.2s;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        #back-to-top:active { transform: scale(0.9); }
+                if (deathStar) {
+                    const lookTarget = focus.clone().lerp(deathStar.object.position, 0.5);
+                    battleCameraDesiredLook.copy(lookTarget);
+                } else {
+                    battleCameraDesiredLook.copy(focus);
+                }
 
         @media (max-width: 899px) {
             .resume-sidebar {
                 order: 2;
                 margin-top: 40px;
-            }
-            .resume-main {
+                        60 + camWobble,
+                        320 + Math.sin(camOrbit) * 60
                 order: 1;
             }
-        }
+                    battleCameraDesiredLook.copy(deathStar.exhaustPort ? deathStar.exhaustPort.position : deathStar.object.position);
 
         @media print {
             .mobile-buttons, #controls, .hud-btn, #sky-details, #ui-layer, #loading, .mobile-header button {
                 display: none !important;
             }
             #mobile-view {
-                position: relative;
-                height: auto;
+                        80 + camWobble,
+                        280 + Math.sin(camOrbit) * 80
                 overflow: visible;
                 background: white !important;
                 color: black !important;
@@ -644,10 +720,11 @@
             .resume-container {
                 width: 100%;
                 max-width: none;
+                    const pullback = Math.min(Math.max((t - 280) / 20, 0), 1);
                 padding: 0;
-                margin: 0;
-            }
-            body {
+                        Math.cos(camOrbit) * (700 + pullback * 600),
+                        420 + camWobble + pullback * 200,
+                        900 + Math.sin(camOrbit) * 220 + pullback * 600
                 background: white !important;
                 overflow: visible;
             }
@@ -757,6 +834,27 @@
         <!-- Battle Scene -->
         <div id="battle-scene" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
             <canvas id="battle-canvas" style="width: 100%; height: 100%;"></canvas>
+            <div id="battle-video-layer" style="position: absolute; inset: 0; display: none; background: #000; pointer-events: auto;">
+                <video id="battle-video" style="width: 100%; height: 100%; object-fit: cover; display: block;" playsinline preload="metadata"></video>
+                <div id="battle-video-transition" style="position: absolute; inset: 0; background: #000; opacity: 0; transition: opacity 0.6s ease; pointer-events: none;"></div>
+                <div id="battle-video-overlay" style="position: fixed; bottom: 56px; left: 50%; transform: translateX(-50%); text-align: center; color: #feda4a; font-family: 'Arial Black', 'Franklin Gothic', sans-serif; text-shadow: 0 0 20px rgba(254,218,74,0.6); pointer-events: none;">
+                    <div id="battle-video-title" style="font-size: 32px; margin-bottom: 10px; font-weight: bold; letter-spacing: 2px;">REBEL ALLIANCE MISSION</div>
+                    <div id="battle-video-subtitle" style="font-size: 20px; letter-spacing: 1px;">Destroy the Legacy System Death Star</div>
+                    <div id="battle-video-tagline" style="font-size: 16px; margin-top: 8px; opacity: 0.85; font-style: italic;">Use the Force of Business Analysis, Nur...</div>
+                </div>
+                <div id="battle-video-story" class="video-story"></div>
+                <div id="battle-video-credits" class="video-credits"></div>
+                <div id="battle-video-progress" style="position: fixed; top: 90px; left: 30px; right: 30px; display: flex; gap: 12px; align-items: center; opacity: 1; transition: opacity 0.3s ease; z-index: 1002;">
+                    <input id="video-scrubber" type="range" min="0" max="100" value="0" step="0.1" style="flex: 1; accent-color: #feda4a;" aria-label="Video progress">
+                    <div id="video-time" style="min-width: 86px; color: #feda4a; font-family: 'Arial Black', 'Franklin Gothic', sans-serif; font-size: 14px; font-weight: bold; letter-spacing: 1px;">0:00 / 0:00</div>
+                </div>
+                <div id="battle-video-controls" style="position: fixed; top: 30px; right: 30px; display: flex; gap: 10px; align-items: center; opacity: 0; transition: opacity 0.3s ease; z-index: 1002;">
+                    <button id="video-back-btn" class="hud-btn" aria-label="Back 5 seconds" style="padding: 10px 16px; font-size: 14px;">⏪ -5s</button>
+                    <button id="video-play-btn" class="hud-btn" aria-label="Play or pause" style="padding: 10px 16px; font-size: 14px;">⏸️ Pause</button>
+                    <button id="video-forward-btn" class="hud-btn" aria-label="Forward 5 seconds" style="padding: 10px 16px; font-size: 14px;">⏩ +5s</button>
+                    <button id="video-mute-btn" class="hud-btn" aria-label="Toggle sound" style="padding: 10px 16px; font-size: 14px;">🔊</button>
+                </div>
+            </div>
             <div id="battle-hud" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-family: 'Orbitron', serif; text-align: center;">
                 <div style="font-size: 24px; margin-bottom: 10px;">REBEL ALLIANCE MISSION</div>
                 <div style="font-size: 18px;">Destroy the Legacy System Death Star</div>
@@ -765,7 +863,7 @@
         </div>
         
         <!-- Close Button -->
-        <button id="exit-hyperspace-btn" style="position: fixed; top: 20px; left: 20px; background: rgba(255,100,100,0.3); border: 2px solid #FF6464; color: #FF6464; padding: 12px 20px; border-radius: 5px; font-family: 'Orbitron', serif; cursor: pointer; z-index: 1003; display: none; font-weight: bold; pointer-events: auto;">
+        <button id="exit-hyperspace-btn" class="hud-btn" style="position: fixed; top: 20px; left: 20px; background: rgba(255,100,100,0.3); border: 2px solid #FF6464; color: #FF6464; padding: 12px 20px; border-radius: 30px; font-family: 'Poppins', sans-serif; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; z-index: 1003; display: none; font-weight: 600; pointer-events: auto;">
             ⏹ EXIT HYPERSPACE
         </button>
     </div>
@@ -1208,7 +1306,7 @@
             revealLabelsOnNextFrame = true;
         }, 15000);
 
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 5000);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 12000);
         camera.position.set(0, 150, 900); // High viewpoint for better perspective
         
         let webGLRenderer;
@@ -1590,32 +1688,6 @@
         }
 
         // Neptune - Brighter light blue
-        function drawNeptune(ctx, w, h) {
-            const grad = ctx.createLinearGradient(0, 0, 0, h);
-            grad.addColorStop(0, '#5a7a9a');
-            grad.addColorStop(0.2, '#3399ff');
-            grad.addColorStop(0.35, '#66b3ff');
-            grad.addColorStop(0.5, '#99ccff');
-            grad.addColorStop(0.65, '#66b3ff');
-            grad.addColorStop(0.8, '#3399ff');
-            grad.addColorStop(1, '#5a7a9a');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, w, h);
-
-            ctx.globalCompositeOperation = 'overlay';
-            ctx.fillStyle = 'rgba(150, 200, 255, 0.3)';
-            ctx.beginPath();
-            ctx.arc(w * 0.7, h * 0.4, w * 0.12, 0, Math.PI * 2);
-            ctx.fill();
-
-            for(let i = 0; i < 35; i++) {
-                ctx.fillStyle = `rgba(200, 230, 255, ${Math.random() * 0.25})`;
-                ctx.beginPath();
-                ctx.arc(Math.random() * w, Math.random() * h, 50 + Math.random() * 100, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
         // Photorealistic Earth texture using advanced canvas techniques like the sun
         function drawEarth(ctx, w, h) {
             // Base ocean with sophisticated depth gradient
@@ -2283,70 +2355,6 @@
         }
 
 
-        function drawMercury(ctx, w, h) {
-            const grad = ctx.createLinearGradient(0, 0, 0, h);
-            grad.addColorStop(0, '#696969');
-            grad.addColorStop(0.5, '#808080');
-            grad.addColorStop(1, '#505050');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, w, h);
-
-            ctx.globalCompositeOperation = 'multiply';
-            for (let i = 0; i < 300; i++) {
-                const x = Math.random() * w;
-                const y = Math.random() * h;
-                const r = Math.random() * 15 + 2;
-                ctx.beginPath();
-                ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, 0, 0, ${Math.random() * 0.2})`;
-                ctx.fill();
-            }
-        }
-
-        // White texture (English)
-        function drawWhite(ctx, w, h) {
-            ctx.fillStyle = '#f0f0f0';
-            ctx.fillRect(0, 0, w, h);
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.fillStyle = 'rgba(200,200,255,0.1)';
-            ctx.fillRect(0,0,w,h);
-        }
-
-        // Orange texture (Hindi)
-        function drawOrange(ctx, w, h) {
-            ctx.fillStyle = '#ff9900';
-            ctx.fillRect(0, 0, w, h);
-            ctx.globalCompositeOperation = 'screen';
-            ctx.fillStyle = 'rgba(255,200,100,0.2)';
-            for(let i=0; i<50; i++) {
-                ctx.beginPath();
-                ctx.arc(Math.random()*w, Math.random()*h, Math.random()*20, 0, Math.PI*2);
-                ctx.fill();
-            }
-        }
-
-        // Green and Orange texture (Gujarati)
-        function drawGreenOrange(ctx, w, h) {
-            ctx.fillStyle = '#2ecc71'; // Green base
-            ctx.fillRect(0, 0, w, h);
-            
-            ctx.fillStyle = '#ff9900'; // Orange patches
-            for(let i=0; i<40; i++) {
-                ctx.beginPath();
-                ctx.arc(Math.random()*w, Math.random()*h, 30 + Math.random()*50, 0, Math.PI*2);
-                ctx.fill();
-            }
-        }
-
-        // Bluish Green texture (Marathi)
-        function drawBluishGreen(ctx, w, h) {
-            const grad = ctx.createLinearGradient(0, 0, w, h);
-            grad.addColorStop(0, '#1abc9c');
-            grad.addColorStop(1, '#16a085');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, w, h);
-        }
-
         // Texture map for dynamic loading
         const textureMap = {
             "drawRed": drawRed,
@@ -2433,6 +2441,10 @@
             soundEnabled = !soundEnabled;
             const btn = document.getElementById('sound-btn');
             const movieBtn = document.getElementById('nur-wars-sound-btn');
+            const battleVideo = document.getElementById('battle-video');
+            if (battleVideo) {
+                battleVideo.muted = !soundEnabled;
+            }
 
             if (soundEnabled) {
                 btn.textContent = '🔊 Sound On';
@@ -3338,6 +3350,47 @@
         scene.add(upperStarMesh);
         window.upperStarMesh = upperStarMesh; // Make accessible globally for animation
 
+        // === ADD DISTANT GALAXIES TO SOLAR SYSTEM ===
+        const solarGalaxyPositions = [
+            { x: -1800, y: 700, z: -2200, rotX: 0.3, rotY: 0.8, rotZ: 0.2, scale: 320 },
+            { x: 1600, y: -500, z: -2600, rotX: -0.5, rotY: 1.2, rotZ: -0.3, scale: 300 },
+            { x: 1100, y: 900, z: -2000, rotX: 0.8, rotY: -0.4, rotZ: 0.6, scale: 280 },
+            { x: -1400, y: -800, z: -2400, rotX: -0.2, rotY: 1.5, rotZ: 0.4, scale: 310 },
+            { x: 2000, y: 450, z: -3200, rotX: 0.6, rotY: -1.1, rotZ: -0.5, scale: 340 },
+            { x: -2200, y: 200, z: -2800, rotX: -0.7, rotY: 0.5, rotZ: 0.8, scale: 330 }
+        ];
+        
+        gltfLoader.load(
+            'assets/models/galaxy/scene.gltf',
+            (gltf) => {
+                solarGalaxyPositions.forEach((pos, index) => {
+                    const galaxy = gltf.scene.clone();
+                    galaxy.traverse((node) => {
+                        if (node.isMesh) {
+                            node.castShadow = false;
+                            node.receiveShadow = false;
+                            if (node.material) {
+                                node.material.side = THREE.DoubleSide;
+                                if (node.material.emissive) {
+                                    node.material.emissive.setHex(0xffffff);
+                                    node.material.emissiveIntensity = 1.2;
+                                }
+                            }
+                        }
+                    });
+                    galaxy.scale.set(pos.scale, pos.scale, pos.scale);
+                    galaxy.position.set(pos.x, pos.y, pos.z);
+                    galaxy.rotation.set(pos.rotX, pos.rotY, pos.rotZ);
+                    scene.add(galaxy);
+                });
+                console.log('Galaxies added to solar system:', solarGalaxyPositions.length);
+            },
+            undefined,
+            (error) => {
+                console.error('Error loading galaxies for solar system:', error);
+            }
+        );
+
         // === ADD NEBULA CLOUDS IN CRAWL AREA FOR DEPTH ===
         for (let i = 0; i < 3; i++) {
             const nebulaGeo = new THREE.PlaneGeometry(3000, 2000);
@@ -3378,94 +3431,6 @@
             nebulaMesh.layers.set(0);
             scene.add(nebulaMesh);
         }
-
-        // === IMPROVED REALISTIC GALAXIES WITH VARIED COLORS ===
-        function createGalaxy(colorScheme = 0) {
-            const colors = [
-                { core: 'rgba(255, 200, 100, 0.4)', arms: 'rgba(255, 150, 200, 0.3)', wisps: 'rgba(200, 100, 255, 0.15)' },
-                { core: 'rgba(150, 200, 255, 0.4)', arms: 'rgba(100, 200, 255, 0.3)', wisps: 'rgba(200, 200, 255, 0.15)' },
-                { core: 'rgba(200, 100, 200, 0.4)', arms: 'rgba(150, 100, 255, 0.3)', wisps: 'rgba(150, 50, 255, 0.15)' },
-                { core: 'rgba(255, 150, 100, 0.4)', arms: 'rgba(255, 100, 50, 0.3)', wisps: 'rgba(255, 150, 100, 0.15)' }
-            ];
-            
-            const color = colors[colorScheme % colors.length];
-            
-            const texture = createCanvasTexture(512, 512, (ctx, w, h) => {
-                // Realistic galaxy with disk
-                const coreGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
-                coreGrad.addColorStop(0, color.core);
-                coreGrad.addColorStop(0.3, color.core.replace('0.4', '0.25'));
-                coreGrad.addColorStop(0.6, color.core.replace('0.4', '0.1'));
-                coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = coreGrad;
-                ctx.fillRect(0, 0, w, h);
-
-                // Realistic spiral arms
-                ctx.globalCompositeOperation = 'lighter';
-                for(let arm = 0; arm < 4; arm++) {
-                    for(let i = 0; i < 100; i++) {
-                        const t = i / 100;
-                        const angle = arm * Math.PI / 2 + t * Math.PI * 4;
-                        const r = t * w * 0.45;
-                        const x = w/2 + Math.cos(angle) * r;
-                        const y = h/2 + Math.sin(angle) * r;
-                        
-                        const opacity = (1 - t * 0.8);
-                        ctx.fillStyle = color.arms.replace(/[\d.]+\)$/, `${opacity * 0.3})`);
-                        ctx.beginPath();
-                        ctx.arc(x, y, 15 + t * 20, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-
-                // Dust lanes
-                ctx.globalCompositeOperation = 'multiply';
-                const dustGrad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
-                dustGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-                dustGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)');
-                dustGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = dustGrad;
-                ctx.fillRect(0, 0, w, h);
-
-                // Star clusters
-                ctx.globalCompositeOperation = 'screen';
-                for(let i = 0; i < 100; i++) {
-                    const x = Math.random() * w;
-                    const y = Math.random() * h;
-                    ctx.fillStyle = color.wisps.replace(/[\d.]+\)$/, `${Math.random() * 0.3})`);
-                    ctx.beginPath();
-                    ctx.arc(x, y, Math.random() * 3 + 1, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            });
-
-            const spriteMat = new THREE.SpriteMaterial({ 
-                map: texture, 
-                transparent: true, 
-                sizeAttenuation: true,
-                fog: true
-            });
-            const sprite = new THREE.Sprite(spriteMat);
-            sprite.scale.set(250, 250, 1);
-            return sprite;
-        }
-
-        // Add realistic galaxies with varied colors
-        const galaxyPositions = [
-            { x: 600, y: 400, z: -2500, color: 0 },
-            { x: -700, y: -300, z: -2700, color: 1 },
-            { x: 400, y: -600, z: -2400, color: 2 },
-            { x: -500, y: 500, z: -2600, color: 3 },
-            { x: 800, y: -400, z: -2800, color: 0 },
-            { x: -300, y: 700, z: -2300, color: 1 },
-            { x: 300, y: 200, z: -2550, color: 2 }
-        ];
-
-        galaxyPositions.forEach((pos, idx) => {
-            const galaxy = createGalaxy(pos.color);
-            galaxy.position.set(pos.x, pos.y, pos.z);
-            scene.add(galaxy);
-        });
 
         function getPlanetModelPath(planetName) {
             const name = (planetName || '').toLowerCase();
@@ -3776,6 +3741,7 @@
         const mouse = new THREE.Vector2();
         let isDragging = false;
         let mouseDownPos = { x: 0, y: 0 };
+        let lastWheelTime = 0;
 
         window.addEventListener('mousemove', (event) => {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -3811,14 +3777,22 @@
             }, 0);
         });
 
-        window.addEventListener('click', onMouseClick);
+        window.addEventListener('click', (event) => onMouseClick(event));
 
-        function onMouseClick() {
+        function onMouseClick(event) {
             if (isDragging) {
                 isDragging = false;
                 return;
             }
             isDragging = false;
+
+            const skyDetails = document.getElementById('sky-details');
+            if (skyDetails && skyDetails.style.display === 'block') {
+                if (!skyDetails.contains(event.target)) {
+                    closeSkyModal();
+                    return;
+                }
+            }
             raycaster.setFromCamera(mouse, camera);
             // Recursive true to hit parts of the spaceship group
             const intersects = raycaster.intersectObjects(clickableObjects, true);
@@ -3830,6 +3804,10 @@
                     target = target.parent; 
                 }
                 
+                if (target.userData.isSun && (Date.now() - lastWheelTime) < 250) {
+                    return;
+                }
+
                 if (target.userData.isBlackHole) {
                     triggerBlackHoleSuction();
                 } else if (target.userData.isSpaceship) {
@@ -3839,7 +3817,6 @@
                 }
             } else {
                 // Clicked on empty space - try to go back to previous view
-                const skyDetails = document.getElementById('sky-details');
                 const overlayPanel = document.getElementById('overlay-panel');
                 
                 // If modals are open, close them first
@@ -3888,6 +3865,40 @@
 
             // Disable controls during animation
             controls.enabled = false;
+
+            // Stop current audio and play blackhole audio
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            
+            // Show controls container and mute button for blackhole audio control
+            const controlsContainer = document.getElementById('battle-video-controls');
+            if (controlsContainer) {
+                controlsContainer.style.display = 'flex';
+                controlsContainer.style.opacity = '1';
+            }
+            const muteBtn = document.getElementById('video-mute-btn');
+            if (muteBtn) {
+                muteBtn.style.display = 'block';
+                muteBtn.textContent = '🔊'; // Start with sound on
+            }
+            
+            // Create and play blackhole audio
+            const blackholeAudio = new Audio('assets/audio/black%20hole%20sound.mp3');
+            blackholeAudio.loop = true;
+            blackholeAudio.volume = 0.4;
+            // Set currentAudio so mute controls work with blackhole audio
+            currentAudio = blackholeAudio;
+            
+            // Attempt to play with gesture-based resume if needed
+            blackholeAudio.play().catch(err => {
+                console.log('Blackhole audio auto-play blocked, waiting for user gesture');
+                // Will play on next user interaction
+            });
+            
+            // Store reference for cleanup if needed
+            window.currentBlackholeAudio = blackholeAudio;
 
             blackHoleGroup.scale.set(1, 1, 1);
 
@@ -5131,6 +5142,20 @@
         let modelsToLoad = 0;
         let modelsLoaded = 0;
         let battleReady = false;
+        let battleVideoMode = true;
+        let battleVideoIdleTimer = null;
+        let showingBattleVideoCredits = false;
+        let currentBattleVideoMeta = null;
+        const battleVideoSources = [
+            'assets/videos/Episode 1 battle.mp4',
+            'assets/videos/Episode 2 battle.mp4',
+            'assets/videos/Episode 3 battle.mp4',
+            'assets/videos/Episode 4 battle.mp4',
+            'assets/videos/Episode 5 battle.mp4',
+            'assets/videos/Episode 6 battle.mp4',
+            'assets/videos/Rogue 1 Battle.mp4',
+            'assets/videos/SOLO battle.mp4'
+        ];
         
         function setNurWarsTimeout(callback, delay) {
             const id = setTimeout(callback, delay);
@@ -5198,6 +5223,24 @@
             movieStartTime = Date.now();
             moviePauseTime = 0;
             renderMode = 'default'; // Start in default mode (solar system view)
+            
+            // Pre-load battle video metadata if in video mode
+            if (battleVideoMode && !currentBattleVideoMeta) {
+                const videoSrc = getRandomBattleVideoSrc();
+                currentBattleVideoMeta = getBattleVideoMeta(videoSrc);
+            }
+            
+            // Show video controls immediately (for the entire experience: story + video + credits)
+            if (battleVideoMode) {
+                const videoLayer = document.getElementById('battle-video-layer');
+                const videoControls = document.getElementById('battle-video-controls');
+                const videoProgress = document.getElementById('battle-video-progress');
+                
+                if (videoLayer) videoLayer.style.display = 'block';
+                if (videoControls) videoControls.style.opacity = '1';
+                // Hide progress bar (scrubber removed)
+                if (videoProgress) videoProgress.style.display = 'none';
+            }
             
             // Enable sound automatically for NUR WARS
             if (!soundEnabled) {
@@ -5291,6 +5334,908 @@
         function easeInOut(t) {
             return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         }
+
+        function getRandomBattleVideoSrc() {
+            const pick = battleVideoSources[Math.floor(Math.random() * battleVideoSources.length)];
+            return encodeURI(pick);
+        }
+
+        function getBattleVideoMeta(src) {
+            const name = decodeURI(src).split('/').pop() || '';
+            const key = name.replace('.mp4', '').trim();
+            const base = {
+                overlayTitle: 'REBEL ALLIANCE MISSION',
+                overlaySubtitle: 'Destroy the Legacy System Death Star',
+                overlayTagline: 'Use the Force of Business Analysis, Nur...',
+                storyDuration: 22
+            };
+                        const metaMap = {
+                'Episode 1 battle': {
+                    movie: 'Episode I — The Phantom Menace',
+                    overlayTitle: 'THE PHANTOM MENACE ENGAGEMENT',
+                    overlaySubtitle: 'Battle of Naboo — Droid Control Ship Assault',
+                    overlayTagline: 'Navigate chaos. Deliver precision. Transform outcomes.',
+                    story: [
+                        'Episode I: The Phantom Menace',
+                        '',
+                        'As Republic forces engage the Trade Federation blockade over Naboo, young Anakin Skywalker pilots a starfighter into the heart of the Droid Control Ship.',
+                        '',
+                        'The battle is chaotic—squadrons swarm, fighters weave through heavy fire, and the mission teeters on a knife\'s edge.',
+                        '',
+                        'NUR DAWOODANI excels in high-velocity transformations where agility and rapid stakeholder alignment are essential. Leading multi-phase system overhauls at Lululemon and HSBC, Nur orchestrated complex technical migrations while maintaining operational stability.',
+                        '',
+                        'Like Anakin\'s improbable strike that neutralizes the droid army, Nur delivers decisive results through precise planning and adaptive execution.',
+                        '',
+                        'When systems must evolve under pressure, Nur charts the path forward.'
+                    ],
+                    storyDuration: 32,
+                    credits: [
+                        '',
+                        '',
+                        'MISSION IMPACT',
+                        '',
+                        'Episode I: The Phantom Menace',
+                        'Battle of Naboo — Droid Control Ship Assault',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'NUR DAWOODANI',
+                        'Senior Business Analyst',
+                        '',
+                        'Demonstrated Impact:',
+                        '',
+                        '• Led complex system migrations maintaining 100% uptime',
+                        '• Delivered $2M+ revenue through AI-driven product features',
+                        '• Orchestrated cross-functional teams across retail & banking domains',
+                        '• Achieved 40% efficiency gains through process optimization',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'Core Competencies:',
+                        'SAFe Agile • Stakeholder Management',
+                        'Technical Architecture • Risk Mitigation',
+                        'Digital Transformation • Process Excellence',
+                        '',
+                        '18+ Years Driving Strategic Outcomes',
+                        'Across Retail & Financial Services',
+                        '',
+                        '',
+                        'END TRANSMISSION'
+                    ]
+                },
+                'Episode 2 battle': {
+                    movie: 'Episode II — Attack of the Clones',
+                    overlayTitle: 'ATTACK OF THE CLONES — GEONOSIS ARENA',
+                    overlaySubtitle: 'Battle of Geonosis — Republic Clone Army Debut',
+                    overlayTagline: 'Coordinate. Execute. Overcome impossible odds.',
+                    story: [
+                        'Episode II: Attack of the Clones',
+                        '',
+                        'The Battle of Geonosis erupts as the newly formed Clone Army makes its first appearance. Jedi forces are surrounded in the execution arena while Separatist droid armies mass on all sides.',
+                        '',
+                        'Republic gunships swoop in, extracting survivors and deploying clone battalions across multiple fronts. Success depends on split-second coordination across dozens of moving pieces.',
+                        '',
+                        'NUR DAWOODANI specializes in complex, multi-stakeholder initiatives where coordination is mission-critical. At Lululemon, Nur orchestrated parallel workstreams across technology, operations, and business teams during the Inventory Transformation initiative.',
+                        '',
+                        'At HSBC, Nur managed intricate dependencies across regional banking systems, ensuring seamless integration of new credit workflows.',
+                        '',
+                        'Like the Republic\'s synchronized rescue operation, Nur delivers cohesive results from fragmented starting points.'
+                    ],
+                    storyDuration: 32,
+                    credits: [
+                        '',
+                        '',
+                        'MISSION IMPACT',
+                        '',
+                        'Episode II: Attack of the Clones',
+                        'Battle of Geonosis — Republic Clone Army Debut',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'NUR DAWOODANI',
+                        'Senior Business Analyst',
+                        '',
+                        'Multi-Stakeholder Leadership:',
+                        '',
+                        '• Coordinated 12+ cross-functional teams simultaneously',
+                        '• Managed technical dependencies across 5 regional systems',
+                        '• Delivered £1.5M annual savings through process redesign',
+                        '• Eliminated 2M+ paper documents via digital transformation',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'Transformation Portfolio:',
+                        'Inventory Management Overhaul (Lululemon)',
+                        'Credit Workflow Modernization (HSBC)',
+                        'Paperless Operations Initiative',
+                        '',
+                        'Proven ability to orchestrate complex change',
+                        'across distributed teams and competing priorities',
+                        '',
+                        '',
+                        'END TRANSMISSION'
+                    ]
+                },
+                'Episode 3 battle': {
+                    movie: 'Episode III — Revenge of the Sith',
+                    overlayTitle: 'REVENGE OF THE SITH — CORUSCANT SIEGE',
+                    overlaySubtitle: 'Battle Over Coruscant — Rescue Mission',
+                    overlayTagline: 'Navigate complexity. Deliver under pressure.',
+                    story: [
+                        'Episode III: Revenge of the Sith',
+                        '',
+                        'The opening space battle over Coruscant represents one of the war\'s most intense engagements. Obi-Wan and Anakin weave through a massive fleet clash to rescue Chancellor Palpatine from General Grievous\'s flagship.',
+                        '',
+                        'Capital ships exchange fire while hundreds of fighters dogfight in close quarters. Every maneuver carries risk; every decision matters.',
+                        '',
+                        'NUR DAWOODANI thrives in high-stakes environments where technical precision meets business urgency. During Lululemon\'s Great Revamp project, Nur guided architectural decisions that prevented scalability collapse while maintaining aggressive delivery timelines.',
+                        '',
+                        'At HSBC, Nur navigated regulatory constraints and legacy system dependencies to deliver critical mortgage servicing enhancements on schedule.',
+                        '',
+                        'Where others see obstacles, Nur identifies pathways to success.'
+                    ],
+                    storyDuration: 32,
+                    credits: [
+                        '',
+                        '',
+                        'MISSION IMPACT',
+                        '',
+                        'Episode III: Revenge of the Sith',
+                        'Battle Over Coruscant — Rescue Mission',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'NUR DAWOODANI',
+                        'Senior Business Analyst',
+                        '',
+                        'High-Stakes Delivery:',
+                        '',
+                        '• Prevented system scalability collapse (Lululemon Great Revamp)',
+                        '• Delivered mortgage servicing under strict regulatory timelines',
+                        '• Managed £3M+ budget allocation across technical initiatives',
+                        '• Zero critical defects in production releases',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'Technical Leadership:',
+                        'Enterprise Architecture Decision-Making',
+                        'Legacy System Integration & Modernization',
+                        'Regulatory Compliance & Risk Management',
+                        '',
+                        'Trusted advisor for mission-critical initiatives',
+                        'where technical excellence meets business impact',
+                        '',
+                        '',
+                        'END TRANSMISSION'
+                    ]
+                },
+                'Episode 4 battle': {
+                    movie: 'Episode IV — A New Hope',
+                    overlayTitle: 'A NEW HOPE — DEATH STAR ASSAULT',
+                    overlaySubtitle: 'Battle of Yavin — Trench Run',
+                    overlayTagline: 'One shot. Total focus. Mission success.',
+                    story: [
+                        'Episode IV: A New Hope',
+                        '',
+                        'The Rebel Alliance launches a desperate assault on the Death Star above Yavin. X-wing squadrons face overwhelming odds, navigating surface trenches while TIE fighters and turbolasers exact a heavy toll.',
+                        '',
+                        'Luke Skywalker\'s final approach to the thermal exhaust port represents the mission\'s critical moment—a narrow window where precision determines survival.',
+                        '',
+                        'NUR DAWOODANI excels at identifying and executing high-impact interventions. At Lululemon, Nur\'s AI-driven Product Highlights feature generated $2M+ in annual revenue by enhancing the customer discovery experience at a critical conversion point.',
+                        '',
+                        'At HSBC, Nur\'s process optimization reduced credit application turnaround by 35%, directly improving customer satisfaction scores.',
+                        '',
+                        'Like Luke\'s shot that saves the Rebellion, Nur delivers transformative results through focused, data-driven execution.'
+                    ],
+                    storyDuration: 32,
+                    credits: [
+                        '',
+                        '',
+                        'MISSION IMPACT',
+                        '',
+                        'Episode IV: A New Hope',
+                        'Battle of Yavin — Death Star Trench Run',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'NUR DAWOODANI',
+                        'Senior Business Analyst',
+                        '',
+                        'Revenue & Efficiency Impact:',
+                        '',
+                        '• Generated $2M+ annual revenue (AI Product Highlights)',
+                        '• Reduced credit turnaround time by 35%',
+                        '• Improved customer satisfaction scores by 28%',
+                        '• Delivered 40% operational efficiency gains',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'Innovation Leadership:',
+                        'AI/ML Feature Development',
+                        'Customer Experience Optimization',
+                        'Data-Driven Process Enhancement',
+                        '',
+                        'Combines technical depth with commercial insight',
+                        'to deliver measurable business outcomes',
+                        '',
+                        '',
+                        'END TRANSMISSION'
+                    ]
+                },
+                'Episode 5 battle': {
+                    movie: 'Episode V — The Empire Strikes Back',
+                    overlayTitle: 'THE EMPIRE STRIKES BACK — HOTH DEFENSE',
+                    overlaySubtitle: 'Battle of Hoth — Evacuation Under Fire',
+                    overlayTagline: 'Adapt. Protect. Execute under duress.',
+                    story: [
+                        'Episode V: The Empire Strikes Back',
+                        '',
+                        'The Rebel base on Hoth faces an overwhelming Imperial assault. AT-AT walkers advance across the ice plains while Star Destroyers blockade orbital escape routes.',
+                        '',
+                        'Rebel forces execute a phased evacuation—snowspeeders buy time, ion cannon creates windows for transports, and every moment counts. Survival depends on disciplined execution under extreme pressure.',
+                        '',
+                        'NUR DAWOODANI has repeatedly delivered under adverse conditions where traditional approaches fail. During HSBC\'s legacy system migration, Nur maintained operational continuity while replacing critical mortgage servicing infrastructure.',
+                        '',
+                        'At Lululemon, Nur guided the team through production incidents during peak holiday traffic, implementing real-time mitigations that preserved revenue streams.',
+                        '',
+                        'When systems are under fire, Nur keeps the mission on track.'
+                    ],
+                    storyDuration: 32,
+                    credits: [
+                        '',
+                        '',
+                        'MISSION IMPACT',
+                        '',
+                        'Episode V: The Empire Strikes Back',
+                        'Battle of Hoth — Evacuation Under Fire',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'NUR DAWOODANI',
+                        'Senior Business Analyst',
+                        '',
+                        'Crisis Management & Resilience:',
+                        '',
+                        '• Maintained 100% uptime during legacy system migration',
+                        '• Protected $5M+ holiday revenue during critical incidents',
+                        '• Delivered seamless mortgage infrastructure replacement',
+                        '• Zero customer-facing disruption across major changes',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'Operational Excellence:',
+                        'Business Continuity Planning',
+                        'Incident Response & Resolution',
+                        'Risk Mitigation Strategy',
+                        '',
+                        'Proven track record protecting operations',
+                        'during high-risk transformation initiatives',
+                        '',
+                        '',
+                        'END TRANSMISSION'
+                    ]
+                },
+                'Episode 6 battle': {
+                    movie: 'Episode VI — Return of the Jedi',
+                    overlayTitle: 'RETURN OF THE JEDI — ENDOR ASSAULT',
+                    overlaySubtitle: 'Battle of Endor — Multi-Front Victory',
+                    overlayTagline: 'Synchronize. Strike. Achieve total victory.',
+                    story: [
+                        'Episode VI: Return of the Jedi',
+                        '',
+                        'The Battle of Endor unfolds on three fronts: ground forces disable the shield generator, space fighters engage Star Destroyers, and the Millennium Falcon penetrates the second Death Star\'s superstructure.',
+                        '',
+                        'Success requires perfect synchronization—each element depends on the others, and timing is everything. When the shield drops, the fleet must be in position.',
+                        '',
+                        'NUR DAWOODANI orchestrates complex, interdependent initiatives where alignment determines success. The Lululemon Inventory Transformation required parallel changes across warehouse operations, e-commerce systems, and physical stores—all synchronized to a single cutover window.',
+                        '',
+                        'At HSBC, Nur coordinated regulatory compliance updates across credit, mortgage, and lending systems while maintaining existing service levels.',
+                        '',
+                        'Like the Alliance\'s multi-front strategy, Nur delivers cohesive victories from complex engagements.'
+                    ],
+                    storyDuration: 32,
+                    credits: [
+                        '',
+                        '',
+                        'MISSION IMPACT',
+                        '',
+                        'Episode VI: Return of the Jedi',
+                        'Battle of Endor — Multi-Front Victory',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'NUR DAWOODANI',
+                        'Senior Business Analyst',
+                        '',
+                        'Enterprise Transformation:',
+                        '',
+                        '• Synchronized warehouse, e-commerce, retail systems cutover',
+                        '• Coordinated regulatory updates across 5 product lines',
+                        '• Delivered $4M+ transformation portfolio on schedule',
+                        '• Achieved seamless multi-system integration',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'Strategic Delivery:',
+                        'End-to-End Program Management',
+                        'Multi-Domain System Integration',
+                        'Enterprise-Wide Change Orchestration',
+                        '',
+                        'Expert at aligning technology, process, and people',
+                        'to deliver transformative business outcomes',
+                        '',
+                        '',
+                        'END TRANSMISSION'
+                    ]
+                },
+                'Rogue 1 Battle': {
+                    movie: 'Rogue One',
+                    overlayTitle: 'ROGUE ONE — SCARIF INFILTRATION',
+                    overlaySubtitle: 'Battle of Scarif — Data Heist',
+                    overlayTagline: 'High risk. High reward. Mission accomplished.',
+                    story: [
+                        'Rogue One: A Star Wars Story',
+                        '',
+                        'The Battle of Scarif is a desperate gambit—Rogue One infiltrates an Imperial archive facility to steal Death Star plans while a space battle rages overhead.',
+                        '',
+                        'The mission is unauthorized, the odds are impossible, and every second counts. Success requires bold execution, technical precision, and unwavering focus.',
+                        '',
+                        'NUR DAWOODANI embraces calculated risks that deliver disproportionate value. The Paperless Initiative at HSBC eliminated 2M+ documents annually—a bold process overhaul requiring stakeholder buy-in across conservative banking operations.',
+                        '',
+                        'At Lululemon, Nur championed AI-driven merchandising features when machine learning was still emerging in retail, ultimately generating $2M+ in revenue.',
+                        '',
+                        'Like Rogue One\'s mission, Nur identifies opportunities others miss and executes with discipline.'
+                    ],
+                    storyDuration: 32,
+                    credits: [
+                        '',
+                        '',
+                        'MISSION IMPACT',
+                        '',
+                        'Rogue One: A Star Wars Story',
+                        'Battle of Scarif — Data Heist',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'NUR DAWOODANI',
+                        'Senior Business Analyst',
+                        '',
+                        'Innovation & Bold Execution:',
+                        '',
+                        '• Eliminated 2M+ paper documents annually (Paperless Initiative)',
+                        '• Pioneered AI-driven merchandising ($2M+ revenue impact)',
+                        '• Delivered first-to-market features ahead of competition',
+                        '• Achieved £1.5M annual operational savings',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'Change Leadership:',
+                        'Digital Transformation Strategy',
+                        'Innovation Pipeline Development',
+                        'Stakeholder Advocacy & Buy-In',
+                        '',
+                        'Identifies high-value opportunities and builds',
+                        'the coalitions necessary to deliver them',
+                        '',
+                        '',
+                        'END TRANSMISSION'
+                    ]
+                },
+                'SOLO battle': {
+                    movie: 'Solo',
+                    overlayTitle: 'SOLO — KESSEL RUN ESCAPE',
+                    overlaySubtitle: 'The Kessel Run — 12 Parsecs',
+                    overlayTagline: 'Think fast. Fly faster. Deliver impossible results.',
+                    story: [
+                        'Solo: A Star Wars Story',
+                        '',
+                        'Han Solo\'s legendary Kessel Run pushes the Millennium Falcon to its limits. The route requires navigating unstable gravity wells, Imperial patrols, and a collapsing star cluster—all while racing against time.',
+                        '',
+                        'Success demands improvisation, technical mastery, and absolute confidence under pressure. The mission should be impossible, but Han finds the angle others miss.',
+                        '',
+                        'NUR DAWOODANI consistently delivers "impossible" results through creative problem-solving and technical innovation. During Lululemon\'s platform migration, Nur identified an architectural approach that reduced risk by 60% while accelerating the timeline.',
+                        '',
+                        'At HSBC, Nur\'s process redesign compressed a 6-month initiative into 3 months without sacrificing quality or compliance.',
+                        '',
+                        'Like Han\'s run, Nur finds the shorter path and executes flawlessly.'
+                    ],
+                    storyDuration: 32,
+                    credits: [
+                        '',
+                        '',
+                        'MISSION IMPACT',
+                        '',
+                        'Solo: A Star Wars Story',
+                        'The Kessel Run — Record Time Delivery',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'NUR DAWOODANI',
+                        'Senior Business Analyst',
+                        '',
+                        'Speed & Innovation:',
+                        '',
+                        '• Reduced project risk by 60% through architectural innovation',
+                        '• Compressed 6-month initiatives to 3 months',
+                        '• Delivered 40% efficiency improvements via creative solutions',
+                        '• Maintained quality while accelerating timelines',
+                        '',
+                        '━━━━━━━━━━━━━━━━━━━━',
+                        '',
+                        'Problem-Solving Excellence:',
+                        'Creative Technical Solutions',
+                        'Rapid Prototyping & Validation',
+                        'Fast-Track Delivery Methods',
+                        '',
+                        'Combines strategic thinking with tactical execution',
+                        'to deliver exceptional results under tight constraints',
+                        '',
+                        '',
+                        'END TRANSMISSION'
+                    ]
+                }
+            };
+            return { ...base, ...(metaMap[key] || {}) };
+        }
+
+        function formatTime(seconds) {
+            if (!Number.isFinite(seconds)) return '0:00';
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function updateBattleVideoControls() {
+            const video = document.getElementById('battle-video');
+            const playBtn = document.getElementById('video-play-btn');
+            const muteBtn = document.getElementById('video-mute-btn');
+            if (!video || !playBtn || !muteBtn) return;
+            playBtn.textContent = video.paused ? '▶️ Play' : '⏸️ Pause';
+            muteBtn.textContent = video.muted ? '🔇' : '🔊';
+        }
+
+        function updateBattleVideoProgress() {
+            const video = document.getElementById('battle-video');
+            const scrubber = document.getElementById('video-scrubber');
+            const timeLabel = document.getElementById('video-time');
+            if (!video || !scrubber || !timeLabel) return;
+            
+            // Total duration = crawl story (35s) + video + credits (20s)
+            const storyDuration = 35;
+            const creditsDuration = 20;
+            const videoDuration = Number.isFinite(video.duration) ? video.duration : 90;
+            const totalDuration = storyDuration + videoDuration + creditsDuration;
+            
+            // Calculate elapsed time based on current video position
+            // During video playback, we're past the story (35s) and within video duration
+            const videoElapsed = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+            const totalElapsed = storyDuration + videoElapsed;
+            
+            scrubber.max = totalDuration;
+            scrubber.value = totalElapsed;
+            timeLabel.textContent = `${formatTime(totalElapsed)} / ${formatTime(totalDuration)}`;
+        }
+
+        function showBattleVideoControls() {
+            const controls = document.getElementById('battle-video-controls');
+            const progress = document.getElementById('battle-video-progress');
+            if (!controls || !progress) return;
+            controls.style.opacity = '1';
+            // Progress bar always visible
+            progress.style.opacity = '1';
+            if (battleVideoIdleTimer) clearTimeout(battleVideoIdleTimer);
+            // Keep controls visible during credits
+            if (!showingBattleVideoCredits) {
+                battleVideoIdleTimer = setTimeout(() => {
+                    controls.style.opacity = '0';
+                    // Keep progress visible
+                    progress.style.opacity = '1';
+                }, 2000);
+            }
+        }
+
+        function toggleBattleVideoPlayPause() {
+            const video = document.getElementById('battle-video');
+            if (!video) return;
+            if (video.paused) {
+                video.play().catch(() => {});
+            } else {
+                video.pause();
+            }
+            updateBattleVideoControls();
+        }
+
+        function skipBattleVideo(seconds) {
+            const video = document.getElementById('battle-video');
+            if (!video || Number.isNaN(video.duration)) return;
+            const nextTime = Math.max(0, Math.min(video.currentTime + seconds, video.duration));
+            video.currentTime = nextTime;
+            updateBattleVideoProgress();
+        }
+
+        function toggleBattleVideoMute() {
+            const video = document.getElementById('battle-video');
+            const muteBtn = document.getElementById('video-mute-btn');
+            
+            // If blackhole audio is playing, mute that instead
+            if (window.currentBlackholeAudio) {
+                window.currentBlackholeAudio.muted = !window.currentBlackholeAudio.muted;
+                if (muteBtn) {
+                    muteBtn.textContent = window.currentBlackholeAudio.muted ? '🔇' : '🔊';
+                }
+            } else if (video) {
+                // Otherwise mute the video
+                video.muted = !video.muted;
+                soundEnabled = !video.muted;
+                const btn = document.getElementById('sound-btn');
+                if (btn) btn.textContent = soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
+                updateBattleVideoControls();
+            }
+        }
+
+        function applyBattleVideoMeta(meta) {
+            const title = document.getElementById('battle-video-title');
+            const subtitle = document.getElementById('battle-video-subtitle');
+            const tagline = document.getElementById('battle-video-tagline');
+
+            if (title) title.textContent = meta.overlayTitle || '';
+            if (subtitle) subtitle.textContent = meta.overlaySubtitle || '';
+            if (tagline) tagline.textContent = meta.overlayTagline || '';
+        }
+
+        function showBattleVideoCredits(meta) {
+            showingBattleVideoCredits = true;
+            // Hide video controls during credits
+            const controls = document.getElementById('battle-video-controls');
+            if (controls) controls.style.display = 'none';
+            
+            const credits = document.getElementById('battle-video-credits');
+            const story = document.getElementById('battle-video-story');
+            if (story) story.classList.remove('active');
+            if (!credits) return;
+            
+            // Generate narrative-driven credits that connect battle events to resume achievements
+            const narrativeCredits = generateNarrativeCredits(meta);
+            
+            credits.innerHTML = `<div style="width: 100%; max-width: 800px; margin: 0 auto; line-height: 1.8;\">${narrativeCredits.map(line => {
+                if (line === '') return '<div style="height: 18px;"></div>';
+                if (line.includes('━')) return `<div style="font-size: 16px; opacity: 0.6; margin: 14px 0;">${line}</div>`;
+                if (line.includes('MISSION COMPLETE') || line.includes('END TRANSMISSION')) return `<div style="font-size: 24px; font-weight: bold; margin: 20px 0;">${line}</div>`;
+                if (line.includes('NUR DAWOODANI')) return `<div style="font-size: 32px; font-weight: 900; margin: 12px 0; letter-spacing: 2px;">${line}</div>`;
+                if (line.includes('Senior Business Analyst') || line.includes('Achievement') || line.includes('Narrative') || line.includes('Skills')) return `<div style="font-size: 18px; opacity: 0.85; margin: 8px 0; font-weight: bold;">${line}</div>`;
+                if (line.startsWith('•') || line.startsWith('★')) return `<div style="font-size: 16px; margin: 6px 0 6px 20px; opacity: 0.9;">${line}</div>`;
+                return `<div style="font-size: 17px; margin: 10px 0;">${line}</div>`;
+            }).join('')}</div>`;
+            void credits.offsetWidth;
+            credits.classList.add('active');
+        }
+        
+        function generateNarrativeCredits(meta) {
+            // Generate story-specific credits that narrate what happened and connect to resume
+            const battleName = meta.overlayTitle || 'TACTICAL ENGAGEMENT';
+            const battleSubtitle = meta.overlaySubtitle || 'Strategic Operation';
+            
+            const narrativeMap = {
+                'THE PHANTOM MENACE ENGAGEMENT': {
+                    opening: 'The blockade was absolute. The odds insurmountable. Yet one analyst saw the path through chaos.',
+                    climax: 'As enemy defenses crumbled, precision prevailed over overwhelming force.',
+                    narrative: 'Nur Dawoodani orchestrated rapid transformations under extreme pressure. Systems that seemed impossible to evolve were rebuilt in weeks, not months. Agility was the weapon that won this battle.',
+                    closing: 'In the silence after victory, a new era of digital agility began.'
+                },
+                'ATTACK OF THE CLONES — GEONOSIS ARENA': {
+                    opening: 'The enemy activated twelve separate fronts. Synchronization seemed impossible. Communication was fragmented. Stakes were highest they had ever been.',
+                    climax: 'Through precision orchestration, twelve independent teams moved as one organism.',
+                    narrative: 'Nur orchestrated cross-functional teams across competing business units. Dependencies that threatened collapse were managed with surgical precision. Leadership proved that coordination across chaos creates unstoppable momentum.',
+                    closing: 'The combined might of unified teams proved greater than the sum of fragmented forces.'
+                },
+                'REVENGE OF THE SITH — CORUSCANT SIEGE': {
+                    opening: 'Regulatory obstacles compounded technical complexity. The deadline was immovable.',
+                    climax: 'With architectural precision, the mission delivered on time despite overwhelming challenges.',
+                    narrative: 'Nur navigated impossible constraints—regulatory mandates, technical debt, hard deadlines. Each decision was high-stakes. Every timeline held. Every requirement met.',
+                    closing: 'The hero finds the path when all others say there is none.'
+                },
+                'A NEW HOPE — DEATH STAR ASSAULT': {
+                    opening: 'A small team. An impossible target. Conventional wisdom said it could not be done.',
+                    climax: 'Data-driven execution transformed customer discovery. Revenue streams that had stalled began to flow.',
+                    narrative: 'Nur pioneered AI-driven product innovations that generated $2M+ annual revenue. These were not incremental improvements—they were transformative breakthroughs. Small teams with big ideas and precise execution can reshape entire markets.',
+                    closing: '$2M+ in annual value. All created by vision, precision, and unwavering belief in possibility.'
+                },
+                'THE EMPIRE STRIKES BACK — HOTH DEFENSE': {
+                    opening: 'Critical systems were failing. Migration was in progress. Downtime meant millions lost per minute.',
+                    climax: 'Real-time mitigation prevented catastrophe. 100% uptime was maintained despite impossible conditions.',
+                    narrative: 'Nur held the line when everything threatened to collapse. During a $5M+ critical migration, systems stayed online every second. Crisis management at this scale requires nerves of steel, deep technical knowledge, and unwavering focus.',
+                    closing: '$5M+ in revenue protected by one analyst who refused to let systems fall.'
+                },
+                'RETURN OF THE JEDI — ENDOR ASSAULT': {
+                    opening: 'Three fronts. Three systems. Three teams. Perfect synchronization required or everything failed.',
+                    climax: 'Each element moved with precision timing. Interdependencies became strengths instead of vulnerabilities.',
+                    narrative: 'Nur orchestrated a $4M+ enterprise transformation across warehouse, e-commerce, and retail systems simultaneously. Program-level leadership at the highest complexity.',
+                    closing: '$4M+ in digital transformation delivered through perfect orchestration.'
+                },
+                'ROGUE ONE — SCARIF INFILTRATION': {
+                    opening: 'The mission was unauthorized. Success seemed impossible. Failure meant career risk.',
+                    climax: 'Bold action and technical precision delivered what seemed undeliverable.',
+                    narrative: 'Nur championed innovation when conservative thinking dominated. He eliminated 2M+ documents annually—a transformation that seemed reckless until results proved otherwise. Sometimes the greatest achievements require the courage to take risks when everyone else says to wait.',
+                    closing: '2M+ documents eliminated. A whole new era of digital efficiency unlocked by one analyst\'s conviction.'
+                },
+                'SOLO — KESSEL RUN ESCAPE': {
+                    opening: 'Six months was the timeline. Management expected failure. The path was unclear.',
+                    climax: 'Through creative architectural solutions, the impossible compressed into the achievable.',
+                    narrative: 'Nur reduced a 6-month initiative to 3 months. A 60% reduction in project duration with zero compromises on quality. Creative problem-solving combined with technical mastery produced breakthroughs that seemed impossible.',
+                    closing: 'The fastest, cleanest delivery. Proof that innovation and speed can coexist.'
+                }
+            };
+            
+            const details = narrativeMap[battleName] || {
+                opening: 'Against formidable odds, one analyst made the difference.',
+                climax: 'Victory was achieved through precision and unwavering focus.',
+                narrative: 'Nur Dawoodani transformed enterprise systems and led teams to success where conventional thinking said failure was inevitable.',
+                closing: 'Another victory for digital transformation.'
+            };
+            
+            return [
+                '',
+                '',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                'MISSION COMPLETE',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                '',
+                battleName,
+                battleSubtitle,
+                '',
+                'THE CHALLENGE',
+                details.opening,
+                '',
+                'THE TURNING POINT',
+                details.climax,
+                '',
+                'THE BREAKTHROUGH',
+                details.narrative,
+                '',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                'NUR DAWOODANI',
+                'Business Analyst • 18+ Years • Global Enterprise Transformation',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                '',
+                'CORE COMPETENCIES',
+                '★ Enterprise System Architecture • SAFe Agile Leadership',
+                '★ Digital Transformation at Scale • Business Process Optimization',
+                '★ Stakeholder Management • Risk Mitigation • Crisis Resolution',
+                '★ AI/ML Product Innovation • Data-Driven Decision Making',
+                '',
+                'KEY ACHIEVEMENTS',
+                '★ $2M+ annual revenue generated through AI-driven innovations',
+                '★ $4M+ enterprise transformation orchestrated across multiple systems',
+                '★ $5M+ revenue protected during critical migrations with zero downtime',
+                '★ 2M+ documents eliminated annually through digital transformation',
+                '★ 60% project duration reduction while maintaining quality standards',
+                '★ 12+ cross-functional teams orchestrated across competing priorities',
+                '',
+                'EXPERIENCE',
+                '• Lululemon: Retail Transformation & System Migration Leadership',
+                '• HSBC: Enterprise Architecture & Digital Innovation',
+                '• Multiple Industries: Banking, Retail, Financial Services',
+                '',
+                details.closing,
+                '',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                'END TRANSMISSION',
+                ''
+            ];
+        }
+
+        function startBattleVideoPlayback() {
+            const battleSceneEl = document.getElementById('battle-scene');
+            const videoLayer = document.getElementById('battle-video-layer');
+            const video = document.getElementById('battle-video');
+            const transition = document.getElementById('battle-video-transition');
+            const battleHud = document.getElementById('battle-hud');
+            const battleCanvas = document.getElementById('battle-canvas');
+            const audioControls = document.getElementById('audio-controls');
+            const videoControls = document.getElementById('battle-video-controls');
+            const videoOverlay = document.getElementById('battle-video-overlay');
+            const videoProgress = document.getElementById('battle-video-progress');
+            const story = document.getElementById('battle-video-story');
+
+            if (!videoLayer || !video || !transition) return;
+
+            renderMode = 'video';
+            battleSceneEl.style.display = 'block';
+            videoLayer.style.display = 'block';
+            if (battleCanvas) battleCanvas.style.display = 'none';
+            if (battleHud) battleHud.style.display = 'none';
+            if (videoOverlay) videoOverlay.style.display = 'block';
+            if (story) story.style.display = 'none';
+            if (audioControls) {
+                audioControls.style.opacity = '0';
+                audioControls.style.pointerEvents = 'none';
+            }
+
+            stopCurrentAudio();
+
+            transition.style.opacity = '1';
+
+            // Use existing video metadata if story phase already selected one, otherwise pick a new one
+            let src;
+            if (!currentBattleVideoMeta) {
+                src = getRandomBattleVideoSrc();
+                currentBattleVideoMeta = getBattleVideoMeta(src);
+            } else {
+                // Get the video source from the metadata to maintain consistency
+                const videoName = currentBattleVideoMeta.movie || 'Episode 1 battle';
+                const videoMap = {
+                    'Episode I — The Phantom Menace': 'assets/videos/Episode 1 battle.mp4',
+                    'Episode II — Attack of the Clones': 'assets/videos/Episode 2 battle.mp4',
+                    'Episode III — Revenge of the Sith': 'assets/videos/Episode 3 battle.mp4',
+                    'Episode IV — A New Hope': 'assets/videos/Episode 4 battle.mp4',
+                    'Episode V — The Empire Strikes Back': 'assets/videos/Episode 5 battle.mp4',
+                    'Episode VI — Return of the Jedi': 'assets/videos/Episode 6 battle.mp4',
+                    'Rogue One': 'assets/videos/Rogue 1 Battle.mp4',
+                    'Solo: A Star Wars Story': 'assets/videos/SOLO battle.mp4'
+                };
+                src = videoMap[videoName] || getRandomBattleVideoSrc();
+            }
+            video.controls = false;
+            video.style.display = 'block';
+            video.src = src;
+            video.currentTime = 0;
+            video.muted = !soundEnabled;
+            video.playsInline = true;
+            video.load();
+
+            // Update overlay with video metadata but NOT story
+            const title = document.getElementById('battle-video-title');
+            const subtitle = document.getElementById('battle-video-subtitle');
+            const tagline = document.getElementById('battle-video-tagline');
+            if (title) title.textContent = currentBattleVideoMeta.overlayTitle || '';
+            if (subtitle) subtitle.textContent = currentBattleVideoMeta.overlaySubtitle || '';
+            if (tagline) tagline.textContent = currentBattleVideoMeta.overlayTagline || '';
+
+            video.onended = () => {
+                if (videoOverlay) videoOverlay.style.display = 'none';
+                if (transition) transition.style.opacity = '1';
+                if (video) {
+                    video.pause();
+                    video.style.display = 'none';
+                    video.muted = true; // Mute video audio
+                }
+                if (videoLayer) videoLayer.style.display = 'block';
+                
+                // Smooth fade out of video audio and any background audio
+                try {
+                    if (audioContext?.state === 'running') {
+                        const now = audioContext.currentTime;
+                        
+                        // Fade out video element audio
+                        if (video && video.volume !== undefined) {
+                            const videoVolume = video.volume;
+                            video.volume = Math.max(0, videoVolume - 0.1); // Quick fade
+                            const volumeFade = setInterval(() => {
+                                if (video.volume > 0) {
+                                    video.volume = Math.max(0, video.volume - 0.05);
+                                } else {
+                                    clearInterval(volumeFade);
+                                }
+                            }, 50);
+                        }
+                        
+                        // Fade out background audio if it exists
+                        if (currentAudio && currentAudio.gainNode) {
+                            currentAudio.gainNode.gain.cancelScheduledValues(now);
+                            currentAudio.gainNode.gain.setValueAtTime(currentAudio.gainNode.gain.value, now);
+                            currentAudio.gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.8); // 0.8 second fade
+                        }
+                    }
+                } catch(e) {
+                    // Silently handle audio context errors
+                }
+                
+                showBattleVideoCredits(currentBattleVideoMeta || { credits: ['Mission Complete'] });
+                playNurWarsSound('victory');
+                setTimeout(() => {
+                    showingBattleVideoCredits = false;
+                    // Stop blackhole audio if it's playing
+                    if (window.currentBlackholeAudio) {
+                        window.currentBlackholeAudio.pause();
+                        window.currentBlackholeAudio.currentTime = 0;
+                    }
+                    window.location.reload();
+                }, 35000);
+            };
+
+            if (videoControls) {
+                videoControls.style.opacity = '0';
+                const playBtn = document.getElementById('video-play-btn');
+                const backBtn = document.getElementById('video-back-btn');
+                const fwdBtn = document.getElementById('video-forward-btn');
+                const muteBtn = document.getElementById('video-mute-btn');
+                const scrubber = document.getElementById('video-scrubber');
+                if (playBtn) playBtn.onclick = (e) => { e.stopPropagation(); toggleBattleVideoPlayPause(); };
+                if (backBtn) backBtn.onclick = (e) => { e.stopPropagation(); skipBattleVideo(-5); };
+                if (fwdBtn) fwdBtn.onclick = (e) => { e.stopPropagation(); skipBattleVideo(5); };
+                if (muteBtn) muteBtn.onclick = (e) => { e.stopPropagation(); toggleBattleVideoMute(); };
+                if (scrubber) {
+                    scrubber.oninput = (e) => {
+                        e.stopPropagation();
+                        const videoRef = document.getElementById('battle-video');
+                        if (!videoRef || Number.isNaN(videoRef.duration)) return;
+                        const scrubPosition = Number(scrubber.value);
+                        const storyDuration = 35; // Crawl story was 35 seconds
+                        // If seeking into video portion, adjust video time
+                        if (scrubPosition > storyDuration) {
+                            videoRef.currentTime = scrubPosition - storyDuration;
+                        } else if (scrubPosition < storyDuration) {
+                            // If seeking before video, restart it
+                            videoRef.currentTime = 0;
+                        }
+                        updateBattleVideoProgress();
+                    };
+                }
+            }
+
+            video.ontimeupdate = updateBattleVideoProgress;
+            video.onloadedmetadata = updateBattleVideoProgress;
+            video.onplay = updateBattleVideoControls;
+            video.onpause = updateBattleVideoControls;
+
+            const handleShowControls = () => {
+                if (videoControls) videoControls.style.opacity = '1';
+                if (videoProgress) videoProgress.style.opacity = '1';
+                if (battleVideoIdleTimer) clearTimeout(battleVideoIdleTimer);
+                battleVideoIdleTimer = setTimeout(() => {
+                    if (videoControls) videoControls.style.opacity = '0';
+                    // Keep progress bar visible always
+                    if (videoProgress) videoProgress.style.opacity = '1';
+                }, 2000);
+            };
+            videoLayer.onmousemove = handleShowControls;
+            videoLayer.onmouseenter = handleShowControls;
+            videoLayer.ontouchstart = handleShowControls;
+
+            setTimeout(() => {
+                window.battleVideoStartTime = Date.now();
+                video.play().catch(() => {
+                    if (videoControls) videoControls.style.opacity = '1';
+                });
+                updateBattleVideoControls();
+                updateBattleVideoProgress();
+                transition.style.opacity = '0';
+                // Keep progress visible throughout
+                if (videoProgress) videoProgress.style.opacity = '1';
+            }, 25);
+        }
+
+        function stopBattleVideoPlayback() {
+            const videoLayer = document.getElementById('battle-video-layer');
+            const video = document.getElementById('battle-video');
+            const transition = document.getElementById('battle-video-transition');
+            const videoControls = document.getElementById('battle-video-controls');
+            const videoOverlay = document.getElementById('battle-video-overlay');
+            const videoProgress = document.getElementById('battle-video-progress');
+
+            if (battleVideoIdleTimer) {
+                clearTimeout(battleVideoIdleTimer);
+                battleVideoIdleTimer = null;
+            }
+
+            if (video) {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+                video.controls = false;
+                video.onended = null;
+                video.ontimeupdate = null;
+                video.onloadedmetadata = null;
+                video.onplay = null;
+                video.onpause = null;
+            }
+
+            if (transition) transition.style.opacity = '0';
+            if (videoControls) videoControls.style.opacity = '0';
+            if (videoProgress) videoProgress.style.opacity = '0';
+            if (videoOverlay) videoOverlay.style.display = 'none';
+            if (videoLayer) videoLayer.style.display = 'none';
+        }
         
         function showCrawlSequence(crawlLocation) {
             // Position camera for crawl view in isolated 3D space far from solar system
@@ -5303,6 +6248,19 @@
             
             // Get the crawl text element and start 3D animation
             const crawlText = document.getElementById('crawl-text');
+            
+            // If in battle video mode, replace text with battle-specific story
+            if (battleVideoMode && currentBattleVideoMeta) {
+                const storyLines = currentBattleVideoMeta.story || [];
+                const storyHTML = `
+                    <div style="height: 50vh;"></div>
+                    ${storyLines.map(line => {
+                        if (line === '') return '<div style="height: 20px;"></div>';
+                        return `<p style="margin: 0 0 30px 0;">${line}</p>`;
+                    }).join('')}
+                `;
+                crawlText.innerHTML = storyHTML;
+            }
             
             // Reset position and styles for 3D effect
             crawlText.style.animation = 'none';
@@ -5330,6 +6288,35 @@
             
             // Start scroll animation immediately
             start3DCrawlAnimation(crawlText);
+            
+            // Track progress and update scrubber
+            function updateProgressDuringCrawl() {
+                if (!nurWarsActive) return;
+                
+                const elapsed = moviePaused ? moviePauseTime : (Date.now() - movieStartTime);
+                const progress = Math.min(elapsed / totalDuration, 1);
+                
+                // Update scrubber for crawl phase (0-35s of 145s total)
+                const scrubber = document.getElementById('video-scrubber');
+                const timeDisplay = document.getElementById('video-time');
+                
+                if (scrubber) scrubber.value = elapsed;
+                if (timeDisplay) {
+                    const totalSec = 145; // 35s crawl + 90s video + 20s credits
+                    const current = Math.floor(elapsed / 1000);
+                    const curMin = Math.floor(current / 60);
+                    const curSec = current % 60;
+                    const totMin = Math.floor(totalSec / 60);
+                    const totSec = totalSec % 60;
+                    timeDisplay.textContent = `${curMin}:${String(curSec).padStart(2, '0')} / ${totMin}:${String(totSec).padStart(2, '0')}`;
+                }
+                
+                requestAnimationFrame(updateProgressDuringCrawl);
+            }
+            
+            if (battleVideoMode) {
+                updateProgressDuringCrawl();
+            }
             
             // Check for timeline events on every frame
             function checkCrawlTimeline() {
@@ -5430,8 +6417,30 @@
         }
         
         function transitionToBattle(currentLocation) {
-            // Play battle transition sound
-            playNurWarsSound('battle');
+            // Fade out crawl music/audio smoothly when transitioning to video
+            if (battleVideoMode) {
+                // Fade out current audio with longer decay time for smooth transition
+                if (currentAudio && currentAudio.paused === false) {
+                    try {
+                        const now = audioContext?.currentTime || 0;
+                        if (audioContext?.state === 'running' && currentAudio.gainNode) {
+                            currentAudio.gainNode.gain.cancelScheduledValues(now);
+                            currentAudio.gainNode.gain.setValueAtTime(currentAudio.gainNode.gain.value, now);
+                            currentAudio.gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.5); // 1.5 second fade
+                            setTimeout(() => {
+                                if (currentAudio) currentAudio.pause();
+                            }, 1500);
+                        }
+                    } catch(e) {
+                        if (currentAudio) currentAudio.pause();
+                    }
+                }
+            }
+            
+            // Play battle transition sound only for 3D battle
+            if (!battleVideoMode) {
+                playNurWarsSound('battle');
+            }
             
             // Fade out crawl with slower pan/zoom effect
             const crawl = document.getElementById('opening-crawl');
@@ -5471,8 +6480,13 @@
                     
                     const battle = document.getElementById('battle-scene');
                     battle.style.display = 'block';
-                    
-                    init3DBattleScene(battleLocation);
+
+                    if (battleVideoMode) {
+                        // Start video playback directly (story was shown in crawl)
+                        startBattleVideoPlayback();
+                    } else {
+                        init3DBattleScene(battleLocation);
+                    }
                 }
                 
                 if (progress < 1) {
@@ -5486,6 +6500,8 @@
         function closeNurWars() {
             nurWarsActive = false;
             renderMode = 'default';
+
+            stopBattleVideoPlayback();
             
             // Clear all pending timeouts
             clearNurWarsTimeouts();
@@ -5615,11 +6631,6 @@
                 console.warn("Audio play failed, falling back to synth", e);
                 playStarWarsTheme();
             });
-        }
-        
-        function playRealImperialMarch() {
-            stopCurrentAudio();
-            playImperialMarch();
         }
         
         function playRealBattleMusic() {
@@ -5948,12 +6959,23 @@
             
             // Load Death Star GLTF model
             gltfLoader.load(
-                'assets/models/death_star_-_star_wars/scene.gltf',
+                'Unused/models/death_star_-_star_wars (1)/scene.gltf',
                 (gltf) => {
                     const deathStar = gltf.scene;
+                    const deathStarRadius = 180;
                     deathStar.scale.set(150, 150, 150);
-                    deathStar.position.copy(battleLocation);
+                    // Place Death Star far in the background
+                    deathStar.position.copy(battleLocation).add(new THREE.Vector3(0, 0, -4200));
                     deathStar.rotation.y = Math.PI / 4;
+                    deathStar.userData.radius = deathStarRadius;
+                    
+                    // Add exhaust port on the surface (visible and outside)
+                    const exhaustPortGeo = new THREE.SphereGeometry(8, 16, 16);
+                    const exhaustPortMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+                    const exhaustPort = new THREE.Mesh(exhaustPortGeo, exhaustPortMat);
+                    exhaustPort.position.copy(deathStar.position).add(new THREE.Vector3(0, -30, deathStarRadius));
+                    battleSceneRef.add(exhaustPort);
+                    deathStar.exhaustPort = exhaustPort;
                     
                     battleSceneRef.add(deathStar);
                     nurWarsObjects.push({ 
@@ -5998,10 +7020,11 @@
                 (gltf) => {
                     const destroyer = gltf.scene;
                     destroyer.scale.set(0.8, 0.8, 0.8);
+                    const stageCenter = battleLocation.clone().add(new THREE.Vector3(0, 0, 1600));
                     destroyer.position.set(
-                        battleLocation.x - 800,
-                        battleLocation.y + 200,
-                        battleLocation.z + 500
+                        stageCenter.x - 900,
+                        stageCenter.y + 260,
+                        stageCenter.z + 300
                     );
                     destroyer.rotation.y = -Math.PI / 4;
                     destroyer.rotation.z = Math.PI / 12;
@@ -6012,6 +7035,24 @@
                         type: 'destroyer',
                         isCapitalShip: true
                     });
+                    
+                    // Add two more destroyers for a bigger Imperial presence
+                    for (let i = 1; i <= 2; i++) {
+                        const clone = destroyer.clone();
+                        clone.position.set(
+                            stageCenter.x - 900 - i * 380,
+                            stageCenter.y + 200 + i * 70,
+                            stageCenter.z + 500 + i * 240
+                        );
+                        clone.rotation.y = -Math.PI / 4 + i * 0.12;
+                        clone.rotation.z = Math.PI / 12;
+                        battleSceneRef.add(clone);
+                        nurWarsObjects.push({
+                            object: clone,
+                            type: 'destroyer',
+                            isCapitalShip: true
+                        });
+                    }
 
                     modelsLoaded++;
                     console.log('Star Destroyer loaded', modelsLoaded, '/', modelsToLoad);
@@ -6057,11 +7098,12 @@
                 'assets/models/star_wars_-_halcon_milenario/scene.gltf',
                 (gltf) => {
                     const falcon = gltf.scene;
-                    falcon.scale.set(25, 25, 25);
+                    const stageCenter = battleLocation.clone().add(new THREE.Vector3(0, 0, 1600));
+                    falcon.scale.set(32, 32, 32);
                     falcon.position.set(
-                        battleLocation.x + 400,
-                        battleLocation.y - 100,
-                        battleLocation.z - 600
+                        stageCenter.x + 300,
+                        stageCenter.y - 60,
+                        stageCenter.z + 120
                     );
                     falcon.rotation.y = Math.PI / 6;
                     
@@ -6086,6 +7128,7 @@
         
         function createXWings(battleLocation) {
             const battleSceneRef = nurWarsScene || scene;
+            const stageCenter = battleLocation.clone().add(new THREE.Vector3(0, 0, 1600));
             
             // Create 2 X-Wings using GLTF models
             for (let i = 0; i < 2; i++) {
@@ -6096,9 +7139,9 @@
                         const xwing = gltf.scene.clone();
                         xwing.scale.set(12, 12, 12);
                         xwing.position.set(
-                            battleLocation.x + (i === 0 ? 200 : 350),
-                            battleLocation.y - 200,
-                            battleLocation.z - 400
+                            stageCenter.x + (i === 0 ? 120 : 260),
+                            stageCenter.y - 140,
+                            stageCenter.z + 20
                         );
                         xwing.rotation.y = Math.PI / 8;
                         
@@ -6133,9 +7176,9 @@
                     const interceptor = gltf.scene;
                     interceptor.scale.set(15, 15, 15);
                     interceptor.position.set(
-                        battleLocation.x + 150,
-                        battleLocation.y - 150,
-                        battleLocation.z - 500
+                        stageCenter.x + 80,
+                        stageCenter.y - 120,
+                        stageCenter.z - 40
                     );
                     interceptor.rotation.y = Math.PI / 6;
                     
@@ -6162,21 +7205,60 @@
             );
         }
         
+        function createTIEInterceptors(battleLocation) {
+            const battleSceneRef = nurWarsScene || scene;
+            const stageCenter = battleLocation.clone().add(new THREE.Vector3(0, 0, 1600));
+            const interceptorCount = 6;
+            modelsToLoad++;
+            gltfLoader.load(
+                'assets/models/star_wars_tiein_interceptor/scene.gltf',
+                (gltf) => {
+                    for (let i = 0; i < interceptorCount; i++) {
+                        const interceptor = gltf.scene.clone();
+                        interceptor.scale.set(9, 9, 9);
+                        interceptor.position.set(
+                            stageCenter.x + (i - (interceptorCount / 2)) * 140 + 100,
+                            stageCenter.y + (Math.random() - 0.5) * 240,
+                            stageCenter.z + 450 + (Math.random() - 0.5) * 180
+                        );
+                        interceptor.rotation.y = Math.PI + Math.PI / 5;
+                        battleSceneRef.add(interceptor);
+                        nurWarsObjects.push({
+                            object: interceptor,
+                            type: 'tieinterceptor',
+                            health: 60
+                        });
+                    }
+                    modelsLoaded++;
+                    console.log('TIE Interceptors loaded', modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading TIE Interceptor:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                }
+            );
+        }
+
         function createTIEFighters(battleLocation) {
             const battleSceneRef = nurWarsScene || scene;
+            const stageCenter = battleLocation.clone().add(new THREE.Vector3(0, 0, 1600));
             
-            // Create 3 TIE Fighters using GLTF models
-            for (let i = 0; i < 3; i++) {
-                modelsToLoad++;
-                gltfLoader.load(
-                    'assets/models/3d_t.i.e_fighter_-_star_wars_model/scene.gltf',
-                    (gltf) => {
+            // Create many TIE Fighters using a single GLTF load and clones
+            const tieCount = 18;
+            modelsToLoad++;
+            gltfLoader.load(
+                'assets/models/3d_t.i.e_fighter_-_star_wars_model/scene.gltf',
+                (gltf) => {
+                    for (let i = 0; i < tieCount; i++) {
                         const tie = gltf.scene.clone();
                         tie.scale.set(8, 8, 8);
                         tie.position.set(
-                            battleLocation.x + (i - 1) * 300 - 500,
-                            battleLocation.y + (Math.random() - 0.5) * 200,
-                            battleLocation.z + 400
+                            stageCenter.x + (i - (tieCount / 2)) * 110 - 200,
+                            stageCenter.y + (Math.random() - 0.5) * 260,
+                            stageCenter.z + 300 + (Math.random() - 0.5) * 220
                         );
                         tie.rotation.y = Math.PI + Math.PI / 6;
                         
@@ -6184,26 +7266,21 @@
                         nurWarsObjects.push({
                             object: tie,
                             type: 'tiefighter',
-                            health: 50,
-                            velocity: new THREE.Vector3(
-                                (Math.random() - 0.5) * 3,
-                                (Math.random() - 0.5) * 2,
-                                Math.random() * 2 + 1
-                            )
+                            health: 50
                         });
-                        
-                        modelsLoaded++;
-                        console.log(`TIE Fighter ${i+1} loaded`, modelsLoaded, '/', modelsToLoad);
-                        checkBattleReady();
-                    },
-                    undefined,
-                    (error) => {
-                        console.error('Error loading TIE Fighter:', error);
-                        modelsLoaded++;
-                        checkBattleReady();
                     }
-                );
-            }
+                    
+                    modelsLoaded++;
+                    console.log(`TIE Fighters loaded`, modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading TIE Fighter:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                }
+            );
             
             // Add Phantom ship as an enemy
             modelsToLoad++;
@@ -6213,9 +7290,9 @@
                     const phantom = gltf.scene;
                     phantom.scale.set(10, 10, 10);
                     phantom.position.set(
-                        battleLocation.x - 400,
-                        battleLocation.y + 80,
-                        battleLocation.z + 350
+                        stageCenter.x - 260,
+                        stageCenter.y + 60,
+                        stageCenter.z + 180
                     );
                     phantom.rotation.y = Math.PI + Math.PI / 4;
                     
@@ -6244,12 +7321,86 @@
             );
         }
         
+        function createRazorCrest(battleLocation) {
+            const battleSceneRef = nurWarsScene || scene;
+            const stageCenter = battleLocation.clone().add(new THREE.Vector3(0, 0, 1600));
+            modelsToLoad++;
+            gltfLoader.load(
+                'assets/models/razor_crest/scene.gltf',
+                (gltf) => {
+                    const razor = gltf.scene;
+                    razor.scale.set(18, 18, 18);
+                    razor.position.set(
+                        stageCenter.x - 320,
+                        stageCenter.y - 80,
+                        stageCenter.z + 160
+                    );
+                    razor.rotation.y = Math.PI / 5;
+                    battleSceneRef.add(razor);
+                    nurWarsObjects.push({ 
+                        object: razor, 
+                        type: 'razorcrest'
+                    });
+                    modelsLoaded++;
+                    console.log('Razor Crest loaded', modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading Razor Crest:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                }
+            );
+        }
+
+        function createImperialShuttle(battleLocation) {
+            const battleSceneRef = nurWarsScene || scene;
+            const stageCenter = battleLocation.clone().add(new THREE.Vector3(0, 0, 1600));
+            modelsToLoad++;
+            gltfLoader.load(
+                'assets/models/imperial_shuttle/scene.gltf',
+                (gltf) => {
+                    const shuttle = gltf.scene;
+                    shuttle.scale.set(0.6, 0.6, 0.6);
+                    shuttle.position.set(
+                        stageCenter.x - 520,
+                        stageCenter.y + 140,
+                        stageCenter.z + 380
+                    );
+                    shuttle.rotation.y = -Math.PI / 3;
+                    battleSceneRef.add(shuttle);
+                    nurWarsObjects.push({ 
+                        object: shuttle, 
+                        type: 'imperialshuttle',
+                        isCapitalShip: true
+                    });
+                    modelsLoaded++;
+                    console.log('Imperial Shuttle loaded', modelsLoaded, '/', modelsToLoad);
+                    checkBattleReady();
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading Imperial Shuttle:', error);
+                    modelsLoaded++;
+                    checkBattleReady();
+                }
+            );
+        }
+
+        function createDistantGalaxies(battleLocation) {
+            // Galaxies are now only in solar system, not in battle
+            // This keeps the battle clean and focused on the action
+            console.log('Battle scene ready - galaxies in solar system only');
+        }
+
         initNurWarsSounds();
         
         function checkBattleReady() {
             if (modelsLoaded >= modelsToLoad && !battleReady) {
                 battleReady = true;
                 console.log('All models loaded! Battle ready with', nurWarsObjects.length, 'objects');
+                setupBattleScript();
             }
         }
 
@@ -6258,6 +7409,7 @@
             modelsToLoad = 0;
             modelsLoaded = 0;
             battleReady = false;
+            playerShotFired = false;
             
             // Create 3D scene FIRST before calling create functions
             nurWarsScene = new THREE.Scene();
@@ -6269,13 +7421,14 @@
             // Use existing camera
             nurWarsCamera = camera; // Use the main camera
             
-            // Set fallback camera position immediately
+            // Set fallback camera position immediately (focus foreground stage)
+            const stageCenter = battleLocation.clone().add(new THREE.Vector3(0, 0, 1600));
             nurWarsCamera.position.set(
-                battleLocation.x,
-                battleLocation.y + 200,
-                battleLocation.z + 800
+                stageCenter.x,
+                stageCenter.y + 220,
+                stageCenter.z + 700
             );
-            nurWarsCamera.lookAt(battleLocation);
+            nurWarsCamera.lookAt(stageCenter);
             
             // Add both starfields from main scene to battle
             scene.children.forEach(child => {
@@ -6300,6 +7453,18 @@
             
             // Create TIE Fighters
             createTIEFighters(battleLocation);
+            
+            // Create TIE Interceptors
+            createTIEInterceptors(battleLocation);
+            
+            // Create Razor Crest
+            createRazorCrest(battleLocation);
+            
+            // Create Imperial Shuttle
+            createImperialShuttle(battleLocation);
+            
+            // Create distant galaxies
+            createDistantGalaxies(battleLocation);
 
             // Wait for models to load before adjusting camera
             const waitForModels = setInterval(() => {
@@ -6450,106 +7615,402 @@
         let explosions = [];
         let cameraTarget = new THREE.Vector3();
         let finalExplosionStarted = false;
+        let lastBattlePhase = '';
+        let playerShotFired = false;
+        let battleScriptReady = false;
+        let battleCameraDesiredPos = new THREE.Vector3();
+        let battleCameraDesiredLook = new THREE.Vector3();
+        let battleCameraLookCurrent = new THREE.Vector3();
+        let battleCameraInitialized = false;
+        let lastLaserSoundAt = 0;
+        let battleStoryEvents = null;
+        let battleStoryIndex = 0;
+        let battleCameraFocusOverride = null;
+        let battleCameraFocusUntil = 0;
+
+        function getPathPoint(path, t) {
+            if (!path || path.length < 2) return null;
+            const segCount = path.length - 1;
+            const scaled = Math.min(Math.max(t, 0), 1) * segCount;
+            const idx = Math.min(Math.floor(scaled), segCount - 1);
+            const localT = scaled - idx;
+            return new THREE.Vector3().lerpVectors(path[idx], path[idx + 1], localT);
+        }
+
+        function setupBattleScript() {
+            if (battleScriptReady) return;
+            battleScriptReady = true;
+
+            const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
+            const deathStarPos = deathStar ? deathStar.object.position.clone() : new THREE.Vector3();
+            const stageCenter = deathStarPos.clone().add(new THREE.Vector3(0, 0, 1600));
+            const deathStarRadius = deathStar && deathStar.object.userData.radius ? deathStar.object.userData.radius : 180;
+            const exhaust = deathStar && deathStar.exhaustPort ? deathStar.exhaustPort.position.clone() : deathStarPos.clone().add(new THREE.Vector3(0, -30, deathStarRadius));
+            const exhaustNormal = exhaust.clone().sub(deathStarPos).normalize();
+
+            // Scripted paths and kill events
+            nurWarsObjects.forEach(obj => {
+                if (obj.type === 'xwing') {
+                    const start = obj.object.position.clone();
+                    const p1 = stageCenter.clone().add(new THREE.Vector3(350, 140, 200));
+                    const p2 = stageCenter.clone().add(new THREE.Vector3(100, 60, -80));
+                    const p3 = stageCenter.clone().add(new THREE.Vector3(30, 20, -200));
+                    const p4 = exhaust.clone().add(exhaustNormal.clone().multiplyScalar(deathStarRadius * 1.0)).add(new THREE.Vector3(0, 25, 50));
+                    const p5 = exhaust.clone().add(exhaustNormal.clone().multiplyScalar(deathStarRadius * 0.75)).add(new THREE.Vector3(0, 15, 25));
+                    const p6 = exhaust.clone().add(exhaustNormal.clone().multiplyScalar(deathStarRadius * 0.5));
+                    obj.path = [start, p1, p2, p3, p4, p5, p6];
+                    obj.pathStart = obj.isPlayer ? 0 : 2;
+                    obj.pathDuration = obj.isPlayer ? 280 : 160;
+                    obj.destroyAt = obj.isPlayer ? null : 215 + Math.random() * 10;
+                } else if (obj.type === 'interceptor') {
+                    const start = obj.object.position.clone();
+                    const p1 = stageCenter.clone().add(new THREE.Vector3(-320, 160, 220));
+                    const p2 = stageCenter.clone().add(new THREE.Vector3(-180, 120, 40));
+                    const p3 = stageCenter.clone().add(new THREE.Vector3(-100, 80, -120));
+                    obj.path = [start, p1, p2, p3];
+                    obj.pathStart = 4;
+                    obj.pathDuration = 90;
+                    obj.destroyAt = 100 + Math.random() * 15;
+                } else if (obj.type === 'falcon') {
+                    const start = obj.object.position.clone();
+                    const p1 = stageCenter.clone().add(new THREE.Vector3(420, 200, 320));
+                    const p2 = stageCenter.clone().add(new THREE.Vector3(200, 140, 80));
+                    const p3 = stageCenter.clone().add(new THREE.Vector3(-120, 120, -80));
+                    obj.path = [start, p1, p2, p3];
+                    obj.pathStart = 6;
+                    obj.pathDuration = 170;
+                    obj.destroyAt = 250 + Math.random() * 6;
+                } else if (obj.type === 'tiefighter') {
+                    const start = obj.object.position.clone();
+                    const p1 = stageCenter.clone().add(new THREE.Vector3((Math.random() - 0.5) * 700, (Math.random() - 0.5) * 300, 260));
+                    const p2 = stageCenter.clone().add(new THREE.Vector3((Math.random() - 0.5) * 600, (Math.random() - 0.5) * 260, 60));
+                    const p3 = stageCenter.clone().add(new THREE.Vector3((Math.random() - 0.5) * 500, (Math.random() - 0.5) * 220, -140));
+                    obj.path = [start, p1, p2, p3];
+                    obj.pathStart = 10 + Math.random() * 8;
+                    obj.pathDuration = 90 + Math.random() * 30;
+                    obj.destroyAt = 60 + Math.random() * 80;
+                } else if (obj.type === 'phantom') {
+                    const start = obj.object.position.clone();
+                    const p1 = stageCenter.clone().add(new THREE.Vector3(-360, 140, 240));
+                    const p2 = stageCenter.clone().add(new THREE.Vector3(-200, 120, 40));
+                    obj.path = [start, p1, p2];
+                    obj.pathStart = 8;
+                    obj.pathDuration = 110;
+                    obj.destroyAt = 120 + Math.random() * 20;
+                } else if (obj.type === 'tieinterceptor') {
+                    const start = obj.object.position.clone();
+                    const p1 = stageCenter.clone().add(new THREE.Vector3((Math.random() - 0.5) * 750, (Math.random() - 0.5) * 320, 280));
+                    const p2 = stageCenter.clone().add(new THREE.Vector3((Math.random() - 0.5) * 650, (Math.random() - 0.5) * 280, 80));
+                    const p3 = stageCenter.clone().add(new THREE.Vector3((Math.random() - 0.5) * 550, (Math.random() - 0.5) * 240, -120));
+                    obj.path = [start, p1, p2, p3];
+                    obj.pathStart = 8 + Math.random() * 6;
+                    obj.pathDuration = 100 + Math.random() * 20;
+                    obj.destroyAt = 80 + Math.random() * 40;
+                } else if (obj.type === 'razorcrest') {
+                    const start = obj.object.position.clone();
+                    const p1 = stageCenter.clone().add(new THREE.Vector3(-240, 100, 180));
+                    const p2 = stageCenter.clone().add(new THREE.Vector3(-140, 80, 0));
+                    const p3 = stageCenter.clone().add(new THREE.Vector3(-80, 60, -140));
+                    obj.path = [start, p1, p2, p3];
+                    obj.pathStart = 5;
+                    obj.pathDuration = 150;
+                    obj.destroyAt = 190 + Math.random() * 8;
+                } else if (obj.type === 'imperialshuttle') {
+                    const start = obj.object.position.clone();
+                    const p1 = stageCenter.clone().add(new THREE.Vector3(-420, 160, 320));
+                    const p2 = stageCenter.clone().add(new THREE.Vector3(-320, 140, 180));
+                    obj.path = [start, p1, p2];
+                    obj.pathStart = 3;
+                    obj.pathDuration = 110;
+                    obj.destroyAt = 100 + Math.random() * 6;
+                }
+            });
+        }
 
         function updateBattleLogic() {
             if (!nurWarsActive || moviePaused || !battleReady) return;
             
             battleTimer++;
             
-            // Update battle phases - much longer duration for better cinematic experience
-            if (battlePhase === 'approach' && battleTimer > 900) { // Much longer approach
-                battlePhase = 'battle';
+            // Scripted 5-minute battle timeline (300 seconds = 18000 frames at 60fps)
+            const t = battleTimer / 60;
+
+            // Story event scheduler (runs once)
+            if (!battleStoryEvents) {
+                battleStoryEvents = [
+                    { time: 15, action: () => focusShip('xwing', 6, true) },
+                    { time: 28, action: () => focusShip('xwing', 8) },
+                    { time: 38, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 48, action: () => focusShip('falcon', 6) },
+                    { time: 52, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 62, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 68, action: () => destroyShipsByType('tieinterceptor', 1) },
+                    { time: 78, action: () => focusShip('interceptor', 6) },
+                    { time: 88, action: () => focusShip('imperialshuttle', 8) },
+                    { time: 95, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 98, action: () => destroyShipsByType('imperialshuttle', 1) },
+                    { time: 112, action: () => focusShip('interceptor', 6) },
+                    { time: 122, action: () => destroyShipsByType('interceptor', 1) },
+                    { time: 132, action: () => destroyShipsByType('tiefighter', 2) },
+                    { time: 140, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 148, action: () => focusShip('razorcrest', 6) },
+                    { time: 152, action: () => destroyShipsByType('tieinterceptor', 1) },
+                    { time: 158, action: () => focusShip('xwing', 6, true) },
+                    { time: 160, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 168, action: () => focusShip('razorcrest', 8) },
+                    { time: 178, action: () => destroyShipsByType('tiefighter', 2) },
+                    { time: 188, action: () => destroyShipsByType('razorcrest', 1) },
+                    { time: 202, action: () => destroyShipsByType('xwing', 1, true) },
+                    { time: 215, action: () => focusShip('xwing', 14, true) },
+                    { time: 225, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 235, action: () => focusShip('xwing', 8, true) },
+                    { time: 240, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 245, action: () => focusShip('xwing', 12, true) },
+                    { time: 255, action: () => destroyShipsByType('falcon', 1) },
+                    { time: 263, action: () => focusShip('xwing', 16, true) },
+                    { time: 265, action: () => destroyShipsByType('tieinterceptor', 1) },
+                    { time: 268, action: () => destroyShipsByType('tiefighter', 2) },
+                    { time: 272, action: () => destroyShipsByType('tiefighter', 1) },
+                    { time: 278, action: () => focusDeathStar(16) }
+                ];
             }
-            
-            // Dynamic camera movement for cinematic effect - closer and more dramatic
-            if (battlePhase === 'approach') {
-                // Wide establishing shot of the fleet approaching
-                const xwings = nurWarsObjects.filter(obj => obj.type === 'xwing' || obj.type === 'interceptor');
-                if (xwings.length === 0) return;
-                const avgPos = new THREE.Vector3(0, 0, 0);
-                xwings.forEach(xw => {
-                    avgPos.add(xw.object.position);
-                });
-                avgPos.divideScalar(xwings.length);
-                
-                const cameraPos = avgPos.clone();
-                cameraPos.z += 400;
-                cameraPos.y += 150;
-                cameraPos.x += 100;
-                
-                nurWarsCamera.position.lerp(cameraPos, 0.02);
-                nurWarsCamera.lookAt(avgPos);
-            } else if (battlePhase === 'battle') {
-                // Multiple dynamic camera cuts for epic battle feel
-                const cyclePhase = (battleTimer % 300) / 300; // 5 second cycles
+
+            while (battleStoryIndex < battleStoryEvents.length && t >= battleStoryEvents[battleStoryIndex].time) {
+                battleStoryEvents[battleStoryIndex].action();
+                battleStoryIndex++;
+            }
+
+            function focusShip(type, durationSeconds, preferPlayer) {
+                let target = null;
+                if (preferPlayer && type === 'xwing') {
+                    target = nurWarsObjects.find(obj => obj.type === 'xwing' && obj.isPlayer);
+                }
+                if (!target) target = nurWarsObjects.find(obj => obj.type === type);
+                if (target) {
+                    battleCameraFocusOverride = target.object.position.clone();
+                    battleCameraFocusUntil = t + durationSeconds;
+                }
+            }
+
+            function focusDeathStar(durationSeconds) {
                 const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
-                const playerXWing = nurWarsObjects.find(obj => obj.type === 'xwing' && obj.isPlayer);
-                const falcon = nurWarsObjects.find(obj => obj.type === 'falcon');
-                
-                let cameraPos = new THREE.Vector3();
-                let lookTarget = new THREE.Vector3();
-                
-                if (cyclePhase < 0.25 && playerXWing && deathStar) {
-                    // Close follow on player X-Wing
-                    cameraPos = playerXWing.object.position.clone();
-                    cameraPos.z += 100;
-                    cameraPos.y += 40;
-                    lookTarget = deathStar.object.position.clone();
-                } else if (cyclePhase < 0.5) {
-                    // Wide shot of Millennium Falcon leading the assault
-                    if (falcon && deathStar) {
-                        cameraPos = falcon.object.position.clone();
-                        cameraPos.z += 150;
-                        cameraPos.y += 80;
-                        lookTarget = deathStar.object.position.clone();
-                    } else if (deathStar) {
-                        cameraPos = deathStar.object.position.clone().add(new THREE.Vector3(400, 300, 400));
-                        lookTarget = deathStar.object.position.clone();
-                    }
-                } else if (cyclePhase < 0.75 && playerXWing && deathStar) {
-                    // Death Star approach shot
-                    cameraPos = playerXWing.object.position.clone();
-                    cameraPos.z -= 50; // In front
-                    cameraPos.y += 60;
-                    lookTarget = deathStar.object.position.clone();
-                } else if (deathStar) {
-                    // Dynamic action shot - rotating around battle
-                    const angle = battleTimer * 0.005;
-                    const distance = 400;
-                    cameraPos = deathStar.object.position.clone();
-                    cameraPos.x += Math.cos(angle) * distance;
-                    cameraPos.z += Math.sin(angle) * distance;
-                    cameraPos.y += 200;
-                    lookTarget = deathStar.object.position.clone();
-                }
-                
-                if (cameraPos.length() > 0) {
-                    nurWarsCamera.position.lerp(cameraPos, 0.05);
-                    nurWarsCamera.lookAt(lookTarget);
+                if (deathStar) {
+                    battleCameraFocusOverride = deathStar.object.position.clone();
+                    battleCameraFocusUntil = t + durationSeconds;
                 }
             }
+
+            function destroyShipsByType(type, count, avoidPlayer) {
+                let destroyed = 0;
+                nurWarsObjects.slice().forEach(obj => {
+                    if (destroyed >= count) return;
+                    if (obj.type !== type || obj.health <= 0) return;
+                    if (avoidPlayer && obj.type === 'xwing' && obj.isPlayer) return;
+                    obj.health = 0;
+                    createExplosion(obj.object.position.clone(), 140 + Math.random() * 90);
+                    nurWarsScene.remove(obj.object);
+                    const idx = nurWarsObjects.indexOf(obj);
+                    if (idx >= 0) nurWarsObjects.splice(idx, 1);
+                    destroyed++;
+                });
+            }
+            // ACT 1: Approach (0-30s)
+            if (t < 30) {
+                battlePhase = 'approach';
+            } 
+            // ACT 2: Initial Engagement (30-80s) - "First Blood"
+            else if (t < 80) {
+                battlePhase = 'engage';
+            } 
+            // ACT 3: Main Battle (80-160s) - "The Dance of Death"
+            else if (t < 160) {
+                battlePhase = 'mainbattle';
+            } 
+            // ACT 4: Trench Run (160-220s) - "The Final Approach"
+            else if (t < 220) {
+                battlePhase = 'trench';
+            } 
+            // ACT 5: The Strike (220-280s) - "The Shot Heard Across the Galaxy"
+            else if (t < 280) {
+                battlePhase = 'attack';
+            } 
+            // ACT 6: Victory (280-300s) - "The Day We Won"
+            else if (t < 300) {
+                battlePhase = 'explosion';
+            } 
+            else {
+                battlePhase = 'victory';
+            }
+
+            const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
+            const playerXWing = nurWarsObjects.find(obj => obj.type === 'xwing' && obj.isPlayer);
+            const falcon = nurWarsObjects.find(obj => obj.type === 'falcon');
+            const ties = nurWarsObjects.filter(obj => obj.type === 'tiefighter' && obj.health > 0);
+            const xwings = nurWarsObjects.filter(obj => (obj.type === 'xwing' || obj.type === 'interceptor') && obj.health > 0);
+
+            if (battlePhase !== lastBattlePhase) {
+                lastBattlePhase = battlePhase;
+            }
+
+            // Dynamic camera behavior per phase (follows ships with motion)
+            const camOrbit = t * 0.6;
+            const camWobble = Math.sin(t * 1.2) * 25;
+            const forcedFocus = (battleCameraFocusOverride && t < battleCameraFocusUntil) ? battleCameraFocusOverride : null;
+            if (battlePhase === 'approach') {
+                if (xwings.length === 0) return;
+                const avgPos = new THREE.Vector3();
+                xwings.forEach(xw => avgPos.add(xw.object.position));
+                avgPos.divideScalar(xwings.length);
+                const focusPos = forcedFocus || avgPos;
+                const offset = new THREE.Vector3(
+                    Math.cos(camOrbit) * 220,
+                    200 + camWobble,
+                    700 + Math.sin(camOrbit) * 140
+                );
+                battleCameraDesiredPos.copy(focusPos).add(offset);
+                battleCameraDesiredLook.copy(focusPos);
+            } else if (battlePhase === 'engage') {
+                const focus = forcedFocus || (falcon ? falcon.object.position : (xwings[0] ? xwings[0].object.position : deathStar ? deathStar.object.position : new THREE.Vector3()));
+                const phaseProgress = Math.min((t - 30) / 50, 1);
+                const offset = new THREE.Vector3(
+                    Math.cos(camOrbit) * (220 + phaseProgress * 40),
+                    140 + camWobble,
+                    600 + Math.sin(camOrbit) * 180 + phaseProgress * 50
+                );
+                battleCameraDesiredPos.copy(focus).add(offset);
+                battleCameraDesiredLook.copy(focus);
+            } else if (battlePhase === 'mainbattle') {
+                let focus = forcedFocus || (falcon ? falcon.object.position : (xwings[0] ? xwings[0].object.position : deathStar ? deathStar.object.position : new THREE.Vector3()));
+                if (t > 100 && t < 130) {
+                    const shuttle = nurWarsObjects.find(obj => obj.type === 'imperialshuttle');
+                    if (shuttle) focus = shuttle.object.position;
+                } else if (t >= 130 && t < 160) {
+                    const interceptor = nurWarsObjects.find(obj => obj.type === 'interceptor');
+                    if (interceptor) focus = interceptor.object.position;
+                }
+                const offset = new THREE.Vector3(
+                    Math.cos(camOrbit) * 420,
+                    220 + camWobble,
+                    800 + Math.sin(camOrbit) * 220
+                );
+                battleCameraDesiredPos.copy(focus).add(offset);
+                battleCameraDesiredLook.copy(focus);
+            } else if (battlePhase === 'trench') {
+                if (playerXWing && deathStar) {
+                    const focus = forcedFocus || playerXWing.object.position;
+                    const phaseProgress = (t - 160) / 60;
+                    const offset = new THREE.Vector3(
+                        Math.cos(camOrbit) * (120 - phaseProgress * 40),
+                        80 + camWobble,
+                        420 + Math.sin(camOrbit) * 60 - phaseProgress * 80
+                    );
+                    battleCameraDesiredPos.copy(focus).add(offset);
+                    battleCameraDesiredLook.copy(deathStar.exhaustPort ? deathStar.exhaustPort.position : deathStar.object.position);
+                }
+            } else if (battlePhase === 'attack') {
+                if (playerXWing && deathStar) {
+                    const focus = forcedFocus || playerXWing.object.position;
+                    const phaseProgress = Math.min((t - 220) / 60, 1);
+                    const offset = new THREE.Vector3(
+                        Math.cos(camOrbit) * (140 - phaseProgress * 50),
+                        100 + camWobble - phaseProgress * 30,
+                        380 + Math.sin(camOrbit) * 80 - phaseProgress * 120
+                    );
+                    battleCameraDesiredPos.copy(focus).add(offset);
+                    battleCameraDesiredLook.copy(deathStar.exhaustPort ? deathStar.exhaustPort.position : deathStar.object.position);
+                }
+            } else if (battlePhase === 'explosion') {
+                if (deathStar) {
+                    const focus = forcedFocus || deathStar.object.position;
+                    const pullback = Math.min(Math.max((t - 278) / 18, 0), 1);
+                    const offset = new THREE.Vector3(
+                        Math.cos(camOrbit) * (700 + pullback * 900),
+                        420 + camWobble + pullback * 400,
+                        900 + Math.sin(camOrbit) * 220 + pullback * 1000
+                    );
+                    battleCameraDesiredPos.copy(focus).add(offset);
+                    battleCameraDesiredLook.copy(focus);
+                    if (pullback > 0.2) {
+                        nurWarsCamera.fov = Math.max(50, 60 - pullback * 15);
+                        nurWarsCamera.updateProjectionMatrix();
+                    }
+                }
+            }
+
+            if (!battleCameraInitialized) {
+                battleCameraInitialized = true;
+                battleCameraLookCurrent.copy(battleCameraDesiredLook);
+            }
+            if (battleCameraDesiredPos.length() > 0) {
+                // Add camera shake during explosion phase
+                let shakeIntensity = 0;
+                if (battlePhase === 'explosion') {
+                    shakeIntensity = Math.max(0, 2.0 - (t - 280) / 10) * Math.sin(battleTimer * 0.15);
+                    battleCameraDesiredPos.x += shakeIntensity * 8;
+                    battleCameraDesiredPos.y += Math.sin(battleTimer * 0.12) * shakeIntensity * 6;
+                }
+                nurWarsCamera.position.lerp(battleCameraDesiredPos, 0.045);
+            }
+            battleCameraLookCurrent.lerp(battleCameraDesiredLook, 0.06);
+            nurWarsCamera.lookAt(battleCameraLookCurrent);
+
+            // Apply scripted flight paths
+            nurWarsObjects.forEach(obj => {
+                if (!obj.path || obj.health <= 0) return;
+                const start = obj.pathStart || 0;
+                const duration = obj.pathDuration || 20;
+                const localT = (t - start) / duration;
+                if (localT < 0 || localT > 1) return;
+                const nextPos = getPathPoint(obj.path, localT);
+                if (!nextPos) return;
+                const prevPos = obj.object.position.clone();
+                obj.object.position.copy(nextPos);
+                obj.object.lookAt(nextPos.clone().add(nextPos.clone().sub(prevPos)));
+            });
             
-            // Update X-Wings with more aggressive behavior
+            // Update X-Wings with scripted behavior
             nurWarsObjects.filter(obj => obj.type === 'xwing').forEach(xwing => {
                 if (xwing.health <= 0) return;
                 
                 if (battlePhase === 'approach') {
                     xwing.object.position.add(xwing.velocity);
-                } else if (battlePhase === 'battle') {
+                } else if (battlePhase === 'engage' || battlePhase === 'mainbattle' || battlePhase === 'trench' || battlePhase === 'attack') {
                     if (xwing.isPlayer) {
                         // Nur's X-Wing targets the exhaust port with more dramatic approach
                         const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
                         if (deathStar && deathStar.exhaustPort) {
                             const target = deathStar.exhaustPort.position;
                             const direction = target.clone().sub(xwing.object.position).normalize();
-                            xwing.object.position.add(direction.multiplyScalar(2.5)); // Slightly faster
+                            const speed = battlePhase === 'attack' ? 3.2 : (battlePhase === 'trench' ? 2.6 : 2.0);
+                            xwing.object.position.add(direction.multiplyScalar(speed));
                             
                             // Look at target
                             xwing.object.lookAt(target);
                             
-                            // Fire lasers much more frequently for intense battle
-                            if (battleTimer % 15 === 0) {
+                            // Add targeting reticule effect as X-Wing closes in during attack phase
+                            const distToTarget = xwing.object.position.distanceTo(target);
+                            if (battlePhase === 'attack' && distToTarget < 600) {
+                                // Create targeting marker every 8 frames
+                                if (battleTimer % 8 === 0) {
+                                    const markerGeometry = new THREE.SphereGeometry(5, 8, 8);
+                                    const markerMaterial = new THREE.MeshBasicMaterial({ 
+                                        color: 0x00ff00,
+                                        wireframe: true
+                                    });
+                                    const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+                                    marker.position.copy(target);
+                                    nurWarsScene.add(marker);
+                                    setTimeout(() => nurWarsScene.remove(marker), 200);
+                                }
+                            }
+                            
+                            // Fire during attack run - increase fire rate as approaching
+                            const fireRateModifier = battlePhase === 'attack' ? Math.max(12, 24 - distToTarget / 50) : 20;
+                            if (battlePhase === 'attack' && t > 260 && !playerShotFired && battleTimer % Math.ceil(fireRateModifier) === 0) {
                                 createLaser(xwing.object.position.clone(), direction.clone(), 0x00ff00, true);
+                                playerShotFired = true;
+                                // Play special final shot sound with higher priority
+                                playNurWarsSound('laser');
                             }
                         }
                     } else {
@@ -6557,14 +8018,56 @@
                         xwing.object.position.add(xwing.velocity);
                         
                         // Fire at TIE fighters more frequently
-                        if (battleTimer % 25 === Math.floor(Math.random() * 25)) {
+                        if ((battlePhase === 'engage' || battlePhase === 'mainbattle') && battleTimer % 16 === Math.floor(Math.random() * 16)) {
                             const ties = nurWarsObjects.filter(obj => obj.type === 'tiefighter' && obj.health > 0);
                             if (ties.length > 0) {
                                 const target = ties[Math.floor(Math.random() * ties.length)];
                                 const direction = target.object.position.clone().sub(xwing.object.position).normalize();
-                                createLaser(xwing.object.position.clone(), direction, 0x00ff00, false);
+                                createLaser(xwing.object.position.clone(), direction, 0x00ff00, true);
                             }
                         }
+                    }
+                }
+            });
+
+            // Update Millennium Falcon (blue lasers)
+            nurWarsObjects.filter(obj => obj.type === 'falcon').forEach(falconShip => {
+                if (falconShip.health <= 0) return;
+                const fireRate = battlePhase === 'attack' ? 14 : (battlePhase === 'trench' ? 15 : 16);
+                if ((battlePhase === 'engage' || battlePhase === 'mainbattle' || battlePhase === 'trench' || battlePhase === 'attack') && battleTimer % fireRate === 0) {
+                    const ties = nurWarsObjects.filter(obj => (obj.type === 'tiefighter' || obj.type === 'tieinterceptor') && obj.health > 0);
+                    if (ties.length > 0) {
+                        const target = ties[Math.floor(Math.random() * ties.length)];
+                        const direction = target.object.position.clone().sub(falconShip.object.position).normalize();
+                        createLaser(falconShip.object.position.clone(), direction, 0x00aaff, true);
+                    }
+                }
+            });
+
+            // Update Rebel Interceptor (blue lasers)
+            nurWarsObjects.filter(obj => obj.type === 'interceptor').forEach(rebelInterceptor => {
+                if (rebelInterceptor.health <= 0) return;
+                const fireRate = battlePhase === 'attack' ? 14 : (battlePhase === 'trench' ? 16 : 18);
+                if ((battlePhase === 'engage' || battlePhase === 'mainbattle' || battlePhase === 'trench' || battlePhase === 'attack') && battleTimer % fireRate === 0) {
+                    const ties = nurWarsObjects.filter(obj => (obj.type === 'tiefighter' || obj.type === 'tieinterceptor') && obj.health > 0);
+                    if (ties.length > 0) {
+                        const target = ties[Math.floor(Math.random() * ties.length)];
+                        const direction = target.object.position.clone().sub(rebelInterceptor.object.position).normalize();
+                        createLaser(rebelInterceptor.object.position.clone(), direction, 0x00ccff, true);
+                    }
+                }
+            });
+
+            // Update Razor Crest (green/blue lasers)
+            nurWarsObjects.filter(obj => obj.type === 'razorcrest').forEach(razor => {
+                if (razor.health <= 0) return;
+                const fireRate = battlePhase === 'attack' ? 16 : (battlePhase === 'trench' ? 18 : 20);
+                if ((battlePhase === 'engage' || battlePhase === 'mainbattle' || battlePhase === 'trench' || battlePhase === 'attack') && battleTimer % fireRate === 0) {
+                    const ties = nurWarsObjects.filter(obj => (obj.type === 'tiefighter' || obj.type === 'tieinterceptor') && obj.health > 0);
+                    if (ties.length > 0) {
+                        const target = ties[Math.floor(Math.random() * ties.length)];
+                        const direction = target.object.position.clone().sub(razor.object.position).normalize();
+                        createLaser(razor.object.position.clone(), direction, 0x00ff88, true);
                     }
                 }
             });
@@ -6572,16 +8075,10 @@
             // Update TIE Fighters with more aggressive behavior
             nurWarsObjects.filter(obj => obj.type === 'tiefighter').forEach(tie => {
                 if (tie.health <= 0) return;
-                
-                tie.object.position.add(tie.velocity);
                 tie.object.rotation.y += 0.15; // Faster rotation for more dynamic look
                 
-                // Keep in bounds
-                if (Math.abs(tie.object.position.x) > 1500) tie.velocity.x *= -1;
-                if (Math.abs(tie.object.position.y) > 500) tie.velocity.y *= -1;
-                
-                // Fire at X-Wings much more frequently for intense battle
-                if (battleTimer % 35 === Math.floor(Math.random() * 35)) {
+                // Fire at X-Wings during engage/trench phases
+                if ((battlePhase === 'engage' || battlePhase === 'mainbattle' || battlePhase === 'trench') && battleTimer % 24 === Math.floor(Math.random() * 24)) {
                     const xwings = nurWarsObjects.filter(obj => obj.type === 'xwing' && obj.health > 0);
                     if (xwings.length > 0) {
                         const target = xwings[Math.floor(Math.random() * xwings.length)];
@@ -6590,6 +8087,53 @@
                     }
                 }
             });
+
+            // Timed ship destructions to tell the story
+            nurWarsObjects.slice().forEach(obj => {
+                if (!obj.destroyAt || obj.health <= 0) return;
+                if (t >= obj.destroyAt) {
+                    obj.health = 0;
+                    createExplosion(obj.object.position.clone(), 120 + Math.random() * 80);
+                    nurWarsScene.remove(obj.object);
+                    const idx = nurWarsObjects.indexOf(obj);
+                    if (idx >= 0) nurWarsObjects.splice(idx, 1);
+                }
+            });
+
+            // Ensure only the player's X-Wing remains before the final strike
+            if (t >= 245) {
+                nurWarsObjects.slice().forEach(obj => {
+                    if (obj.health <= 0) return;
+                    const isRebel = obj.type === 'xwing' || obj.type === 'falcon' || obj.type === 'interceptor' || obj.type === 'razorcrest';
+                    if (isRebel && !(obj.type === 'xwing' && obj.isPlayer)) {
+                        obj.health = 0;
+                        createExplosion(obj.object.position.clone(), 140 + Math.random() * 80);
+                        nurWarsScene.remove(obj.object);
+                        const idx = nurWarsObjects.indexOf(obj);
+                        if (idx >= 0) nurWarsObjects.splice(idx, 1);
+                    }
+                });
+            }
+
+            // After the final strike, clean up remaining imperials for a clear victory shot
+            if (t >= 285) {
+                nurWarsObjects.slice().forEach(obj => {
+                    if (obj.health <= 0) return;
+                    const isImperial = obj.type === 'tiefighter' || obj.type === 'tieinterceptor' || obj.type === 'imperialshuttle';
+                    if (isImperial) {
+                        obj.health = 0;
+                        createExplosion(obj.object.position.clone(), 160 + Math.random() * 80);
+                        nurWarsScene.remove(obj.object);
+                        const idx = nurWarsObjects.indexOf(obj);
+                        if (idx >= 0) nurWarsObjects.splice(idx, 1);
+                    }
+                });
+            }
+
+            // Trigger Death Star destruction at scripted time if not already started
+            if (deathStar && !finalExplosionStarted && t >= 275) {
+                startDeathStarDestruction(deathStar);
+            }
             
             // Update lasers
             updateLasers();
@@ -6598,14 +8142,13 @@
             updateExplosions();
             
             // Check for victory condition
-            const deathStar = nurWarsObjects.find(obj => obj.type === 'deathstar');
             if (!deathStar && battlePhase !== 'victory') {
                 battlePhase = 'victory';
                 showVictoryMessage();
             }
             
-            // Auto-close after much longer victory sequence
-            if (battlePhase === 'victory' && battleTimer > 18000) { // Much longer victory sequence
+            // Auto-close after victory sequence
+            if (battlePhase === 'victory' && battleTimer > 18500) {
                 closeNurWars();
                 return;
             }
@@ -6617,7 +8160,8 @@
                 color: color,
                 emissive: color,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.9,
+                emissiveIntensity: 1.2
             });
             const laser = new THREE.Mesh(laserGeometry, laserMaterial);
             laser.position.copy(position);
@@ -6633,7 +8177,11 @@
             });
             
             // Play laser sound
-            playNurWarsSound('laser');
+            const now = performance.now();
+            if (now - lastLaserSoundAt > 60) {
+                playNurWarsSound('laser');
+                lastLaserSoundAt = now;
+            }
         }
 
         function updateLasers() {
@@ -6671,8 +8219,9 @@
             if (finalExplosionStarted) return;
             finalExplosionStarted = true;
             
-            // Zoom camera much closer to Death Star for ultra-dramatic effect
+            // Zoom camera closer to Death Star for ultra-dramatic effect (stay outside)
             const deathStarPos = deathStar.object.position.clone();
+            const deathStarRadius = deathStar.object.userData.radius || 180;
             
             // Create multiple explosion stages with much closer camera work
             setTimeout(() => {
@@ -6681,9 +8230,9 @@
                 
                 // Zoom camera much closer for intense destruction view
                 const ultraClosePos = deathStarPos.clone();
-                ultraClosePos.z += 250; // Much closer than before
-                ultraClosePos.y += 80;
-                ultraClosePos.x += 50; // Slight angle for better view
+                ultraClosePos.z += deathStarRadius + 260; // Stay outside the surface
+                ultraClosePos.y += 120;
+                ultraClosePos.x += 80; // Slight angle for better view
                 
                 const zoomDuration = 1500; // Faster zoom
                 const startTime = Date.now();
@@ -6813,23 +8362,85 @@
         }
 
         function createExplosion(position, maxSize) {
-            const explosionGeometry = new THREE.SphereGeometry(1, 16, 16);
+            // Core fireball
+            const explosionGeometry = new THREE.SphereGeometry(1, 20, 20);
             const explosionMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xff6600,
+                color: 0xffaa00,
                 transparent: true,
                 opacity: 1
             });
             const explosion = new THREE.Mesh(explosionGeometry, explosionMaterial);
             explosion.position.copy(position);
-            
             nurWarsScene.add(explosion);
             explosions.push({
                 object: explosion,
                 maxSize: maxSize,
                 currentSize: 1,
                 life: 120,
-                maxLife: 120
+                maxLife: 120,
+                type: 'core'
             });
+            
+            // Inner bright flash
+            const flashGeo = new THREE.SphereGeometry(1, 16, 16);
+            const flashMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff,
+                transparent: true,
+                opacity: 1
+            });
+            const flash = new THREE.Mesh(flashGeo, flashMat);
+            flash.position.copy(position);
+            nurWarsScene.add(flash);
+            explosions.push({
+                object: flash,
+                maxSize: maxSize * 0.6,
+                currentSize: 1,
+                life: 40,
+                maxLife: 40,
+                type: 'flash'
+            });
+            
+            // Outer smoke layer
+            const smokeGeo = new THREE.SphereGeometry(1, 12, 12);
+            const smokeMat = new THREE.MeshBasicMaterial({ 
+                color: 0x442200,
+                transparent: true,
+                opacity: 0.7
+            });
+            const smoke = new THREE.Mesh(smokeGeo, smokeMat);
+            smoke.position.copy(position);
+            nurWarsScene.add(smoke);
+            explosions.push({
+                object: smoke,
+                maxSize: maxSize * 1.3,
+                currentSize: 1,
+                life: 140,
+                maxLife: 140,
+                type: 'smoke'
+            });
+            
+            // Debris particles
+            for (let i = 0; i < 8; i++) {
+                const debrisGeo = new THREE.BoxGeometry(2, 2, 2);
+                const debrisMat = new THREE.MeshBasicMaterial({ color: 0x888888 });
+                const debris = new THREE.Mesh(debrisGeo, debrisMat);
+                debris.position.copy(position);
+                nurWarsScene.add(debris);
+                const vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 12,
+                    (Math.random() - 0.5) * 12,
+                    (Math.random() - 0.5) * 12
+                );
+                explosions.push({
+                    object: debris,
+                    maxSize: 2,
+                    currentSize: 2,
+                    life: 80,
+                    maxLife: 80,
+                    type: 'debris',
+                    velocity: vel
+                });
+            }
             
             // Play explosion sound
             playNurWarsSound('explosion');
@@ -6844,8 +8455,22 @@
                     explosion.currentSize += 1.5;
                     explosion.object.scale.setScalar(explosion.currentSize);
                     explosion.object.material.opacity = explosion.life / explosion.maxLife;
+                } else if (explosion.type === 'debris') {
+                    explosion.object.position.add(explosion.velocity);
+                    explosion.velocity.multiplyScalar(0.98);
+                    explosion.object.material.opacity = explosion.life / explosion.maxLife;
+                } else if (explosion.type === 'flash') {
+                    explosion.currentSize += explosion.maxSize / 10;
+                    explosion.object.scale.setScalar(explosion.currentSize);
+                    explosion.object.material.opacity = explosion.life / explosion.maxLife;
+                } else if (explosion.type === 'smoke') {
+                    if (explosion.currentSize < explosion.maxSize) {
+                        explosion.currentSize += explosion.maxSize / 30;
+                    }
+                    explosion.object.scale.setScalar(explosion.currentSize);
+                    explosion.object.material.opacity = (explosion.life / explosion.maxLife) * 0.5;
                 } else {
-                // Grow explosion
+                // Grow explosion core
                 if (explosion.currentSize < explosion.maxSize) {
                     explosion.currentSize += explosion.maxSize / 60;
                     explosion.object.scale.setScalar(explosion.currentSize);
@@ -6971,6 +8596,15 @@
             }
         }
 
+        const skyCloseBtn = document.getElementById('sky-close');
+        if (skyCloseBtn) {
+            skyCloseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSkyModal();
+            });
+        }
+
         function resetView() {
             // Set flag to stop animation updates
             stopSuctionAnimation = true;
@@ -7056,6 +8690,7 @@
         }
 
         window.addEventListener('wheel', (e) => {
+            lastWheelTime = Date.now();
             if (isCenterView) {
                 // Telescope zoom (FOV)
                 let newFov = camera.fov + (e.deltaY * 0.05);
@@ -7195,6 +8830,10 @@
                 updateBattleLogic();
                 webGLRenderer.render(nurWarsScene, camera);
                 return; // Skip normal rendering
+            }
+
+            if (nurWarsActive && renderMode === 'video') {
+                return; // Video playback handles visuals
             }
 
             // Continue rendering main scene during NUR WARS opening crawl for starfield
