@@ -6,6 +6,8 @@
     <meta name="theme-color" content="#000000">
     <title>Nur | Mission Control</title>
     <link rel="icon" href="data:,">
+    <!-- Preload critical UI assets for faster button appearance -->
+    <link rel="preload" href="assets/images/nurwars.png" as="image">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
@@ -1295,12 +1297,18 @@
         function checkSolarModelsReady() {
             updateSolarLoadingOverlay();
             if (solarModelsToLoad > 0 && solarModelsLoaded >= solarModelsToLoad) {
-                // Show everything at once
+                // Show canvas and UI immediately
                 container.style.display = 'block';
                 uiLayer.style.display = 'flex';
                 solarLoadingOverlay.style.display = 'none';
-                document.body.classList.remove('loading');
-                revealLabelsOnNextFrame = true;
+                
+                // Wait for initial render frames before revealing buttons
+                // This ensures the solar system is visually rendered before buttons appear
+                setTimeout(() => {
+                    document.body.classList.remove('loading');
+                    revealLabelsOnNextFrame = true;
+                }, 100); // Reduced delay for faster UI appearance while still allowing render frames
+                
                 if (solarLoadTimeoutId) {
                     clearTimeout(solarLoadTimeoutId);
                     solarLoadTimeoutId = null;
@@ -1313,8 +1321,10 @@
             container.style.display = 'block';
             uiLayer.style.display = 'flex';
             solarLoadingOverlay.style.display = 'none';
-            document.body.classList.remove('loading');
-            revealLabelsOnNextFrame = true;
+            setTimeout(() => {
+                document.body.classList.remove('loading');
+                revealLabelsOnNextFrame = true;
+            }, 100);
         }, 15000);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 12000);
@@ -2387,12 +2397,14 @@
             const div = document.createElement('div');
             div.className = isMajor ? 'label major' : 'label';
             div.innerHTML = text;
+            div.style.left = '-9999px'; // Position off-screen initially until first render loop positions it
+            div.style.top = '-9999px';
             div.onclick = (e) => {
                 e.stopPropagation();
                 focusOnObject(object);
             };
             document.getElementById('ui-layer').appendChild(div);
-            labels.push({ div, object });
+            labels.push({ div, object, originalOpacity: 1.0 });
         }
 
         // === AUDIO SETUP ===
@@ -4065,12 +4077,21 @@
             // Also dim labels of background objects
             labels.forEach(labelItem => {
                 const obj = labelItem.object;
-                if (obj === focusedPlanet) return; // Don't dim focused planet label
-                if (obj.userData.isMoon && obj.userData.parentPlanet === focusedPlanet) return; // Don't dim focused planet's moon labels
                 
-                // Store original label opacity if not stored
+                // Store original label opacity if not stored (default to 1.0 for full visibility)
                 if (!labelItem.originalOpacity) {
-                    labelItem.originalOpacity = parseFloat(window.getComputedStyle(labelItem.div).opacity) || 1.0;
+                    let computedOpacity = parseFloat(window.getComputedStyle(labelItem.div).opacity);
+                    labelItem.originalOpacity = (computedOpacity && computedOpacity > 0) ? computedOpacity : 1.0;
+                }
+                
+                // Show labels for focused planet and its moons at full opacity
+                if (obj === focusedPlanet || (obj.userData.isMoon && obj.userData.parentPlanet === focusedPlanet)) {
+                    labelItem.div.style.opacity = labelItem.originalOpacity;
+                    gsap.to(labelItem.div, {
+                        opacity: labelItem.originalOpacity,
+                        duration: 1.0
+                    });
+                    return;
                 }
                 
                 // Dim labels of background objects
@@ -6321,18 +6342,20 @@
                 }
                 
                 // Apply scroll animation to entire text (including image)
-                // Constant speed upward motion - linear only
+                // Use easeOut to compensate for perspective acceleration, creating perceived constant speed
+                const easedProgress = 1 - Math.pow(1 - progress, 1.5); // Ease out cubic for smoother perceived motion
+                
                 const distance = window.innerHeight * 2;
-                const currentY = -distance * progress;
+                const currentY = -distance * easedProgress;
                 
-                // Linear rotation to create receding effect
-                const rotationAngle = 60 * progress;
+                // Apply same easing to rotation, scale, and depth for consistent speed perception
+                const rotationAngle = 60 * easedProgress;
                 
-                // Uniform scale reduction - shrink both width and height proportionally
-                const currentScale = 1.0 - (0.95 * progress);
+                // Uniform scale reduction with easing
+                const currentScale = 1.0 - (0.95 * easedProgress);
                 
-                // Z depth for receding effect
-                const currentZ = -500 * progress;
+                // Z depth with easing for consistent receding effect
+                const currentZ = -500 * easedProgress;
                 
                 element.style.transform = `translateX(-50%) translateY(${currentY}px) rotateX(${rotationAngle}deg) scale(${currentScale}) translateZ(${currentZ}px)`;
                 
@@ -8971,8 +8994,18 @@
                 const pos = new THREE.Vector3();
                 item.object.getWorldPosition(pos);
 
-                // Hide Moon labels when zoomed out
-                if (item.object.userData.isMoon) {
+                // Determine the actual focused planet (whether focused object is a planet or moon)
+                let focusedPlanetForComparison = null;
+                if (focusedObject) {
+                    if (focusedObject.userData.isPlanet) {
+                        focusedPlanetForComparison = focusedObject;
+                    } else if (focusedObject.userData.isMoon && focusedObject.userData.parentPlanet) {
+                        focusedPlanetForComparison = focusedObject.userData.parentPlanet;
+                    }
+                }
+
+                // Hide Moon labels when zoomed out, UNLESS their parent planet is focused
+                if (item.object.userData.isMoon && !focusedPlanetForComparison) {
                     if (camera.position.distanceTo(pos) > 85) {
                         item.div.style.display = 'none';
                         return;
@@ -8981,7 +9014,7 @@
 
                 // Hide labels of background moons when dimmed (they're too faint to be useful)
                 if (backgroundDimming && item.object.userData.isMoon && 
-                    focusedObject && item.object.userData.parentPlanet !== focusedObject) {
+                    focusedPlanetForComparison && item.object.userData.parentPlanet !== focusedPlanetForComparison) {
                     item.div.style.display = 'none';
                     return;
                 }
@@ -8991,9 +9024,9 @@
                 let labelOffset;
                 
                 // Adjust label positioning based on focus state
-                const isFocusedPlanetSystem = focusedObject && 
-                    (item.object === focusedObject || 
-                     (item.object.userData.isMoon && item.object.userData.parentPlanet === focusedObject));
+                const isFocusedPlanetSystem = focusedPlanetForComparison && 
+                    (item.object === focusedPlanetForComparison || 
+                     (item.object.userData.isMoon && item.object.userData.parentPlanet === focusedPlanetForComparison));
                 
                 if (item.object.userData.isMoon) {
                     if (isFocusedPlanetSystem) {
