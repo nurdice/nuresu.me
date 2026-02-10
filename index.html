@@ -11,12 +11,15 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Preload critical UI assets for faster button appearance -->
-    <link rel="preload" href="assets/images/nurwars.png" as="image">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap">
+    </noscript>
+    <!-- Resource hints for performance -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-        
         body {
             margin: 0;
             overflow: hidden;
@@ -766,25 +769,26 @@
     <div id="pdf-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:100; justify-content:center; align-items:center;">
         <div style="background:rgba(15, 23, 42, 0.95); padding:40px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-align:center; backdrop-filter:blur(10px); max-width: 400px; width: 90%;">
             <h2 style="color:#38bdf8; margin-top:0;">Download Resume</h2>
-            <p style="color:#cbd5e1; margin-bottom:30px;">Choose a style for your PDF resume:</p>
+            <p style="color:#cbd5e1; margin-bottom:12px;">Choose a style for your PDF resume:</p>
+            <p style="color:#94a3b8; margin:0 0 24px; font-size:12px;">Fast download if available, otherwise it will generate on demand.</p>
             
             <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
-                <button onclick="generatePDF('professional')" style="
+                <button onclick="event.stopPropagation(); downloadPDF('professional')" style="
                     background: #e2e8f0; color: #0f172a; border:none; padding:12px 24px; border-radius:8px; 
                     cursor:pointer; font-weight:600; font-family:'Poppins',sans-serif; transition:transform 0.2s;
                 " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     Professional
                 </button>
                 
-                <button onclick="generatePDF('space')" style="
-                    background: linear-gradient(135deg, #38bdf8, #818cf8); color: white; border:none; padding:12px 24px; border-radius:8px; 
-                    cursor:pointer; font-weight:600; font-family:'Poppins',sans-serif; transition:transform 0.2s;
-                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    Space Theme
+                <button onclick="event.stopPropagation(); downloadPDF('nurwars')" style="
+                    background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; border:2px solid #FFD700; padding:12px 24px; border-radius:8px; 
+                    cursor:pointer; font-weight:700; font-family:'Poppins',sans-serif; transition:transform 0.2s; text-transform:uppercase; letter-spacing:2px;
+                " onmouseover="this.style.transform='scale(1.05)'; this.style.textShadow='0 0 10px #FFD700'" onmouseout="this.style.transform='scale(1)'; this.style.textShadow='none'">
+                    ⚡ NUR WARS
                 </button>
             </div>
             
-            <button onclick="document.getElementById('pdf-modal').style.display='none'" style="margin-top:30px; background:transparent; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:20px; cursor:pointer;">
+            <button onclick="event.stopPropagation(); document.getElementById('pdf-modal').style.display='none'" style="margin-top:30px; background:transparent; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:20px; cursor:pointer;">
                 Cancel
             </button>
         </div>
@@ -803,7 +807,7 @@
         <button class="hud-btn" onclick="toggleOrbits()" id="orbits-btn">🪐 Show Orbits</button>
         <button class="hud-btn" onclick="goToPreviousView()" id="back-btn" style="display: none;">← Back</button>
         <button class="hud-btn" onclick="startNurWars()" id="nur-wars-btn" aria-label="Nur Wars" style="background: url('assets/images/nurwars.png') no-repeat center/contain; background-color: transparent; border: none; width: 120px; height: 60px; padding: 0; min-width: auto; box-shadow: none; backdrop-filter: none;"></button>
-        <button class="hud-btn" onclick="document.getElementById('pdf-modal').style.display='flex'">📄 PDF Resume</button>
+        <button class="hud-btn" onclick="event.stopPropagation(); document.getElementById('pdf-modal').style.display='flex'">📄 PDF Resume</button>
     </div>
 
     <!-- Movie Controls (NUR WARS only) -->
@@ -823,7 +827,7 @@
             
             <!-- Nur Wars image - fixed position overlay, animated separately -->
             <div id="nurwars-image-container" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 999; width: 90%; max-width: 600px;">
-                <img src="assets/images/nurwars opening.png" alt="NUR WARS" style="width: 100%; height: auto;">
+                <img src="assets/images/nurwars opening.png" alt="NUR WARS" loading="lazy" decoding="async" fetchpriority="low" style="width: 100%; height: auto;">
             </div>
             
             <div id="crawl-text" style="position: absolute; top: 100vh; left: 50%; transform: translateX(-50%) rotateX(0deg) scale(1); transform-origin: 50% bottom; width: 98%; max-width: 1200px; color: #feda4a; font-family: 'Arial Black', 'Franklin Gothic', sans-serif; font-size: 36px; line-height: 1.8; text-align: center; letter-spacing: 2px; font-weight: bold;">
@@ -916,6 +920,14 @@
         
         // Initialize GLTF Loader for 3D models (supports KHR_materials_pbrSpecularGlossiness natively)
         const gltfLoader = new GLTFLoader();
+
+        // Suppress non-critical GLTF extension warnings
+        gltfLoader.manager.onError = (error) => {
+            // Only log actual errors, not extension warnings
+            if (error && error.message && !error.message.includes('KHR_materials')) {
+                console.warn('GLTF Loader warning:', error);
+            }
+        };
 
         // Check if RESUME_DATA is loaded properly
         if (!RESUME_DATA) {
@@ -2595,49 +2607,77 @@
             });
         };
 
-        // === PDF GENERATION ===
-        window.generatePDF = async (theme) => {
-            // Load jsPDF library if not already loaded
-            if (!window.jspdf) {
-                const modal = document.getElementById('pdf-modal');
-                const originalText = modal.innerHTML;
-                modal.innerHTML = '<div style="color:white;text-align:center">Loading PDF library...<br>Please wait.</div>';
-                
-                try {
-                    await new Promise((resolve, reject) => {
-                        const script = document.createElement('script');
-                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                        script.onload = resolve;
-                        script.onerror = reject;
-                        document.head.appendChild(script);
-                    });
-                } catch (error) {
-                    modal.innerHTML = '<div style="color:white;text-align:center">Failed to load PDF library.<br>Please try again.</div>';
-                    setTimeout(() => modal.innerHTML = originalText, 2000);
+        // === PDF DOWNLOAD (HYBRID: static if available, otherwise generate) ===
+        window.downloadPDF = async (theme) => {
+            const modal = document.getElementById('pdf-modal');
+            const staticUrl = theme === 'nurwars'
+                ? 'pdf/Nur_Dawoodani_Resume_NUR_WARS.pdf'
+                : 'pdf/Nur_Dawoodani_Resume_Professional.pdf';
+            try {
+                const res = await fetch(staticUrl, { method: 'HEAD', cache: 'no-store' });
+                if (res.ok) {
+                    modal.style.display = 'none';
+                    window.location.href = staticUrl;
                     return;
                 }
+            } catch (e) {
+                // Fall back to generation
             }
-            
+            await window.generatePDF(theme);
+        };
+
+        // === PDF GENERATION ===
+        window.generatePDF = async (theme) => {
+            if (window._pdfGenerationInProgress) return;
+            window._pdfGenerationInProgress = true;
+
             const modal = document.getElementById('pdf-modal');
             const originalText = modal.innerHTML;
-            modal.innerHTML = '<div style="color:white;text-align:center">Generating PDF...<br>Please wait.</div>';
-            
-            // Allow UI to update
-            await new Promise(r => setTimeout(r, 100));
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const restoreModal = () => {
+                modal.innerHTML = originalText;
+                modal.style.display = 'none';
+                window._pdfGenerationInProgress = false;
+            };
+
+            try {
+                // Load jsPDF library if not already loaded (reuse a single promise)
+                if (!window.jspdf) {
+                    modal.innerHTML = '<div style="color:white;text-align:center">Loading PDF library...<br>Please wait.</div>';
+
+                    if (!window._jspdfLoadPromise) {
+                        window._jspdfLoadPromise = new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                            script.onload = resolve;
+                            script.onerror = reject;
+                            document.head.appendChild(script);
+                        });
+                    }
+
+                    await window._jspdfLoadPromise;
+                }
+
+                modal.innerHTML = '<div style="color:white;text-align:center">Generating PDF...<br>Please wait.</div>';
+
+                // Allow UI to update
+                await new Promise(r => setTimeout(r, 100));
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
             const PAGE_WIDTH = doc.internal.pageSize.getWidth();
             const PAGE_HEIGHT = doc.internal.pageSize.getHeight();
             const margin = 25;
-            const contentWidth = PAGE_WIDTH - (margin * 2);
             
             // Helper to strip emojis and non-standard chars to prevent junk characters
             const safeText = (text) => {
                 if (!text) return "";
-                // Remove common emoji ranges and symbols that might break standard PDF fonts
-                return text.replace(/[\u{1F600}-\u{1F6FF}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F004}\u{1F0CF}\u{1F170}-\u{1F251}\u{1F000}-\u{1F02F}]/gu, '')
-                           .replace(/[^\x00-\x7F\u0080-\u00FF\u2010-\u2015\u2022]/g, " ") // Keep basic latin, accents, dashes, bullets
+                if (typeof text !== 'string') {
+                    text = String(text);
+                }
+                // Remove ALL non-ASCII characters including emojis and special symbols
+                return text.replace(/[\p{So}\p{Sk}\p{Sc}\p{Sm}]/gu, '') // Remove symbols
+                           .replace(/[\p{C}]/gu, '') // Remove control/format/private use chars
+                           .replace(/[^\x20-\x7E\xA0-\xFF\n]/g, '') // Keep only printable ASCII and extended latin
                            .replace(/\s+/g, ' ')
                            .trim();
             };
@@ -2660,13 +2700,14 @@
             }
 
             // Theme Config
-            const isSpace = theme === 'space';
-            const colors = isSpace ? {
-                bg: [5, 5, 12], // Deep Space
-                text: [240, 240, 255],
-                accent: [56, 189, 248], // Cyan
-                secondary: [148, 163, 184],
-                line: [30, 41, 59]
+            const isNurWars = theme === 'nurwars';
+            const colors = isNurWars ? {
+                bg: [10, 10, 15], // Deep black with blue tint
+                text: [255, 215, 0], // Star Wars Gold
+                accent: [255, 215, 0], // Gold
+                secondary: [173, 216, 230], // Light blue
+                line: [255, 165, 0], // Orange accent
+                starColor: [255, 255, 255]
             } : {
                 bg: [255, 255, 255],
                 text: [40, 40, 40],
@@ -2675,18 +2716,20 @@
                 line: [200, 200, 200]
             };
 
-            const titles = isSpace ? {
-                summary: "MISSION OBJECTIVE & PROFILE",
-                experience: "FLIGHT LOG & MISSION HISTORY",
-                skills: "OPERATIONAL SUBSYSTEMS",
-                projects: "DEPLOYED MISSION PAYLOADS",
-                education: "ACADEMIC & TRAINING DATA"
+            const titles = isNurWars ? {
+                summary: "⚔ MISSION PROFILE",
+                experience: "⚡ BATTLE EXPERIENCE",
+                skills: "🛡 COMBAT ARSENAL",
+                projects: "🚀 MISSION RECORDS",
+                education: "📡 TRAINING ACADEMY",
+                certifications: "🏆 HONORS & COMMENDATIONS"
             } : {
                 summary: "SUMMARY",
                 experience: "PROFESSIONAL EXPERIENCE",
                 skills: "SKILLS & COMPETENCIES",
                 projects: "KEY PROJECTS",
-                education: "EDUCATION"
+                education: "EDUCATION",
+                certifications: "CERTIFICATIONS"
             };
 
             // Helper to draw background
@@ -2699,47 +2742,48 @@
                 doc.setLineWidth(0.5);
                 doc.rect(15, 15, PAGE_WIDTH - 30, PAGE_HEIGHT - 30, 'S');
 
-                if (isSpace) {
-                    // Stars
-                    for (let i = 0; i < 150; i++) {
-                        const x = Math.random() * PAGE_WIDTH;
-                        const y = Math.random() * PAGE_HEIGHT;
-                        const r = Math.random() * 0.3 + 0.1;
-                        const brightness = Math.floor(Math.random() * 100) + 155;
-                        doc.setFillColor(brightness, brightness, brightness);
-                        doc.circle(x, y, r, 'F');
-                    }
-
-                    // Webb Spikes (Bright Stars)
-                    for (let i = 0; i < 6; i++) {
-                        const x = Math.random() * PAGE_WIDTH;
-                        const y = Math.random() * PAGE_HEIGHT;
-                        doc.setDrawColor(255, 255, 255);
-                        doc.setLineWidth(0.1);
-                        const size = 2 + Math.random() * 2;
-                        doc.line(x - size, y, x + size, y);
-                        doc.line(x, y - size, x, y + size);
-                        doc.line(x - size*0.7, y - size*0.7, x + size*0.7, y + size*0.7);
-                        doc.line(x - size*0.7, y + size*0.7, x + size*0.7, y - size*0.7);
-                    }
-                    
-                    // Nebulae
-                    const nebulaColors = [[255, 100, 100], [100, 200, 255], [200, 100, 255]];
-                    for (let n = 0; n < 3; n++) {
-                        const cx = Math.random() * PAGE_WIDTH;
-                        const cy = Math.random() * PAGE_HEIGHT;
-                        const color = nebulaColors[Math.floor(Math.random() * nebulaColors.length)];
-                        doc.setFillColor(...color);
-                        for (let p = 0; p < 40; p++) {
-                            const angle = Math.random() * Math.PI * 2;
-                            const dist = Math.random() * 30 * Math.random();
-                            const px = cx + Math.cos(angle) * dist;
-                            const py = cy + Math.sin(angle) * dist;
-                            if (px > 0 && px < PAGE_WIDTH && py > 0 && py < PAGE_HEIGHT) {
-                                doc.circle(px, py, Math.random() * 0.5, 'F');
+                if (isNurWars) {
+                    // Try to add nurwars.png as background
+                    try {
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.onload = () => {
+                            doc.addImage(img, 'PNG', 0, 0, PAGE_WIDTH, PAGE_HEIGHT);
+                        };
+                        img.onerror = () => {
+                            // Fallback to stars if image fails
+                            const starCount = Math.min(40, 150);
+                            for (let i = 0; i < starCount; i++) {
+                                const x = Math.random() * PAGE_WIDTH;
+                                const y = Math.random() * PAGE_HEIGHT;
+                                const r = Math.random() * 0.2 + 0.05;
+                                const brightness = Math.floor(Math.random() * 80) + 175;
+                                doc.setFillColor(brightness, brightness, brightness);
+                                doc.circle(x, y, r, 'F');
                             }
+                        };
+                        img.src = 'assets/images/nurwars.png';
+                    } catch (e) {
+                        // Fallback stars pattern
+                        const starCount = Math.min(40, 150);
+                        for (let i = 0; i < starCount; i++) {
+                            const x = Math.random() * PAGE_WIDTH;
+                            const y = Math.random() * PAGE_HEIGHT;
+                            const r = Math.random() * 0.2 + 0.05;
+                            const brightness = Math.floor(Math.random() * 80) + 175;
+                            doc.setFillColor(brightness, brightness, brightness);
+                            doc.circle(x, y, r, 'F');
                         }
                     }
+                } else {
+                    // Professional theme - subtle decorative elements
+                    doc.setDrawColor(200, 210, 220);
+                    doc.setLineWidth(0.2);
+                    // Subtle corner designs
+                    doc.line(20, 20, 35, 20);
+                    doc.line(20, 20, 20, 35);
+                    doc.line(PAGE_WIDTH - 20, 20, PAGE_WIDTH - 35, 20);
+                    doc.line(PAGE_WIDTH - 20, 20, PAGE_WIDTH - 20, 35);
                 }
             };
 
@@ -2748,258 +2792,341 @@
 
             let y = margin;
 
-            // === HEADER ===
-            // Image
-            let headerTextWidth = contentWidth;
-            if (profileImg) {
-                const imgSize = 30;
-                const imgX = PAGE_WIDTH - margin - imgSize;
-                headerTextWidth = contentWidth - imgSize - 5;
-                try {
-                    doc.addImage(profileImg, 'JPEG', imgX, y, imgSize, imgSize);
-                    doc.setDrawColor(...colors.accent);
-                    doc.setLineWidth(0.5);
-                    doc.rect(imgX, y, imgSize, imgSize);
-                } catch (e) {
-                    console.warn("Could not add image to PDF (likely tainted canvas)", e);
-                }
-            }
-
-            // Name & Role
-            doc.setFont(isSpace ? "courier" : "helvetica", "bold");
-            doc.setFontSize(24);
-            doc.setTextColor(...colors.accent);
-            
-            const nameLines = doc.splitTextToSize(safeText(RESUME_DATA.name).toUpperCase(), headerTextWidth);
-            doc.text(nameLines, margin, y + 8);
-            const nameHeight = nameLines.length * 8;
-            
-            doc.setFont(isSpace ? "courier" : "helvetica", "normal");
-            doc.setFontSize(12);
-            doc.setTextColor(...colors.text);
-            const roleLines = doc.splitTextToSize(safeText(RESUME_DATA.role), headerTextWidth);
-            doc.text(roleLines, margin, y + 8 + nameHeight);
-
-            // Contact Info
-            y += 25;
-            doc.setFontSize(9);
-            doc.setTextColor(...colors.secondary);
-            
-            const c = RESUME_DATA.contact;
-            const contactItems = [
-                c.email ? `EMAIL: ${c.email}` : null,
-                c.phone ? `PHONE: ${c.phone}` : null,
-                c.location ? `LOC: ${c.location}` : null,
-                c.website ? `WEB: ${c.website}` : null,
-                c.linkedin ? `IN: ${c.linkedin.replace(/^https?:\/\//, '')}` : null
-            ].filter(Boolean);
-
-            doc.text(contactItems.join("   |   "), margin, y);
-
-            y += 5;
-            doc.setDrawColor(...colors.line);
-            doc.setLineWidth(0.5);
-            doc.line(margin, y, PAGE_WIDTH - margin, y);
-            y += 8;
-
-            // === SUMMARY ===
-            if (RESUME_DATA.pdfSummary || RESUME_DATA.summary) {
-                doc.setFont(isSpace ? "courier" : "helvetica", "bold");
-                doc.setFontSize(11);
-                doc.setTextColor(...colors.accent);
-                doc.text(titles.summary, margin, y);
-                y += 5;
-                
-                doc.setFont(isSpace ? "courier" : "helvetica", "normal");
-                doc.setFontSize(10);
-                doc.setTextColor(...colors.text);
-                const summaryText = safeText(isSpace ? (RESUME_DATA.spaceSummary || RESUME_DATA.pdfSummary) : (RESUME_DATA.pdfSummary || RESUME_DATA.summary));
-                const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
-                doc.text(splitSummary, margin, y);
-                y += splitSummary.length * 4.5 + 5;
-            }
-
-            // === SECTIONS ===
+            // === DEFINE HELPER FUNCTIONS ===
             const checkPageBreak = (currentY, needed) => {
-                if (currentY + needed > PAGE_HEIGHT - margin) {
+                if (currentY + needed > PAGE_HEIGHT - margin - 2) {
                     doc.addPage();
                     drawBackground();
-                    return margin;
+                    if (isNurWars) {
+                        doc.setFillColor(10, 10, 15);
+                        doc.rect(0, 0, PAGE_WIDTH, 6, 'F');
+                    } else {
+                        doc.setFillColor(245, 248, 250);
+                        doc.rect(0, 0, PAGE_WIDTH, 6, 'F');
+                    }
+                    return margin + 2;
                 }
                 return currentY;
             };
 
-            const renderSectionTitle = (title, currentY) => {
-                currentY = checkPageBreak(currentY, 15);
-                doc.setFont(isSpace ? "courier" : "helvetica", "bold");
-                doc.setFontSize(12);
+            // === EDITORIAL RESUME DESIGN ===
+            const contentX = margin + 10;
+            const contentWidth = PAGE_WIDTH - contentX - margin;
+            const rightX = PAGE_WIDTH - margin;
+
+            // Header band
+            if (isNurWars) {
+                doc.setFillColor(10, 10, 15);
+                doc.rect(0, 0, PAGE_WIDTH, 36, 'F');
+            } else {
+                doc.setFillColor(245, 248, 250);
+                doc.rect(0, 0, PAGE_WIDTH, 36, 'F');
+            }
+
+            let contentY = margin + 4;
+
+            // === HEADER: NAME, ROLE, CONTACT ===
+            const nameWidth = contentWidth * 0.62;
+            const contactX = contentX + nameWidth + 6;
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(28);
+            doc.setTextColor(...colors.accent);
+            const fullName = safeText(RESUME_DATA.name).toUpperCase();
+            const nameLines = doc.splitTextToSize(fullName, nameWidth);
+            doc.text(nameLines, contentX, contentY);
+            contentY += nameLines.length * 9.2;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+            doc.setTextColor(...colors.secondary);
+            const roleText = safeText(RESUME_DATA.role);
+            doc.text(roleText, contentX, contentY);
+            contentY += 6;
+
+            // Contact stack (right column)
+            const c = RESUME_DATA.contact || {};
+            const contactLines = [
+                c.email ? safeText(c.email) : "",
+                c.phone ? safeText(c.phone) : "",
+                c.location ? safeText(c.location) : "",
+                c.website ? safeText(c.website) : ""
+            ].filter(Boolean);
+
+            let contactY = margin + 4;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(7.6);
+            doc.setTextColor(80, 80, 80);
+            contactLines.forEach(line => {
+                doc.text(line, contactX, contactY);
+                contactY += 3.6;
+            });
+
+            // Signature line
+            doc.setDrawColor(...colors.accent);
+            doc.setLineWidth(1.2);
+            doc.line(contentX, contentY + 1, rightX, contentY + 1);
+            contentY += 7;
+
+            // === SECTION TITLE HELPER ===
+            const renderSectionHeader = (title, y) => {
+                doc.setFillColor(...colors.accent);
+                doc.rect(contentX, y - 3.2, 2.2, 6.4, 'F');
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10.5);
                 doc.setTextColor(...colors.accent);
-                
-                if (!isSpace) {
-                    doc.setFillColor(240, 240, 240);
-                    doc.rect(margin, currentY - 4, contentWidth, 6, 'F');
-                }
-                
-                doc.text(title.toUpperCase(), margin, currentY);
-                return currentY + 8;
+                doc.text(title, contentX + 6, y);
+
+                const titleWidth = doc.getTextWidth(title);
+                doc.setDrawColor(200, 210, 220);
+                doc.setLineWidth(0.4);
+                doc.line(contentX + 6 + titleWidth + 4, y - 1, rightX, y - 1);
+                return y + 6;
             };
-            
-            // EXPERIENCE
+
+            // === PROFESSIONAL SUMMARY ===
+            if (RESUME_DATA.pdfSummary || RESUME_DATA.summary) {
+                contentY = checkPageBreak(contentY, 18);
+                contentY = renderSectionHeader("PROFESSIONAL SUMMARY", contentY);
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(9.4);
+                doc.setTextColor(60, 60, 60);
+                const summaryText = safeText(isNurWars ? (RESUME_DATA.spaceSummary || RESUME_DATA.pdfSummary) : (RESUME_DATA.pdfSummary || RESUME_DATA.summary));
+                const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
+                doc.text(splitSummary, contentX, contentY);
+                contentY += splitSummary.length * 4 + 4;
+            }
+
+            // === EXPERIENCE ===
             const expPlanet = RESUME_DATA.planets.find(p => p.name === "Experience");
             if (expPlanet && expPlanet.moons) {
-                y = renderSectionTitle(titles.experience, y);
-                
-                expPlanet.moons.forEach(job => {
-                    const details = isSpace ? (job.spaceDetails || job.pdfDetails || job.moonDetails || {}) : (job.pdfDetails || job.moonDetails || {});
+                contentY = checkPageBreak(contentY, 14);
+                contentY = renderSectionHeader(titles.experience, contentY);
+
+                expPlanet.moons.forEach((job, idx) => {
+                    const details = isNurWars ? (job.spaceDetails || job.pdfDetails || job.moonDetails || {}) : (job.pdfDetails || job.moonDetails || {});
                     const company = safeText(details.company || job.name);
                     const role = safeText(details.role || "");
                     const duration = safeText(details.duration || "");
-                    const location = safeText(details.location || "");
 
-                    y = checkPageBreak(y, 15);
+                    contentY = checkPageBreak(contentY, 12);
 
-                    // Line 1: Company (Left) | Location (Right)
-                    doc.setFont(isSpace ? "courier" : "helvetica", "bold");
-                    doc.setFontSize(11);
-                    doc.setTextColor(...colors.text);
-                    doc.text(company, margin, y);
-                    
-                    doc.setFontSize(9);
-                    doc.setTextColor(...colors.secondary);
-                    doc.text(location, PAGE_WIDTH - margin, y, { align: "right" });
-                    
-                    y += 5;
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(10.2);
+                    doc.setTextColor(...colors.accent);
+                    doc.text(company, contentX, contentY);
 
-                    // Line 2: Role (Left) | Duration (Right)
-                    doc.setFont(isSpace ? "courier" : "helvetica", "italic");
-                    doc.setFontSize(10);
-                    doc.setTextColor(...colors.text);
-                    doc.text(role, margin, y);
+                    if (duration) {
+                        doc.setFont("helvetica", "normal");
+                        doc.setFontSize(8);
+                        doc.setTextColor(120, 120, 120);
+                        doc.text(duration, rightX - doc.getStringUnitWidth(duration) * 8 / 255, contentY);
+                    }
+                    contentY += 4;
 
-                    doc.setFont(isSpace ? "courier" : "helvetica", "normal");
-                    doc.setFontSize(9);
-                    doc.setTextColor(...colors.secondary);
-                    doc.text(duration, PAGE_WIDTH - margin, y, { align: "right" });
-                    
-                    y += 6;
+                    doc.setFont("helvetica", "italic");
+                    doc.setFontSize(8.8);
+                    doc.setTextColor(80, 80, 80);
+                    doc.text(role, contentX, contentY);
+                    contentY += 4;
 
-                    // Achievements / Responsibilities
-                    doc.setFontSize(10);
-                    doc.setTextColor(...colors.text);
-                    
                     const items = [...(details.achievements || []), ...(details.responsibilities || [])];
-                    if (items.length === 0 && job.details) {
-                        items.push(...job.details.split('\n').slice(1));
-                    } else if (items.length === 0 && details.description) {
-                        items.push(details.description);
+                    const itemsToShow = Math.min(3, items.length);
+
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(8.3);
+                    doc.setTextColor(60, 60, 60);
+
+                    items.slice(0, itemsToShow).forEach(item => {
+                        if (!item) return;
+                        const cleanItem = safeText(item.replace(/^[•*-]\s*/, ''));
+                        if (!cleanItem) return;
+
+                        const splitText = doc.splitTextToSize(cleanItem, contentWidth - 3);
+                        contentY = checkPageBreak(contentY, splitText.length * 3.2 + 1);
+                        doc.text("-", contentX, contentY);
+                        doc.text(splitText, contentX + 3, contentY);
+                        contentY += splitText.length * 3.2;
+                    });
+
+                    if (idx !== expPlanet.moons.length - 1) {
+                        doc.setDrawColor(225, 230, 235);
+                        doc.setLineWidth(0.3);
+                        doc.line(contentX, contentY + 1.5, rightX, contentY + 1.5);
+                    }
+                    contentY += 4.5;
+                });
+            }
+
+            // === TECHNICAL SKILLS ===
+            const skillsPlanet = RESUME_DATA.planets.find(p => p.name === "Technical Skills");
+            if (skillsPlanet && skillsPlanet.moons) {
+                contentY = checkPageBreak(contentY, 16);
+                contentY = renderSectionHeader(titles.skills, contentY);
+
+                const colWidth = (contentWidth - 8) / 2;
+                const leftX = contentX;
+                const rightColX = contentX + colWidth + 8;
+                let leftY = contentY;
+                let rightY = contentY;
+
+                skillsPlanet.moons.forEach((skillGroup, idx) => {
+                    const category = safeText(skillGroup.name);
+                    const items = skillGroup.moons || [];
+                    const skillsList = items.map(s => safeText(s.name || s)).join(", ");
+
+                    const isRight = idx >= Math.ceil(skillsPlanet.moons.length / 2);
+                    const x = isRight ? rightColX : leftX;
+                    const y = isRight ? rightY : leftY;
+
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(8);
+                    doc.setTextColor(...colors.accent);
+                    doc.text(category.toUpperCase(), x, y);
+
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(8.2);
+                    doc.setTextColor(60, 60, 60);
+                    const wrapped = doc.splitTextToSize(skillsList, colWidth - 2);
+                    doc.text(wrapped, x, y + 3.2);
+
+                    if (isRight) {
+                        rightY = y + 3.2 + wrapped.length * 3 + 3;
+                    } else {
+                        leftY = y + 3.2 + wrapped.length * 3 + 3;
+                    }
+                });
+
+                contentY = Math.max(leftY, rightY) + 2;
+            }
+
+            // === PROJECTS ===
+            const projectsPlanet = RESUME_DATA.planets.find(p => p.name === "Projects");
+            if (projectsPlanet && projectsPlanet.moons) {
+                contentY = checkPageBreak(contentY, 14);
+                contentY = renderSectionHeader(titles.projects, contentY);
+
+                const projectsToShow = Math.min(3, projectsPlanet.moons.length);
+                projectsPlanet.moons.slice(0, projectsToShow).forEach(project => {
+                    const details = isNurWars ? (project.spaceDetails || project.pdfDetails || project.moonDetails || {}) : (project.pdfDetails || project.moonDetails || {});
+                    const name = safeText(details.name || project.name);
+                    const description = safeText(details.description || details.summary || "");
+                    const tech = safeText((details.technologies || []).join(", "));
+                    const impact = safeText(details.impact || "");
+
+                    contentY = checkPageBreak(contentY, 9);
+
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(9.2);
+                    doc.setTextColor(...colors.accent);
+                    doc.text(name, contentX, contentY);
+                    contentY += 4;
+
+                    if (tech) {
+                        doc.setFont("helvetica", "italic");
+                        doc.setFontSize(7.6);
+                        doc.setTextColor(110, 110, 110);
+                        const techLines = doc.splitTextToSize(tech, contentWidth);
+                        doc.text(techLines, contentX, contentY);
+                        contentY += techLines.length * 2.6 + 1;
                     }
 
-                    items.forEach(item => {
-                        if (!item) return;
-                        const cleanItem = safeText(item.replace(/^•\s*/, ''));
-                        if (!cleanItem) return;
-                        
-                        const bullet = "•";
-                        const indent = 5;
-                        const textWidth = contentWidth - indent;
-                        const splitText = doc.splitTextToSize(cleanItem, textWidth);
-                        const blockHeight = splitText.length * 4.5;
-                        
-                        y = checkPageBreak(y, blockHeight);
-                        doc.text(bullet, margin, y);
-                        doc.text(splitText, margin + indent, y);
-                        y += blockHeight + 1;
-                    });
-                    y += 4;
+                    if (description) {
+                        doc.setFont("helvetica", "normal");
+                        doc.setFontSize(8.3);
+                        doc.setTextColor(60, 60, 60);
+                        const descLines = doc.splitTextToSize(description, contentWidth);
+                        doc.text(descLines, contentX, contentY);
+                        contentY += descLines.length * 3 + 1;
+                    }
+
+                    if (impact) {
+                        doc.setFont("helvetica", "normal");
+                        doc.setFontSize(8.2);
+                        doc.setTextColor(80, 80, 80);
+                        const impactLines = doc.splitTextToSize(impact, contentWidth);
+                        doc.text(impactLines, contentX, contentY);
+                        contentY += impactLines.length * 3 + 1;
+                    }
+
+                    contentY += 2;
                 });
             }
 
-            // SKILLS
-            const skillsPlanet = RESUME_DATA.planets.find(p => p.name === "Skills");
-            if (skillsPlanet) {
-                y += 2;
-                y = renderSectionTitle(titles.skills, y);
-                
-                doc.setFontSize(10);
-                doc.setTextColor(...colors.text);
-                
-                if (skillsPlanet.moons) {
-                    skillsPlanet.moons.forEach(cat => {
-                        const details = isSpace ? (cat.spaceDetails || cat.pdfDetails || cat.moonDetails || {}) : (cat.pdfDetails || cat.moonDetails || {});
-                        const catTitle = safeText(details.title || cat.name);
-                        
-                        y = checkPageBreak(y, 10);
-                        doc.setFont(undefined, "bold");
-                        doc.text(catTitle, margin, y);
-                        y += 5;
-                        
-                        doc.setFont(undefined, "normal");
-                        const skills = details.skills || [];
-                        skills.forEach(skill => {
-                            const cleanSkill = safeText(skill);
-                            const splitSkill = doc.splitTextToSize(cleanSkill, contentWidth - 10);
-                            y = checkPageBreak(y, splitSkill.length * 4.5);
-                            doc.text("•", margin + 3, y);
-                            doc.text(splitSkill, margin + 8, y);
-                            y += splitSkill.length * 4.5 + 1;
-                        });
-                        y += 3;
-                    });
-                }
-                y += 5;
-            }
+            // === EDUCATION ===
+            const educationPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
+            if (educationPlanet && educationPlanet.moons) {
+                contentY = checkPageBreak(contentY, 12);
+                contentY = renderSectionHeader(titles.education, contentY);
 
-            // PROJECTS
-            const projPlanet = RESUME_DATA.planets.find(p => p.name === "Projects");
-            if (projPlanet && projPlanet.moons) {
-                y = renderSectionTitle(titles.projects, y);
-                
-                projPlanet.moons.forEach(proj => {
-                    const details = isSpace ? (proj.spaceDetails || proj.pdfDetails || proj.moonDetails || {}) : (proj.pdfDetails || proj.moonDetails || {});
-                    const title = safeText(details.title || proj.name);
-                    const desc = safeText(details.description || "");
-                    const impact = details.impact ? details.impact.map(i => safeText(i)).join(". ") : "";
-                    
-                    y = checkPageBreak(y, 15);
-                    doc.setFont(undefined, "bold");
-                    doc.text(title, margin, y);
-                    
-                    doc.setFont(undefined, "normal");
-                    const fullText = `${desc} Impact: ${impact}`;
-                    const split = doc.splitTextToSize(fullText, contentWidth);
-                    
-                    y += 4;
-                    doc.text(split, margin, y);
-                    y += split.length * 4 + 3;
+                educationPlanet.moons.forEach(school => {
+                    const details = isNurWars ? (school.spaceDetails || school.pdfDetails || school.moonDetails || {}) : (school.pdfDetails || school.moonDetails || {});
+                    const institution = safeText(details.institution || school.name);
+                    const degree = safeText(details.degree || "");
+                    const year = safeText(details.graduationYear || details.year || "");
+
+                    contentY = checkPageBreak(contentY, 6);
+
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(9);
+                    doc.setTextColor(...colors.accent);
+                    doc.text(institution, contentX, contentY);
+
+                    if (year) {
+                        doc.setFont("helvetica", "normal");
+                        doc.setFontSize(8);
+                        doc.setTextColor(120, 120, 120);
+                        doc.text(year, rightX - doc.getStringUnitWidth(year) * 8 / 255, contentY);
+                    }
+                    contentY += 4;
+
+                    if (degree) {
+                        doc.setFont("helvetica", "normal");
+                        doc.setFontSize(8.3);
+                        doc.setTextColor(60, 60, 60);
+                        doc.text(degree, contentX, contentY);
+                        contentY += 4;
+                    }
+                    contentY += 1;
                 });
-                y += 5;
             }
 
-            // EDUCATION
-            const eduPlanet = RESUME_DATA.planets.find(p => p.name === "Education");
-            if (eduPlanet) {
-                y = renderSectionTitle(titles.education, y);
-                const d = isSpace ? (eduPlanet.spaceDetails || eduPlanet.pdfDetails || eduPlanet.details || {}) : (eduPlanet.pdfDetails || eduPlanet.details || {});
-                
-                y = checkPageBreak(y, 10);
-                doc.setFont(undefined, "bold");
-                
-                const degreeLines = doc.splitTextToSize(safeText(d.degree || ""), contentWidth);
-                doc.text(degreeLines, margin, y);
-                y += degreeLines.length * 5;
-                
-                doc.setFont(undefined, "normal");
-                const eduInfo = `${safeText(d.institution || "")}, ${safeText(d.location || "")} | ${safeText(d.duration || "")}`;
-                const eduLines = doc.splitTextToSize(eduInfo, contentWidth);
-                doc.text(eduLines, margin, y);
+            // === CERTIFICATIONS ===
+            const certsPlanet = RESUME_DATA.planets.find(p => p.name === "Certifications");
+            if (certsPlanet && certsPlanet.moons) {
+                contentY = checkPageBreak(contentY, 10);
+                contentY = renderSectionHeader(titles.certifications, contentY);
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(8.3);
+                doc.setTextColor(60, 60, 60);
+
+                certsPlanet.moons.forEach(cert => {
+                    const name = safeText(cert.name || "");
+                    const issuer = safeText((cert.moonDetails || cert.pdfDetails || {}).issuer || cert.issuer || "");
+                    if (!name) return;
+
+                    contentY = checkPageBreak(contentY, 4);
+                    const certLine = issuer ? `${name} - ${issuer}` : name;
+                    const certLines = doc.splitTextToSize(certLine, contentWidth);
+                    doc.text(certLines, contentX, contentY);
+                    contentY += certLines.length * 3.1 + 1;
+                });
             }
 
-            // Save
-            doc.save(`Nur_Dawoodani_Resume_${theme}.pdf`);
-            
-            // Reset Modal
-            modal.innerHTML = originalText;
-            modal.style.display = 'none';
+            // === PDF FINALIZATION ===
+            const themeName = isNurWars ? "NUR_WARS" : "Professional";
+            doc.save(`Nur_Dawoodani_Resume_${themeName}.pdf`);
+
+            restoreModal();
+            } catch (error) {
+                console.error('PDF generation failed:', error);
+                modal.innerHTML = '<div style="color:white;text-align:center">PDF generation failed.<br>Please try again.</div>';
+                setTimeout(restoreModal, 2000);
+            } finally {
+                window._pdfGenerationInProgress = false;
+            }
         };
 
         // Update the sky-details panel to parse structured data
@@ -4933,7 +5060,7 @@
                             <!-- Main 3D Container -->
                             <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; transform: rotateX(10deg) rotateY(-5deg); box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s ease;">
                                 <!-- Image Layer -->
-                                <img src="assets/images/einstien.jpg" alt="Einstein" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.2) brightness(1.1) saturate(1.2);">
+                                <img src="assets/images/einstien.jpg" alt="Einstein" loading="lazy" decoding="async" fetchpriority="low" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.2) brightness(1.1) saturate(1.2);">
                                 
                                 <!-- 3D Depth Layers -->
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.2) 100%); transform: translateZ(2px);"></div>
@@ -4953,7 +5080,7 @@
                             <!-- Main 3D Container -->
                             <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; transform: rotateX(8deg) rotateY(3deg); box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s ease;">
                                 <!-- Image Layer -->
-                                <img src="assets/images/newton.jpg" alt="Newton" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.15) brightness(1.05) saturate(1.1) sepia(0.1);">
+                                <img src="assets/images/newton.jpg" alt="Newton" loading="lazy" decoding="async" fetchpriority="low" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.15) brightness(1.05) saturate(1.1) sepia(0.1);">
                                 
                                 <!-- 3D Depth Layers -->
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: linear-gradient(120deg, rgba(255,255,255,0.25) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.15) 100%); transform: translateZ(2px);"></div>
@@ -4978,7 +5105,7 @@
                             <!-- Main 3D Container -->
                             <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; transform: rotateX(5deg) rotateY(-8deg); box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s ease;">
                                 <!-- Image Layer -->
-                                <img src="assets/images/gandhi.avif" alt="Gandhi" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.1) brightness(1.08) saturate(1.15) sepia(0.05);">
+                                <img src="assets/images/gandhi.avif" alt="Gandhi" loading="lazy" decoding="async" fetchpriority="low" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.1) brightness(1.08) saturate(1.15) sepia(0.05);">
                                 
                                 <!-- 3D Depth Layers -->
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: linear-gradient(150deg, rgba(255,255,255,0.2) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.1) 100%); transform: translateZ(2px);"></div>
@@ -5002,7 +5129,7 @@
                             <!-- Main 3D Container -->
                             <div style="position: relative; width: 100%; height: 100%; border-radius: 50%; transform: rotateX(12deg) rotateY(0deg); box-shadow: 0 10px 30px rgba(255,215,0,0.3), 0 6px 15px rgba(0,0,0,0.4); transition: transform 0.3s ease;">
                                 <!-- Image Layer -->
-                                <img src="assets/images/buddha.png" alt="Buddha" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.1) brightness(1.1) saturate(1.3) hue-rotate(10deg);">
+                                <img src="assets/images/buddha.png" alt="Buddha" loading="lazy" decoding="async" fetchpriority="low" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.1) brightness(1.1) saturate(1.3) hue-rotate(10deg);">
                                 
                                 <!-- 3D Depth Layers -->
                                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: linear-gradient(135deg, rgba(255,215,0,0.2) 0%, transparent 30%, transparent 70%, rgba(255,140,0,0.15) 100%); transform: translateZ(2px);"></div>

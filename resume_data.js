@@ -59,7 +59,7 @@ window.RESUME_DATA = {
                             "BA Mentorship & Team Leadership",
                             "Backlog Management & Prioritization",
                             "Stakeholder Collaboration",
-                            "Data Analysis & Business Intelligence",
+                            "Data Analysis",
                             "Business Process Improvement",
                             "Strategic Planning & Roadmapping"
                         ]
@@ -85,28 +85,6 @@ window.RESUME_DATA = {
                             "Microsoft Azure - Cloud platforms",
                             "Figma - Design collaboration",
                             "Python - Data analysis & automation"
-                        ]
-                    }
-                },
-                { 
-                    name: "Project Management", 
-                    size: 3.0, // Medium size
-                    distance: 4, 
-                    speed: 0.002,
-                    color: 0x9b59b6, // Purple
-                    texture: "drawUranus",
-                    inclination: 0.3, // Higher inclination
-                    node: 4.2, // Different node orientation
-                    pdfDetails: {
-                        title: "PROJECT MANAGEMENT",
-                        description: "Project & Quality Management Tools",
-                        skills: [
-                            "Azure DevOps - Portfolio management",
-                            "UFT - Automated testing",
-                            "Selenium - Browser automation",
-                            "TestRail - Test case management",
-                            "Postman - API testing",
-                            "Tableau - Data visualization"
                         ]
                     }
                 },
@@ -180,7 +158,7 @@ window.RESUME_DATA = {
             moons: [
                 {
                     name: "lululemon athletica",
-                    size: 5.5,
+                    size: 6.0,
                     distance: 2,
                     speed: 0.003,
                     color: 0xc0392b,
@@ -203,7 +181,7 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "Vancity",
-                    size: 4.8,
+                    size: 4.5,
                     distance: 3,
                     speed: 0.0025,
                     color: 0xd35400,
@@ -222,56 +200,22 @@ window.RESUME_DATA = {
                     }
                 },
                 {
-                    name: "HSBC — Digital Platform",
-                    size: 5.0,
+                    name: "HSBC CANADA",
+                    size: 5.2,
                     distance: 4,
                     speed: 0.002,
                     color: 0xe67e22,
-                    details: "2016-2019 | Digital Transformation | Process Improvement",
+                    details: "2011-2019 | Business Analysis | ITQA | Digital Transformation",
                     pdfDetails: {
                         company: "HSBC CANADA",
-                        role: "Business Analyst",
+                        role: "Business Analyst / ITQA Test Lead",
                         duration: "10/2011 – 03/2019",
-                        location: "Vancouver, Canada",
+                        location: "Vancouver, Burnaby, Canada",
                         industry: "Banking / Financial Services / Digital Transformation",
                         achievements: [
                             "Digital Transformation: Delivered a digital communication platform for large customer segments, achieving sustainable cost savings and a reduced carbon footprint.",
-                            "Process Improvement: Optimized business processes for Lending Systems, specifically the Credit Application and Mortgage Renewal processes."
-                        ]
-                    }
-                },
-                {
-                    name: "HSBC — ITQA Test Lead",
-                    size: 3.2,
-                    distance: 5,
-                    speed: 0.0015,
-                    color: 0xb86b2b,
-                    details: "2015-2016 | QA Leadership | Test Strategy | UFT Automation",
-                    pdfDetails: {
-                        company: "HSBC CANADA",
-                        role: "ITQA Test Lead",
-                        duration: "10/2011 – 03/2019",
-                        location: "Vancouver, Canada",
-                        industry: "Banking / Financial Services / Regulatory Compliance",
-                        achievements: [
-                            "QA Leadership: Created Test Strategies and Plans, leading manual and automated System Integration Testing (UFT) for core banking systems."
-                        ]
-                    }
-                },
-                {
-                    name: "HSBC — Business Analysis",
-                    size: 3.0,
-                    distance: 6,
-                    speed: 0.0012,
-                    color: 0x9b5d2b,
-                    details: "2011-2015 | Core Banking | Regulatory Compliance",
-                    pdfDetails: {
-                        company: "HSBC CANADA",
-                        role: "Business Analyst",
-                        duration: "10/2011 – 03/2019",
-                        location: "Burnaby, Canada",
-                        industry: "Banking / Financial Services / Core Banking",
-                        achievements: [
+                            "Process Improvement: Optimized business processes for Lending Systems, specifically the Credit Application and Mortgage Renewal processes.",
+                            "QA Leadership: Created Test Strategies and Plans, leading manual and automated System Integration Testing (UFT) for core banking systems.",
                             "Core Banking: Managed requirements for system enhancements affecting customer-facing and back-office operations.",
                             "Regulatory Compliance: Worked on FATCA Reporting and Finance Transactions Reporting."
                         ]
@@ -279,8 +223,8 @@ window.RESUME_DATA = {
                 },
                 {
                     name: "HSBC Global Technology",
-                    size: 6.0,
-                    distance: 7,
+                    size: 4.8,
+                    distance: 5,
                     speed: 0.0008,
                     color: 0x8b7a57,
                     details: "2005-2011 | System Development | Modernization | Mainframe/zOS",
@@ -653,10 +597,9 @@ window.RESUME_DATA = {
                     inclination: 0.18,
                     node: 1.5,
                     pdfDetails: {
-                        title: "BUSINESS ANALYSIS CERTIFICATION",
+                        title: "Certified Business Analysis Professional (CBAP) - Expired",
                         description: "Professional certification in business analysis methodologies and practices",
                         skills: [
-                            "Certified Business Analysis Professional (CBAP) - IIBA - Expired",
                             "Requirements Engineering and Management",
                             "Stakeholder Analysis and Engagement",
                             "Business Process Modeling and Improvement",
@@ -684,28 +627,6 @@ window.RESUME_DATA = {
                             "Epic and Feature Decomposition",
                             "Continuous Integration/Delivery",
                             "Lean Portfolio Management"
-                        ]
-                    }
-                },
-                {
-                    name: "Technical Certifications",
-                    size: 1.6,
-                    distance: 4,
-                    speed: 0.0025,
-                    color: 0x663399,
-                    texture: "drawUranus",
-                    inclination: 0.22,
-                    node: 2.8,
-                    pdfDetails: {
-                        title: "TECHNICAL CERTIFICATIONS",
-                        description: "Technical skills and platform certifications",
-                        skills: [
-                            "Microsoft Azure Fundamentals",
-                            "SQL Server Database Administration",
-                            "JIRA Advanced Administration",
-                            "Confluence Space Administration",
-                            "Python for Data Analysis",
-                            "Tableau Desktop Specialist"
                         ]
                     }
                 }
