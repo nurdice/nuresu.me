@@ -27,8 +27,10 @@ export default {
     const { searchParams } = new URL(request.url);
     const target = searchParams.get('url');
 
-    // Strict allowlist: only Jira Cloud REST API calls
-    if (!target || !/^https:\/\/[^/]+\.atlassian\.net\/rest\/api\//.test(target)) {
+    // Strict allowlist: Jira Cloud REST API + attachment content
+    const allowed = /^https:\/\/[^/]+\.atlassian\.net\/rest\/api\//.test(target)
+                  || /^https:\/\/[^/]+\.atlassian\.net\/rest\/api\/3\/attachment\/content\//.test(target);
+    if (!target || !allowed) {
       return new Response('Invalid or disallowed URL', { status: 400 });
     }
 
@@ -39,15 +41,16 @@ export default {
     const upstream = await fetch(target, {
       headers: {
         Authorization: 'Basic ' + btoa(env.JIRA_EMAIL + ':' + env.JIRA_TOKEN),
-        Accept: 'application/json',
+        Accept: 'application/json, image/*, */*',
       },
     });
 
-    const body = await upstream.text();
+    const body = await upstream.arrayBuffer();
+    const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
     return new Response(body, {
       status: upstream.status,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': contentType,
         ...corsHeaders(),
       },
     });

@@ -1738,6 +1738,7 @@ function extractJiraTicketId(url) {
 
 // ── Jira API integration ─────────────────────────────────────────
 let _jiraCache    = { url: null, data: null, error: null, loading: false };
+let _jiraDomain   = '';
 const JIRA_PROXY  = 'https://floral-moon-66a9.nurrali786.workers.dev';
 let _jiraProxyUrl = JIRA_PROXY;
 
@@ -1835,9 +1836,22 @@ function adfToHtml(node) {
     case 'tableRow':    return `<tr>${ch(node)}</tr>`;
     case 'tableHeader': return `<th>${ch(node)}</th>`;
     case 'tableCell':   return `<td>${ch(node)}</td>`;
-    case 'mediaSingle':
-    case 'mediaGroup':  return `<div class="jira-adf-media">\uD83D\uDDBC\uFE0F Attachment (not previewable here)</div>`;
-    case 'media':       return '';
+    case 'mediaSingle': return `<figure class="jira-adf-media">${ch(node)}</figure>`;
+    case 'mediaGroup':  return `<div class="jira-adf-media-group">${ch(node)}</div>`;
+    case 'media': {
+      const a = node.attrs || {};
+      if (a.type === 'link' && a.url && /^https?:\/\//i.test(a.url)) {
+        // External image — serve directly
+        return `<img src="${escHtml(a.url)}" class="jira-adf-img" loading="lazy" alt="attached image">`;
+      }
+      if (a.type === 'file' && a.id && _jiraDomain && _jiraProxyUrl) {
+        // Jira-hosted attachment — proxy through worker
+        const attUrl = `${_jiraDomain}/rest/api/3/attachment/content/${encodeURIComponent(a.id)}`;
+        const src = `${_jiraProxyUrl}?url=${encodeURIComponent(attUrl)}`;
+        return `<img src="${escHtml(src)}" class="jira-adf-img" loading="lazy" alt="attached image">`;
+      }
+      return `<span class="jira-adf-media-unavail">🖼️ Attachment</span>`;
+    }
     default:            return ch(node);
   }
 }
@@ -1847,6 +1861,7 @@ async function fetchJiraTicket(url) {
   const domainMatch = url.match(/^(https?:\/\/[^/]+)/i);
   const ticketId = extractJiraTicketId(url);
   if (!domainMatch || !ticketId) { renderJiraPanel(url); return; }
+  _jiraDomain = domainMatch[1];
   const apiUrl = domainMatch[1] + '/rest/api/3/issue/' + ticketId +
     '?fields=summary,description,status,issuetype,priority,assignee,customfield_10016';
   _jiraCache = { url, data: null, error: null, loading: true };
