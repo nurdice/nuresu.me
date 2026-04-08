@@ -1836,7 +1836,7 @@ function adfToHtml(node) {
     case 'tableHeader': return `<th>${ch(node)}</th>`;
     case 'tableCell':   return `<td>${ch(node)}</td>`;
     case 'mediaSingle':
-    case 'mediaGroup':  return `<div class="jira-adf-media">🖼️ Attachment (not previewable here — <a href="${escHtml(url)}" target="_blank" rel="noopener">open in Jira</a>)</div>`;
+    case 'mediaGroup':  return `<div class="jira-adf-media">\uD83D\uDDBC\uFE0F Attachment (not previewable here)</div>`;
     case 'media':       return '';
     default:            return ch(node);
   }
