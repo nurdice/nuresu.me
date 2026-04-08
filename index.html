@@ -757,6 +757,7 @@
     <div id="solar-loading-overlay" style="display:flex;">
         <div style="font-weight:600; margin-bottom:6px;">Loading solar system…</div>
         <div id="solar-loading-progress" style="opacity:0.8; font-size:14px;">0%</div>
+        <button id="solar-loading-continue" style="display:none; margin-top:18px; padding:10px 18px; border-radius:999px; border:1px solid rgba(255,255,255,0.35); background:rgba(15,23,42,0.65); color:#e2e8f0; font-family:'Poppins',sans-serif; font-size:13px; cursor:pointer; letter-spacing:0.3px;">Enter now</button>
     </div>
     <div id="blackhole-overlay"></div>
     <div id="ui-layer" style="display:none;"></div>
@@ -1315,6 +1316,8 @@
         let solarLoadTimeoutId = null;
 
         const solarLoadingOverlay = document.getElementById('solar-loading-overlay');
+        const solarContinueBtn = document.getElementById('solar-loading-continue');
+        let solarRevealed = false;
 
         function updateSolarLoadingOverlay() {
             const progressEl = document.getElementById('solar-loading-progress');
@@ -1323,30 +1326,9 @@
             progressEl.textContent = `${percent}%`;
         }
 
-        function checkSolarModelsReady() {
-            updateSolarLoadingOverlay();
-            if (solarModelsToLoad > 0 && solarModelsLoaded >= solarModelsToLoad) {
-                // Show canvas and UI immediately
-                container.style.display = 'block';
-                uiLayer.style.display = 'flex';
-                solarLoadingOverlay.style.display = 'none';
-                
-                // Wait for initial render frames before revealing buttons
-                // This ensures the solar system is visually rendered before buttons appear
-                setTimeout(() => {
-                    document.body.classList.remove('loading');
-                    revealLabelsOnNextFrame = true;
-                }, 100); // Reduced delay for faster UI appearance while still allowing render frames
-                
-                if (solarLoadTimeoutId) {
-                    clearTimeout(solarLoadTimeoutId);
-                    solarLoadTimeoutId = null;
-                }
-            }
-        }
-
-        // Failsafe: never block the UI forever
-        solarLoadTimeoutId = setTimeout(() => {
+        function revealSolarSystem() {
+            if (solarRevealed) return;
+            solarRevealed = true;
             container.style.display = 'block';
             uiLayer.style.display = 'flex';
             solarLoadingOverlay.style.display = 'none';
@@ -1354,6 +1336,31 @@
                 document.body.classList.remove('loading');
                 revealLabelsOnNextFrame = true;
             }, 100);
+            if (solarLoadTimeoutId) {
+                clearTimeout(solarLoadTimeoutId);
+                solarLoadTimeoutId = null;
+            }
+        }
+
+        function checkSolarModelsReady() {
+            updateSolarLoadingOverlay();
+            if (solarModelsToLoad > 0 && solarModelsLoaded >= solarModelsToLoad) {
+                revealSolarSystem();
+            }
+        }
+
+        // Failsafe: never block the UI forever
+        if (solarContinueBtn) {
+            solarContinueBtn.addEventListener('click', () => {
+                revealSolarSystem();
+            });
+        }
+
+        solarLoadTimeoutId = setTimeout(() => {
+            if (solarRevealed) return;
+            if (solarContinueBtn) solarContinueBtn.style.display = 'inline-flex';
+            const progressEl = document.getElementById('solar-loading-progress');
+            if (progressEl) progressEl.textContent = 'Still loading…';
         }, 15000);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 12000);
