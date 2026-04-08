@@ -505,6 +505,7 @@
       .room-header { padding: 12px 16px; }
       .room-main { padding: 16px; }
       .landing-title { font-size: 30px; }
+      .jira-card-scroll { max-height: clamp(140px, 28vh, 300px); }
     }
     @media (max-width: 480px) {
       .form-card { padding: 24px 20px; }
@@ -570,7 +571,7 @@
     .jira-card-desc-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-bottom: 6px; }
     .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; padding: 12px 14px; background: var(--elevated); border-radius: var(--r); border: 1px solid var(--border); }
     /* Scrollable description + images container */
-    .jira-card-scroll { overflow-y: auto; max-height: 520px; padding: 0 16px 14px;
+    .jira-card-scroll { overflow-y: auto; max-height: clamp(180px, 40vh, 520px); padding: 0 16px 14px;
       display: flex; flex-direction: column; gap: 10px; }
     /* ADF rendered content */
     .jira-card-desc p { margin: 0 0 8px; }
