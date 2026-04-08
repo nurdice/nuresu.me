@@ -608,6 +608,60 @@
     .jira-attach-thumb:hover { opacity: .85; }
     .jira-attachments-grid a { flex-shrink: 0; }
 
+    /* ── Poll panel ──────────────────────────────────────────────── */
+    .poll-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; }
+    .poll-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 10px; }
+    .poll-title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .poll-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; padding: 2px 7px; border-radius: 999px; background: rgba(251,191,36,.15); color: #fbbf24; border: 1px solid rgba(251,191,36,.3); flex-shrink: 0; }
+    .poll-question { font-size: 14px; font-weight: 700; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .poll-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .poll-option-btn {
+      width: 100%; text-align: left; padding: 10px 14px; border-radius: var(--r-lg);
+      border: 2px solid var(--border); background: var(--elevated);
+      color: var(--text); font-size: 14px; font-weight: 500; cursor: pointer;
+      transition: border-color .15s, background .15s; position: relative; overflow: hidden;
+    }
+    .poll-option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(99,102,241,.07); }
+    .poll-option-btn.selected { border-color: var(--accent); background: rgba(99,102,241,.18); color: var(--accent-l); font-weight: 600; }
+    .poll-option-btn:disabled { cursor: default; }
+    .poll-option-bar { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(99,102,241,.12); border-radius: var(--r-lg); pointer-events: none; transition: width .4s; }
+    .poll-option-content { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .poll-option-pct { font-size: 12px; font-weight: 700; color: var(--accent-l); flex-shrink: 0; }
+    .poll-option-count { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
+    .poll-footer { padding: 8px 16px 12px; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); color: var(--text-3); font-size: 12px; }
+    .poll-footer-spacer { flex: 1; }
+    /* Poll creation modal */
+    .poll-modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.60); align-items: center; justify-content: center; }
+    .poll-modal-overlay.open { display: flex; }
+    .poll-modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 28px; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 18px; }
+    .poll-modal-title { font-size: 17px; font-weight: 700; color: var(--text-1); }
+    .poll-options-list { display: flex; flex-direction: column; gap: 8px; }
+    .poll-option-input-row { display: flex; gap: 8px; align-items: center; }
+    .poll-option-remove { background: none; border: none; color: var(--text-3); font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1; }
+    .poll-option-remove:hover { color: var(--red); }
+    /* Poll type toggle (single / multi) */
+    .poll-type-toggle { display: flex; gap: 6px; }
+    .poll-type-btn { flex: 1; padding: 7px 12px; border-radius: var(--r); border: 1.5px solid var(--border); background: var(--elevated); color: var(--text-2); font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+    .poll-type-btn.active { border-color: var(--accent); background: rgba(99,102,241,.18); color: var(--accent-l); }
+    /* Multi-select check indicator */
+    .poll-option-check { width: 16px; height: 16px; border-radius: 4px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-right: 4px; transition: border-color .15s, background .15s; }
+    .poll-option-btn.selected .poll-option-check { border-color: var(--accent); background: var(--accent); }
+    .poll-option-check::after { content: ''; display: none; width: 4px; height: 7px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+    .poll-option-btn.selected .poll-option-check::after { display: block; }
+    /* Submit / Re-use buttons */
+    .poll-submit-btn { margin: 0 16px 12px; }
+    .poll-reuse-row { display: flex; align-items: center; gap: 8px; padding: 8px 0 2px; border-top: 1px solid var(--border); margin-top: 2px; }
+    .poll-reuse-label { font-size: 11px; color: var(--text-3); flex: 1; }
+    /* Poll items in history */
+    .history-item.poll-item .history-item-header { gap: 8px; }
+    .history-poll-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; padding: 2px 6px; border-radius: 999px; background: rgba(251,191,36,.15); color: #fbbf24; border: 1px solid rgba(251,191,36,.3); flex-shrink: 0; }
+    .history-poll-question { font-size: 13px; font-weight: 600; color: var(--text-1); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .history-poll-results { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+    .history-poll-opt { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2); }
+    .history-poll-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .history-poll-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .4s; }
+    .history-poll-pct { font-size: 11px; color: var(--text-3); width: 30px; text-align: right; flex-shrink: 0; }
+
     /* Lightbox */
     .lightbox { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.85); align-items: center; justify-content: center; }
     .lightbox.open { display: flex; }
@@ -948,6 +1002,7 @@
         <button class="btn btn-success btn-sm hidden" id="revealBtn">👁 Reveal votes</button>
         <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
         <button class="btn btn-ghost btn-sm hidden" id="reEstimateBtn">↻ Re-estimate</button>
+        <button class="btn btn-ghost btn-sm" id="createPollBtn" title="Create a quick poll">&#128202; Poll</button>
       </div>
     </div>
     <!-- Jira URL row (mod-only, shown below title) -->
@@ -970,6 +1025,9 @@
   <div class="room-body">
     <!-- Main column -->
     <main class="room-main">
+      <!-- Poll Section -->
+      <section class="poll-section hidden" id="pollSection"></section>
+
       <!-- Jira ticket card (full width below) -->
       <div id="jiraPanel" class="jira-panel hidden">
         <div class="jira-panel-bar">
@@ -1022,6 +1080,40 @@
         </div>
       </div>
     </aside>
+  </div>
+</div>
+
+<!-- Poll creation modal -->
+<div class="poll-modal-overlay" id="pollModal">
+  <div class="poll-modal-card">
+    <div class="poll-modal-title">📊 Create Poll</div>
+    <div class="field">
+      <label class="label" for="pollQuestion">Question</label>
+      <input class="input" id="pollQuestion" type="text" placeholder="e.g. Are we ready to start the sprint?" maxlength="200" />
+    </div>
+    <div class="field">
+      <label class="label">Answer type</label>
+      <div class="poll-type-toggle">
+        <button class="poll-type-btn active" id="pollTypeSingle" onclick="setPollType('single')">Single answer</button>
+        <button class="poll-type-btn" id="pollTypeMulti" onclick="setPollType('multi')">Multiple answers</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Options</label>
+      <div class="poll-options-list" id="pollOptionsList">
+        <div class="poll-option-input-row"><input class="input" type="text" placeholder="Option 1" maxlength="100" /><button class="poll-option-remove" title="Remove">&#215;</button></div>
+        <div class="poll-option-input-row"><input class="input" type="text" placeholder="Option 2" maxlength="100" /><button class="poll-option-remove" title="Remove">&#215;</button></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="pollAddOptionBtn" style="margin-top:8px;align-self:flex-start;">+ Add option</button>
+    </div>
+    <div class="poll-reuse-row" id="pollReuseRow" style="display:none;">
+      <span class="poll-reuse-label">Last poll: <em id="pollReuseLabel"></em></span>
+      <button class="btn btn-ghost btn-sm" id="pollReuseBtn">Re-use</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="pollCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="pollLaunchBtn">Launch Poll</button>
+    </div>
   </div>
 </div>
 
@@ -1091,6 +1183,10 @@ const S = {
   participants: {},          // { uid: { name, vote, spectator, online } }
   storyTitle:  '',
   round:       0,
+  poll:        null,
+  pollHistory: [],
+  _pollDraft:  null,         // array of indices for multi-select in-progress
+  _pollType:   'single',     // 'single' | 'multi' — modal type selection
   _dbRef:      null,
   _listeners:  [],
   _demoMode:   false,
@@ -1380,10 +1476,17 @@ function handleSessionUpdate(data) {
     S.originalScale = JSON.parse(data.config.originalScale || '[]');
   }
   S.participants = data.participants || {};
+  S.poll         = data.poll || null;
 
   // Build sorted history array from Firebase
   const rawHistory = data.history || {};
   S.history = Object.entries(rawHistory)
+    .map(([id, h]) => ({ id, ...h }))
+    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+  // Build sorted poll history array from Firebase
+  const rawPollHistory = data.pollHistory || {};
+  S.pollHistory = Object.entries(rawPollHistory)
     .map(([id, h]) => ({ id, ...h }))
     .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
@@ -1448,6 +1551,7 @@ function renderRoom() {
   renderModControls();
   renderResults();
   renderHistory();
+  renderPoll();
 }
 
 function renderStatus() {
@@ -1507,6 +1611,13 @@ function renderVotingCards() {
 
   const canVote   = !S.isSpectator && S.status === 'voting';
   const isRevealed = S.status === 'revealed';
+
+  // Hide voting UI entirely when a poll is active
+  if (S.poll && S.poll.active) {
+    section.classList.add('hidden');
+    results.classList.add('hidden');
+    return;
+  }
 
   section.classList.toggle('hidden', isRevealed);
   results.classList.toggle('hidden', !isRevealed);
@@ -1820,6 +1931,190 @@ async function saveStory(title) {
   if (!S.roomCode || !S.isMod) return;
   const t = title.trim();
   await dbUpdate('sessions/' + S.roomCode + '/story', { title: t });
+}
+
+// ── Poll ──────────────────────────────────────────────────────────────────────
+
+function _pollVoteCount(votes, optionIndex, multiSelect) {
+  // votes is { uid: number } for single, { uid: [numbers] } for multi
+  return Object.values(votes).reduce((n, v) => {
+    if (multiSelect) return n + (Array.isArray(v) && v.includes(optionIndex) ? 1 : 0);
+    return n + (v === optionIndex ? 1 : 0);
+  }, 0);
+}
+
+function renderPoll() {
+  const section = document.getElementById('pollSection');
+  if (!S.poll || !S.poll.active) {
+    section.classList.add('hidden');
+    return;
+  }
+  section.classList.remove('hidden');
+  const p = S.poll;
+  const multiSelect = !!p.multiSelect;
+  const votes = p.votes || {};
+  const totalVoters = Object.keys(votes).length;
+  const myVote = votes[S.userId] !== undefined ? votes[S.userId] : null;
+  const hasVoted = myVote !== null;
+  // Draft selection for multi-select before submit
+  if (multiSelect && !hasVoted && !S._pollDraft) S._pollDraft = [];
+  if (hasVoted) S._pollDraft = null;
+  const canVote = !S.isSpectator && !hasVoted;
+  const showResults = S.isMod || hasVoted;
+
+  const optionCounts = (p.options || []).map((_, i) => _pollVoteCount(votes, i, multiSelect));
+
+  // For multi: totalVoters who submitted — for display purposes each voter counts once
+  const voterWord = `${totalVoters} vote${totalVoters !== 1 ? 's' : ''}`;
+
+  let footerRight = '';
+  if (hasVoted) {
+    footerRight = '<span>✓ You voted</span>';
+  } else if (!S.isSpectator) {
+    footerRight = multiSelect
+      ? `<button class="btn btn-primary btn-sm" id="pollSubmitBtn" ${S._pollDraft && S._pollDraft.length ? '' : 'disabled'}>Submit</button>`
+      : '<span>Select an option to vote</span>';
+  }
+
+  section.innerHTML = `
+    <div class="poll-header">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <span class="poll-badge">Poll${multiSelect ? ' · Multi' : ''}</span>
+        <span class="poll-question">${escHtml(p.question)}</span>
+      </div>
+      ${S.isMod ? `<button class="btn btn-ghost btn-sm" id="closePollBtn">✕ Close</button>` : ''}
+    </div>
+    <div class="poll-body">
+      ${(p.options || []).map((opt, i) => {
+        const count = optionCounts[i];
+        const pct = totalVoters ? Math.round(count / totalVoters * 100) : 0;
+        const isDraft = multiSelect && S._pollDraft && S._pollDraft.includes(i);
+        const isSelected = multiSelect
+          ? (hasVoted && Array.isArray(myVote) && myVote.includes(i))
+          : (myVote === i);
+        const highlighted = isSelected || isDraft;
+        return `<button class="poll-option-btn${highlighted ? ' selected' : ''}"
+          ${!canVote ? 'disabled' : ''}
+          onclick="castPollVote(${i})">
+          ${showResults ? `<div class="poll-option-bar" style="width:${pct}%"></div>` : ''}
+          <div class="poll-option-content">
+            ${multiSelect ? `<div class="poll-option-check"></div>` : ''}
+            <span>${escHtml(opt)}</span>
+            ${showResults ? `<span class="poll-option-pct">${pct}%</span><span class="poll-option-count">${count}</span>` : ''}
+          </div>
+        </button>`;
+      }).join('')}
+    </div>
+    <div class="poll-footer">
+      <span>${voterWord}</span>
+      <span style="flex:1"></span>
+      ${footerRight}
+    </div>`;
+
+  if (S.isMod) section.querySelector('#closePollBtn')?.addEventListener('click', closePoll);
+  if (multiSelect && !hasVoted) {
+    section.querySelector('#pollSubmitBtn')?.addEventListener('click', submitPollVote);
+  }
+}
+
+function setPollType(type) {
+  S._pollType = type;
+  document.getElementById('pollTypeSingle').classList.toggle('active', type === 'single');
+  document.getElementById('pollTypeMulti').classList.toggle('active', type === 'multi');
+}
+
+function openPollModal() {
+  S._pollType = 'single';
+  setPollType('single');
+  document.getElementById('pollQuestion').value = '';
+  const list = document.getElementById('pollOptionsList');
+  list.innerHTML = `
+    <div class="poll-option-input-row"><input class="input" type="text" placeholder="Option 1" maxlength="100" /><button class="poll-option-remove" onclick="this.closest('.poll-option-input-row').remove()">×</button></div>
+    <div class="poll-option-input-row"><input class="input" type="text" placeholder="Option 2" maxlength="100" /><button class="poll-option-remove" onclick="this.closest('.poll-option-input-row').remove()">×</button></div>`;
+
+  // Show re-use option if there's a previous poll (active or closed)
+  const prevPoll = S.poll;
+  const reuseRow = document.getElementById('pollReuseRow');
+  const reuseLabel = document.getElementById('pollReuseLabel');
+  if (prevPoll && prevPoll.question) {
+    reuseLabel.textContent = prevPoll.question;
+    reuseRow.style.display = 'flex';
+  } else {
+    reuseRow.style.display = 'none';
+  }
+
+  document.getElementById('pollModal').classList.add('open');
+  document.getElementById('pollQuestion').focus();
+}
+
+function applyPollReuse() {
+  const p = S.poll;
+  if (!p || !p.question) return;
+  document.getElementById('pollQuestion').value = p.question;
+  const list = document.getElementById('pollOptionsList');
+  list.innerHTML = (p.options || []).map((opt, idx) =>
+    `<div class="poll-option-input-row"><input class="input" type="text" value="${escHtml(opt)}" maxlength="100" /><button class="poll-option-remove" onclick="this.closest('.poll-option-input-row').remove()">×</button></div>`
+  ).join('');
+  if (p.multiSelect) setPollType('multi');
+}
+
+function closePollModal() {
+  document.getElementById('pollModal').classList.remove('open');
+}
+
+async function launchPoll() {
+  const question = document.getElementById('pollQuestion').value.trim();
+  const optionInputs = document.querySelectorAll('#pollOptionsList input');
+  const options = Array.from(optionInputs).map(i => i.value.trim()).filter(Boolean);
+  if (!question) { toast('Please enter a question.'); return; }
+  if (options.length < 2) { toast('Please add at least 2 options.'); return; }
+  S._pollDraft = null;
+  await dbSet('sessions/' + S.roomCode + '/poll', {
+    question, options, votes: {}, active: true, multiSelect: S._pollType === 'multi', createdAt: Date.now()
+  });
+  closePollModal();
+  toast('Poll launched!');
+}
+
+function castPollVote(optionIndex) {
+  if (!S.roomCode || !S.poll || !S.poll.active) return;
+  const hasVoted = S.poll.votes && S.poll.votes[S.userId] !== undefined;
+  if (hasVoted || S.isSpectator) return;
+
+  if (S.poll.multiSelect) {
+    // Toggle draft selection — don't write to Firebase until submit
+    if (!S._pollDraft) S._pollDraft = [];
+    const idx = S._pollDraft.indexOf(optionIndex);
+    if (idx === -1) S._pollDraft.push(optionIndex);
+    else S._pollDraft.splice(idx, 1);
+    renderPoll();
+  } else {
+    // Single-select: write immediately
+    dbSet('sessions/' + S.roomCode + '/poll/votes/' + S.userId, optionIndex).catch(() => {});
+  }
+}
+
+async function submitPollVote() {
+  if (!S.roomCode || !S.poll || !S.poll.active || !S._pollDraft || !S._pollDraft.length) return;
+  await dbSet('sessions/' + S.roomCode + '/poll/votes/' + S.userId, S._pollDraft.slice());
+  S._pollDraft = null;
+}
+
+async function closePoll() {
+  if (!S.isMod || !S.poll) return;
+  const p = S.poll;
+  // Save to poll history
+  const histKey = 'ph' + Date.now();
+  await dbSet('sessions/' + S.roomCode + '/pollHistory/' + histKey, {
+    type: 'poll',
+    question: p.question,
+    options:  p.options || [],
+    votes:    p.votes   || {},
+    multiSelect: !!p.multiSelect,
+    timestamp: Date.now(),
+  });
+  await dbUpdate('sessions/' + S.roomCode + '/poll', { active: false });
+  toast('Poll closed.');
 }
 
 async function removeParticipant(uid, name) {
@@ -2168,45 +2463,78 @@ async function toggleAutoReveal() {
 
 // ── History render ────────────────────────────────────────────
 function renderHistory() {
-  const list     = document.getElementById('historyList');
-  const countEl  = document.getElementById('historyCount');
+  const list    = document.getElementById('historyList');
+  const countEl = document.getElementById('historyCount');
   if (!list) return;
-  if (countEl) countEl.textContent = S.history.length;
 
-  if (S.history.length === 0) {
+  // Merge voting rounds and poll history, sorted by timestamp newest-first
+  const allItems = [
+    ...S.history.map(h => ({ ...h, _type: 'vote' })),
+    ...(S.pollHistory || []).map(p => ({ ...p, _type: 'poll' })),
+  ].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  if (countEl) countEl.textContent = allItems.length;
+
+  if (allItems.length === 0) {
     list.innerHTML = '<div class="history-empty">No rounds completed yet.</div>';
     return;
   }
 
   list.innerHTML = '';
-  // Show most recent first
-  [...S.history].reverse().forEach(item => {
-    const votes = item.votes ? Object.values(item.votes) : [];
-    const voteChips = votes
-      .map(v => `<span class="history-vote-chip">${escHtml(v.vote || '—')}</span>`)
-      .join('');
-    const pointClass = item.consensus ? 'history-item-point consensus' : 'history-item-point';
-    const pointLabel = item.finalPoint
-      ? escHtml(item.finalPoint)
-      : (item.avg != null ? item.avg.toFixed(1) : '—');
-    const timeStr = item.timestamp
-      ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      : '';
+  allItems.forEach(item => {
     const div = document.createElement('div');
-    div.className = 'history-item';
-    div.innerHTML = `
-      <div class="history-item-header">
-        <span class="history-item-story" title="${escHtml(item.story)}">${escHtml(item.story)}</span>
-        <span class="${pointClass}">${pointLabel}</span>
-      </div>
-      <div class="history-item-meta">
-        <span>${votes.length} voter${votes.length !== 1 ? 's' : ''}</span>
-        ${item.consensus ? '<span style="color:var(--green)">✓ Consensus</span>' : ''}
-        ${item.avg != null ? `<span>avg ${item.avg.toFixed(1)}</span>` : ''}
-        <span>${timeStr}</span>
-      </div>
-      <div class="history-votes-row">${voteChips}</div>
-    `;
+
+    if (item._type === 'poll') {
+      const votes = item.votes || {};
+      const totalVoters = Object.keys(votes).length;
+      const multiSelect = !!item.multiSelect;
+      const timeStr = item.timestamp
+        ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '';
+      const optionBars = (item.options || []).map((opt, i) => {
+        const count = _pollVoteCount(votes, i, multiSelect);
+        const pct = totalVoters ? Math.round(count / totalVoters * 100) : 0;
+        return `<div class="history-poll-opt">
+          <span style="min-width:80px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(opt)}</span>
+          <div class="history-poll-bar-wrap"><div class="history-poll-bar-fill" style="width:${pct}%"></div></div>
+          <span class="history-poll-pct">${pct}%</span>
+        </div>`;
+      }).join('');
+      div.className = 'history-item poll-item';
+      div.innerHTML = `
+        <div class="history-item-header">
+          <span class="history-poll-badge">Poll${multiSelect ? ' · Multi' : ''}</span>
+          <span class="history-poll-question" title="${escHtml(item.question)}">${escHtml(item.question)}</span>
+          <span style="font-size:11px;color:var(--text-3);flex-shrink:0">${timeStr}</span>
+        </div>
+        <div class="history-poll-results">${optionBars}</div>
+        <div class="history-item-meta"><span>${totalVoters} vote${totalVoters !== 1 ? 's' : ''}</span></div>`;
+    } else {
+      const votes = item.votes ? Object.values(item.votes) : [];
+      const voteChips = votes
+        .map(v => `<span class="history-vote-chip">${escHtml(v.vote || '—')}</span>`)
+        .join('');
+      const pointClass = item.consensus ? 'history-item-point consensus' : 'history-item-point';
+      const pointLabel = item.finalPoint
+        ? escHtml(item.finalPoint)
+        : (item.avg != null ? item.avg.toFixed(1) : '—');
+      const timeStr = item.timestamp
+        ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '';
+      div.className = 'history-item';
+      div.innerHTML = `
+        <div class="history-item-header">
+          <span class="history-item-story" title="${escHtml(item.story)}">${escHtml(item.story)}</span>
+          <span class="${pointClass}">${pointLabel}</span>
+        </div>
+        <div class="history-item-meta">
+          <span>${votes.length} voter${votes.length !== 1 ? 's' : ''}</span>
+          ${item.consensus ? '<span style="color:var(--green)">✓ Consensus</span>' : ''}
+          ${item.avg != null ? `<span>avg ${item.avg.toFixed(1)}</span>` : ''}
+          <span>${timeStr}</span>
+        </div>
+        <div class="history-votes-row">${voteChips}</div>`;
+    }
     list.appendChild(div);
   });
 }
@@ -2419,6 +2747,27 @@ function wireEvents() {
   document.getElementById('reEstimateBtn').addEventListener('click', reEstimate);
   document.getElementById('modScaleSelect').addEventListener('change', function() {
     changeScale(this.value);
+  });
+
+  // Poll
+  document.getElementById('createPollBtn').addEventListener('click', openPollModal);
+  document.getElementById('pollCancelBtn').addEventListener('click', closePollModal);
+  document.getElementById('pollLaunchBtn').addEventListener('click', launchPoll);
+  document.getElementById('pollReuseBtn').addEventListener('click', applyPollReuse);
+  document.getElementById('pollAddOptionBtn').addEventListener('click', () => {
+    const list = document.getElementById('pollOptionsList');
+    const count = list.querySelectorAll('.poll-option-input-row').length + 1;
+    const row = document.createElement('div');
+    row.className = 'poll-option-input-row';
+    row.innerHTML = `<input class="input" type="text" placeholder="Option ${count}" maxlength="100" /><button class="poll-option-remove" onclick="this.closest('.poll-option-input-row').remove()">×</button>`;
+    list.appendChild(row);
+    row.querySelector('input').focus();
+  });
+  document.getElementById('pollQuestion').addEventListener('keydown', e => {
+    if (e.key === 'Enter') launchPoll();
+  });
+  document.getElementById('pollModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('pollModal')) closePollModal();
   });
 
   // Leave modal
