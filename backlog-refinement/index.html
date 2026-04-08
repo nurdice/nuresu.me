@@ -518,7 +518,7 @@
 
     /* ── Jira panel ──────────────────────────────────────────────── */
     .jira-url-row { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
-    .jira-panel { margin-top: 12px; border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+    .jira-panel { margin-top: 16px; border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; background: var(--surface); }
     .jira-panel-bar {
       padding: 10px 14px; background: var(--elevated);
       display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border);
@@ -529,18 +529,27 @@
       background: rgba(99,102,241,.12); padding: 2px 8px; border-radius: 4px;
     }
     .jira-panel-spacer { flex: 1; }
-    .jira-card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-    .jira-card-badges { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    /* Ticket card */
+    .jira-card-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .jira-card-top { display: flex; align-items: flex-start; gap: 12px; }
+    .jira-card-type-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .jira-card-heading { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+    .jira-card-summary { font-size: 15px; font-weight: 700; color: var(--text-1); line-height: 1.4; }
+    .jira-card-key { font-size: 12px; color: var(--text-3); font-family: 'SF Mono','Fira Code',Consolas,monospace; }
+    .jira-card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; padding: 12px 16px; background: var(--elevated); border-top: 1px solid var(--border); }
+    .jira-meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .jira-meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: .7px; color: var(--text-3); font-weight: 600; }
+    .jira-meta-value { font-size: 13px; color: var(--text-2); font-weight: 500; display: flex; align-items: center; gap: 5px; }
+    .jira-status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
     .jira-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
     .jira-badge-status { background: rgba(99,102,241,.18); color: var(--accent-l); }
     .jira-badge-type { background: rgba(255,255,255,.07); color: var(--text-2); }
-    .jira-badge-priority-high { background: rgba(239,68,68,.12); color: #f87171; }
+    .jira-badge-priority-high   { background: rgba(239,68,68,.12);  color: #f87171; }
     .jira-badge-priority-medium { background: rgba(251,191,36,.12); color: #fbbf24; }
-    .jira-badge-priority-low { background: rgba(134,239,172,.12); color: #86efac; }
-    .jira-card-summary { font-size: 14px; font-weight: 600; color: var(--text-1); line-height: 1.4; }
-    .jira-card-desc-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .6px; }
-    .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; white-space: pre-wrap; max-height: 180px; overflow-y: auto; border-left: 2px solid var(--border); padding-left: 10px; }
-    .jira-card-assignee { font-size: 12px; color: var(--text-3); }
+    .jira-badge-priority-low    { background: rgba(134,239,172,.12); color: #86efac; }
+    .jira-card-desc-wrap { padding: 0 16px 14px; }
+    .jira-card-desc-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-bottom: 6px; }
+    .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; white-space: pre-wrap; max-height: 140px; overflow-y: auto; padding: 10px 12px; background: var(--elevated); border-radius: var(--r); border: 1px solid var(--border); }
     .jira-connect-prompt { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .jira-connect-title { font-size: 13px; font-weight: 500; color: var(--text-1); }
     .jira-connect-hint { font-size: 11px; color: var(--text-3); line-height: 1.5; }
@@ -858,17 +867,8 @@
           placeholder="Waiting for facilitator to set the story…" maxlength="200" readonly />
         <div id="jiraUrlRow" class="jira-url-row hidden">
           <input class="input" id="jiraUrlInput" type="text"
-            placeholder="Paste Jira ticket URL to embed (optional)…" maxlength="500"
+            placeholder="Paste Jira ticket URL…" maxlength="500"
             style="font-size:13px;height:36px;" />
-        </div>
-        <div id="jiraPanel" class="jira-panel hidden">
-          <div class="jira-panel-bar">
-            <span class="jira-ticket-id" id="jiraTicketId"></span>
-            <span class="jira-panel-spacer"></span>
-            <a id="jiraOpenBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Open in Jira ↗</a>
-            <button id="jiraClearBtn" class="btn btn-ghost btn-sm hidden" style="color:var(--text-3);" title="Remove link">✕</button>
-          </div>
-          <div id="jiraCard"></div>
         </div>
       </section>
 
@@ -880,6 +880,17 @@
         </div>
         <div class="vote-cards-grid" id="voteCardsGrid"></div>
       </section>
+
+      <!-- Jira ticket card (below vote cards) -->
+      <div id="jiraPanel" class="jira-panel hidden">
+        <div class="jira-panel-bar">
+          <span class="jira-ticket-id" id="jiraTicketId"></span>
+          <span class="jira-panel-spacer"></span>
+          <a id="jiraOpenBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Open in Jira ↗</a>
+          <button id="jiraClearBtn" class="btn btn-ghost btn-sm hidden" style="color:var(--text-3);" title="Remove link">✕</button>
+        </div>
+        <div id="jiraCard"></div>
+      </div>
 
       <!-- Results Section (shown after reveal) -->
       <section class="results-section hidden" id="resultsSection">
@@ -1813,30 +1824,65 @@ function renderJiraPanel(url) {
   }
 
   const f          = _jiraCache.data.fields || {};
+  const key        = _jiraCache.data.key || extractJiraTicketId(url);
   const summary    = f.summary || '(No summary)';
-  const status     = (f.status    && f.status.name)      || '';
-  const issueType  = (f.issuetype && f.issuetype.name)   || '';
-  const priority   = (f.priority  && f.priority.name)    || '';
+  const status     = (f.status    && f.status.name)        || '';
+  const statusCat  = (f.status    && f.status.statusCategory && f.status.statusCategory.colorName) || '';
+  const issueType  = (f.issuetype && f.issuetype.name)     || '';
+  const priority   = (f.priority  && f.priority.name)      || '';
   const assignee   = (f.assignee  && f.assignee.displayName) || 'Unassigned';
   const storyPts   = f.customfield_10016 != null ? f.customfield_10016 : null;
   const descText   = f.description ? adfToText(f.description).trim() : '';
+
+  const typeIcon   = /bug/i.test(issueType) ? '🐞'
+                   : /epic/i.test(issueType) ? '⚡'
+                   : /task/i.test(issueType) ? '✅'
+                   : /sub.task/i.test(issueType) ? '🔧' : '📌';
+  const statusColor = /green/.test(statusCat) ? '#4ade80'
+                    : /yellow/.test(statusCat) ? '#fbbf24'
+                    : /blue-grey/.test(statusCat) ? '#94a3b8' : '#6366f1';
   const prioClass  = /high|critical|blocker/i.test(priority) ? 'jira-badge-priority-high'
                    : /low|minor/i.test(priority)             ? 'jira-badge-priority-low'
                    :                                           'jira-badge-priority-medium';
+
   card.innerHTML = `
     <div class="jira-card-body">
-      <div class="jira-card-badges">
-        ${status   ? `<span class="jira-badge jira-badge-status">${escHtml(status)}</span>` : ''}
-        ${issueType? `<span class="jira-badge jira-badge-type">${escHtml(issueType)}</span>` : ''}
-        ${priority ? `<span class="jira-badge ${prioClass}">${escHtml(priority)}</span>` : ''}
-        ${storyPts != null ? `<span class="jira-badge jira-badge-type">SP: ${storyPts}</span>` : ''}
+      <div class="jira-card-top">
+        <div class="jira-card-type-icon" title="${escHtml(issueType)}">${typeIcon}</div>
+        <div class="jira-card-heading">
+          <div class="jira-card-summary">${escHtml(summary)}</div>
+          ${key ? `<div class="jira-card-key">${escHtml(key)}</div>` : ''}
+        </div>
       </div>
-      <div class="jira-card-summary">${escHtml(summary)}</div>
-      ${descText ? `
-        <div class="jira-card-desc-label">Description</div>
-        <div class="jira-card-desc">${escHtml(descText)}</div>` : ''}
-      <div class="jira-card-assignee">Assignee: ${escHtml(assignee)}</div>
-    </div>`;
+    </div>
+    <div class="jira-card-meta">
+      <div class="jira-meta-item">
+        <div class="jira-meta-label">Status</div>
+        <div class="jira-meta-value">
+          <span class="jira-status-dot" style="background:${statusColor}"></span>
+          ${escHtml(status)}
+        </div>
+      </div>
+      ${priority ? `
+      <div class="jira-meta-item">
+        <div class="jira-meta-label">Priority</div>
+        <div class="jira-meta-value"><span class="jira-badge ${prioClass}">${escHtml(priority)}</span></div>
+      </div>` : ''}
+      <div class="jira-meta-item">
+        <div class="jira-meta-label">Assignee</div>
+        <div class="jira-meta-value">${escHtml(assignee)}</div>
+      </div>
+      ${storyPts != null ? `
+      <div class="jira-meta-item">
+        <div class="jira-meta-label">Story Points</div>
+        <div class="jira-meta-value" style="font-size:15px;font-weight:700;color:var(--accent-l)">${storyPts}</div>
+      </div>` : ''}
+    </div>
+    ${descText ? `
+    <div class="jira-card-desc-wrap">
+      <div class="jira-card-desc-label">Description</div>
+      <div class="jira-card-desc">${escHtml(descText)}</div>
+    </div>` : ''}`;
 }
 
 function copyRoomLink() {
@@ -2071,10 +2117,17 @@ function wireEvents() {
     saveStory(this.value);
   });
 
-  // Jira URL: auto-saves on blur
+  // Jira URL: auto-saves on blur; also auto-fills story title if empty
   let jiraDebounce = null;
   document.getElementById('jiraUrlInput').addEventListener('input', function() {
     clearTimeout(jiraDebounce);
+    // Auto-extract ticket key → pre-fill story title
+    const ticketId = extractJiraTicketId(this.value);
+    const titleInput = document.getElementById('storyTitleInput');
+    if (ticketId && !titleInput.value.trim()) {
+      titleInput.value = ticketId;
+      saveStory(ticketId);
+    }
     jiraDebounce = setTimeout(() => saveJiraUrl(this.value), 800);
   });
   document.getElementById('jiraUrlInput').addEventListener('blur', function() {
