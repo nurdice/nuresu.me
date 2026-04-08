@@ -529,12 +529,25 @@
       background: rgba(99,102,241,.12); padding: 2px 8px; border-radius: 4px;
     }
     .jira-panel-spacer { flex: 1; }
-    .jira-embed-wrap { background: #fff; }
-    .jira-iframe { display: block; width: 100%; height: 480px; border: none; background: #fff; }
-    .jira-blocked-msg {
-      padding: 10px 14px; text-align: center; color: var(--text-3); font-size: 12px;
-      background: var(--surface); border-top: 1px solid var(--border);
-    }
+    .jira-card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .jira-card-badges { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .jira-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+    .jira-badge-status { background: rgba(99,102,241,.18); color: var(--accent-l); }
+    .jira-badge-type { background: rgba(255,255,255,.07); color: var(--text-2); }
+    .jira-badge-priority-high { background: rgba(239,68,68,.12); color: #f87171; }
+    .jira-badge-priority-medium { background: rgba(251,191,36,.12); color: #fbbf24; }
+    .jira-badge-priority-low { background: rgba(134,239,172,.12); color: #86efac; }
+    .jira-card-summary { font-size: 14px; font-weight: 600; color: var(--text-1); line-height: 1.4; }
+    .jira-card-desc-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .6px; }
+    .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; white-space: pre-wrap; max-height: 180px; overflow-y: auto; border-left: 2px solid var(--border); padding-left: 10px; }
+    .jira-card-assignee { font-size: 12px; color: var(--text-3); }
+    .jira-connect-prompt { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .jira-connect-title { font-size: 13px; font-weight: 500; color: var(--text-1); }
+    .jira-connect-hint { font-size: 11px; color: var(--text-3); line-height: 1.5; }
+    .jira-connect-fields { display: flex; flex-direction: column; gap: 8px; }
+    .jira-connect-row { display: flex; gap: 8px; align-items: center; }
+    .jira-loading { padding: 20px; text-align: center; color: var(--text-3); font-size: 13px; }
+    .jira-error-msg { padding: 10px 14px; display: flex; align-items: center; gap: 8px; color: #f87171; font-size: 12px; background: rgba(248,113,113,.08); border-top: 1px solid rgba(248,113,113,.15); }
 
     /* ── Sidebar tabs ────────────────────────────────────────────── */
     .sidebar-tabs {
@@ -855,12 +868,7 @@
             <a id="jiraOpenBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Open in Jira ↗</a>
             <button id="jiraClearBtn" class="btn btn-ghost btn-sm hidden" style="color:var(--text-3);" title="Remove link">✕</button>
           </div>
-          <div class="jira-embed-wrap">
-            <iframe id="jiraIframe" class="jira-iframe" loading="lazy" referrerpolicy="no-referrer"></iframe>
-          </div>
-          <div class="jira-blocked-msg">
-            🔒 Jira may block embedding — if the frame is blank, click <strong>Open in Jira ↗</strong> above.
-          </div>
+          <div id="jiraCard"></div>
         </div>
       </section>
 
@@ -1364,12 +1372,10 @@ function renderStory() {
     document.getElementById('jiraTicketId').textContent = ticketId || 'Jira Ticket';
     document.getElementById('jiraOpenBtn').href = safeUrl;
     document.getElementById('jiraClearBtn').classList.toggle('hidden', !editable);
-    const iframe = document.getElementById('jiraIframe');
-    if (iframe.getAttribute('src') !== safeUrl) {
-      iframe.setAttribute('src', safeUrl);
-    }
+    syncJiraPanel(safeUrl);
   } else {
     jiraPanel.classList.add('hidden');
+    syncJiraPanel('');
   }
 }
 
@@ -1681,6 +1687,161 @@ function extractJiraTicketId(url) {
   return m ? m[0] : '';
 }
 
+// ── Jira API integration ─────────────────────────────────────────
+let _jiraCache = { url: null, data: null, error: null, loading: false };
+let _jiraCreds  = null;
+
+function loadJiraCreds() {
+  try {
+    const raw = sessionStorage.getItem('jiraCreds');
+    if (raw) _jiraCreds = JSON.parse(raw);
+  } catch(_) {}
+}
+
+function saveJiraCreds(email, token) {
+  _jiraCreds = { email: email.trim(), token: token.trim() };
+  try { sessionStorage.setItem('jiraCreds', JSON.stringify(_jiraCreds)); } catch(_) {}
+}
+
+function clearJiraCreds() {
+  _jiraCreds = null;
+  _jiraCache = { url: null, data: null, error: null, loading: false };
+  try { sessionStorage.removeItem('jiraCreds'); } catch(_) {}
+}
+
+function adfToText(node) {
+  if (!node) return '';
+  if (node.type === 'text') return node.text || '';
+  if (node.type === 'hardBreak') return '\n';
+  if (!node.content) return '';
+  const inner = node.content.map(adfToText).join('');
+  return (node.type === 'paragraph' || node.type === 'heading') ? inner + '\n' : inner;
+}
+
+async function fetchJiraTicket(url) {
+  if (!_jiraCreds) { renderJiraPanel(url); return; }
+  const domainMatch = url.match(/^(https?:\/\/[^/]+)/i);
+  const ticketId = extractJiraTicketId(url);
+  if (!domainMatch || !ticketId) { renderJiraPanel(url); return; }
+  const apiUrl = domainMatch[1] + '/rest/api/3/issue/' + ticketId +
+    '?fields=summary,description,status,issuetype,priority,assignee,customfield_10016';
+  _jiraCache = { url, data: null, error: null, loading: true };
+  renderJiraPanel(url);
+  try {
+    const res = await fetch(apiUrl, {
+      headers: {
+        'Authorization': 'Basic ' + btoa(_jiraCreds.email + ':' + _jiraCreds.token),
+        'Accept': 'application/json',
+      }
+    });
+    if (!res.ok) {
+      const msg = (res.status === 401 || res.status === 403)
+        ? 'Invalid credentials — check your email and API token.'
+        : 'Jira API error: ' + res.status;
+      _jiraCache = { url, data: null, error: msg, loading: false };
+    } else {
+      _jiraCache = { url, data: await res.json(), error: null, loading: false };
+    }
+  } catch(e) {
+    _jiraCache = { url, data: null, error: 'Could not reach Jira. Check your network or the Jira URL.', loading: false };
+  }
+  renderJiraPanel(url);
+}
+
+function syncJiraPanel(safeUrl) {
+  if (!safeUrl) { document.getElementById('jiraCard').innerHTML = ''; return; }
+  if (_jiraCache.url !== safeUrl) {
+    _jiraCache = { url: null, data: null, error: null, loading: false };
+    fetchJiraTicket(safeUrl);
+  } else {
+    renderJiraPanel(safeUrl);
+  }
+}
+
+function renderJiraPanel(url) {
+  const card = document.getElementById('jiraCard');
+  if (!card) return;
+
+  if (!_jiraCreds) {
+    card.innerHTML = `
+      <div class="jira-connect-prompt">
+        <div class="jira-connect-title">Connect Jira to view ticket details</div>
+        <div class="jira-connect-hint">
+          Your Atlassian email and an <a href="https://id.atlassian.com/manage-profile/security/api-tokens"
+          target="_blank" rel="noopener" style="color:var(--accent-l)">API token</a>
+          are stored only in your browser session — never shared.
+        </div>
+        <div class="jira-connect-fields">
+          <input class="input" id="jiraEmailInput" type="email" placeholder="you@company.com"
+            style="height:36px;font-size:13px;" />
+          <input class="input" id="jiraTokenInput" type="password" placeholder="Atlassian API token"
+            style="height:36px;font-size:13px;" />
+        </div>
+        <div class="jira-connect-row">
+          <button class="btn btn-primary btn-sm" id="jiraConnectBtn">Connect</button>
+        </div>
+      </div>`;
+    card.querySelector('#jiraConnectBtn').addEventListener('click', () => {
+      const email = card.querySelector('#jiraEmailInput').value.trim();
+      const token = card.querySelector('#jiraTokenInput').value.trim();
+      if (!email || !token) { toast('Enter both email and API token.', 'error'); return; }
+      saveJiraCreds(email, token);
+      _jiraCache = { url: null, data: null, error: null, loading: false };
+      fetchJiraTicket(url);
+    });
+    return;
+  }
+
+  if (_jiraCache.loading) {
+    card.innerHTML = '<div class="jira-loading">Fetching ticket…</div>';
+    return;
+  }
+
+  if (_jiraCache.error) {
+    card.innerHTML = `
+      <div class="jira-error-msg">
+        <span>⚠ ${escHtml(_jiraCache.error)}</span>
+        <button class="btn btn-ghost btn-sm" id="jiraReconnectBtn">Update credentials</button>
+      </div>`;
+    card.querySelector('#jiraReconnectBtn').addEventListener('click', () => {
+      clearJiraCreds();
+      renderJiraPanel(url);
+    });
+    return;
+  }
+
+  if (!_jiraCache.data) {
+    card.innerHTML = '<div class="jira-loading">Loading…</div>';
+    return;
+  }
+
+  const f          = _jiraCache.data.fields || {};
+  const summary    = f.summary || '(No summary)';
+  const status     = (f.status    && f.status.name)      || '';
+  const issueType  = (f.issuetype && f.issuetype.name)   || '';
+  const priority   = (f.priority  && f.priority.name)    || '';
+  const assignee   = (f.assignee  && f.assignee.displayName) || 'Unassigned';
+  const storyPts   = f.customfield_10016 != null ? f.customfield_10016 : null;
+  const descText   = f.description ? adfToText(f.description).trim() : '';
+  const prioClass  = /high|critical|blocker/i.test(priority) ? 'jira-badge-priority-high'
+                   : /low|minor/i.test(priority)             ? 'jira-badge-priority-low'
+                   :                                           'jira-badge-priority-medium';
+  card.innerHTML = `
+    <div class="jira-card-body">
+      <div class="jira-card-badges">
+        ${status   ? `<span class="jira-badge jira-badge-status">${escHtml(status)}</span>` : ''}
+        ${issueType? `<span class="jira-badge jira-badge-type">${escHtml(issueType)}</span>` : ''}
+        ${priority ? `<span class="jira-badge ${prioClass}">${escHtml(priority)}</span>` : ''}
+        ${storyPts != null ? `<span class="jira-badge jira-badge-type">SP: ${storyPts}</span>` : ''}
+      </div>
+      <div class="jira-card-summary">${escHtml(summary)}</div>
+      ${descText ? `
+        <div class="jira-card-desc-label">Description</div>
+        <div class="jira-card-desc">${escHtml(descText)}</div>` : ''}
+      <div class="jira-card-assignee">Assignee: ${escHtml(assignee)}</div>
+    </div>`;
+}
+
 function copyRoomLink() {
   const url = new URL(window.location.href);
   url.searchParams.set('room', S.roomCode);
@@ -1971,6 +2132,7 @@ function wireEvents() {
 //  BOOT
 // ════════════════════════════════════════════════════════════
 function boot() {
+  loadJiraCreds();
   wireEvents();
   initScalePresets();
 
