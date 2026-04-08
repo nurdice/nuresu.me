@@ -428,6 +428,13 @@
       border: 1px solid var(--border);
     }
     .no-vote-text { font-size: 11px; color: var(--text-3); }
+    .participant-remove-btn {
+      opacity: 0; transition: opacity .12s; background: none; border: none;
+      cursor: pointer; color: var(--text-3); font-size: 18px; line-height: 1;
+      padding: 2px 6px; border-radius: var(--r); flex-shrink: 0;
+    }
+    .participant-remove-btn:hover { color: #f87171; background: rgba(248,113,113,.12); }
+    .participant-row:hover .participant-remove-btn { opacity: 1; }
 
     .sidebar-waiting {
       padding: 24px 20px; text-align: center; color: var(--text-3); font-size: 13px;
@@ -1272,6 +1279,13 @@ function handleSessionUpdate(data) {
   const me = S.participants[S.userId];
   S.myVote = me ? (me.vote || null) : null;
 
+  // Detect if we were removed by the host
+  if (!S.isMod && !me && S.status !== 'waiting') {
+    toast('You were removed from the session.', 'error');
+    leaveRoom();
+    return;
+  }
+
   // Reset auto-reveal trigger when a fresh voting round begins
   if (S.status === 'voting' && prevStatus !== 'voting') {
     S._autoRevealTriggered = false;
@@ -1460,6 +1474,14 @@ function renderParticipants() {
       </div>
       ${voteEl}
     `;
+    if (S.isMod && !isMe) {
+      const rmBtn = document.createElement('button');
+      rmBtn.className = 'participant-remove-btn';
+      rmBtn.title = 'Remove participant';
+      rmBtn.textContent = '×';
+      rmBtn.addEventListener('click', () => removeParticipant(uid, p.name || 'this participant'));
+      row.appendChild(rmBtn);
+    }
     list.appendChild(row);
   });
 }
@@ -1637,6 +1659,12 @@ async function saveStory(title) {
   if (!S.roomCode || !S.isMod) return;
   const t = title.trim();
   await dbUpdate('sessions/' + S.roomCode + '/story', { title: t });
+}
+
+async function removeParticipant(uid, name) {
+  if (!S.isMod) return;
+  if (!confirm(`Remove "${name}" from the session?`)) return;
+  await dbRemove('sessions/' + S.roomCode + '/participants/' + uid);
 }
 
 async function saveJiraUrl(url) {
