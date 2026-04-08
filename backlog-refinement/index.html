@@ -386,6 +386,12 @@
     }
     .mod-bar-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
       letter-spacing: .8px; color: var(--accent-l); margin-right: 4px; }
+    .mod-scale-select {
+      font-size: 12px; font-weight: 600; background: var(--elevated);
+      border: 1px solid var(--border); border-radius: var(--r); color: var(--text-2);
+      padding: 4px 8px; cursor: pointer; outline: none;
+    }
+    .mod-scale-select:hover { border-color: var(--accent); }
 
     /* ── Sidebar: Participants ──────────────────────────────────── */
     .sidebar-header {
@@ -927,6 +933,14 @@
       <!-- Facilitator controls (mod-only, inline) -->
       <div class="mod-bar hidden" id="modBar">
         <span class="mod-bar-label">Facilitator</span>
+        <select class="mod-scale-select" id="modScaleSelect" title="Change voting scale">
+          <option value="storypoints">Story Points</option>
+          <option value="timebox">Time Box</option>
+          <option value="fibonacci">Fibonacci</option>
+          <option value="modified">Modified Fib</option>
+          <option value="tshirt">T-Shirt</option>
+          <option value="powers2">Powers of 2</option>
+        </select>
         <button class="auto-reveal-btn active" id="autoRevealBtn" title="Toggle auto-reveal when all voted">
           <span class="auto-reveal-dot"></span> Auto-reveal
         </button>
@@ -1070,6 +1084,7 @@ const S = {
   isSpectator: false,
   roomCode:    null,
   scale:       [],
+  originalScale: [],
   sessionName: '',
   status:      'waiting',   // 'waiting' | 'voting' | 'revealed'
   myVote:      null,
@@ -1234,6 +1249,7 @@ async function createSession({ name, sessionName, scale, isSpectator }) {
     config: {
       name: S.sessionName,
       scale: JSON.stringify(scale),
+      originalScale: JSON.stringify(scale),
       autoReveal: true,
       createdAt: Date.now(),
     },
@@ -1278,6 +1294,7 @@ async function joinSession({ roomCode, name, isSpectator }) {
   S.isSpectator = isSpectator;
   S.roomCode = code;
   S.scale = JSON.parse(data.config.scale || '[]');
+  S.originalScale = JSON.parse(data.config.originalScale || data.config.scale || '[]');
   S.sessionName = data.config.name || 'Refinement Session';
   S.autoReveal = data.config.autoReveal !== false;
 
@@ -1354,6 +1371,14 @@ function handleSessionUpdate(data) {
   S.jiraUrl     = (data.story && data.story.jiraUrl) || '';
   S.round       = (data.story && data.story.round) || 1;
   S.autoReveal  = !data.config || data.config.autoReveal !== false;
+  // Sync scale from Firebase (allows host to change it mid-session)
+  if (data.config && data.config.scale) {
+    const parsedScale = JSON.parse(data.config.scale || '[]');
+    if (parsedScale.length) S.scale = parsedScale;
+  }
+  if (data.config && data.config.originalScale && !S.originalScale.length) {
+    S.originalScale = JSON.parse(data.config.originalScale || '[]');
+  }
   S.participants = data.participants || {};
 
   // Build sorted history array from Firebase
@@ -1399,6 +1424,17 @@ function handleSessionUpdate(data) {
 function renderRoomStatic() {
   document.getElementById('roomSessionName').textContent = S.sessionName;
   document.getElementById('roomCodeDisplay').textContent = S.roomCode;
+
+  // Populate and show the "Session Scale" option in the mod dropdown
+  const sel = document.getElementById('modScaleSelect');
+  let sessionOpt = sel.querySelector('option[value="__session"]');
+  if (!sessionOpt) {
+    sessionOpt = document.createElement('option');
+    sessionOpt.value = '__session';
+    sel.insertBefore(sessionOpt, sel.firstChild);
+  }
+  const label = S.originalScale.length ? 'Session (' + S.originalScale.join(', ') + ')' : 'Session Scale';
+  sessionOpt.textContent = label;
 
   // Mod bar visibility
   document.getElementById('modBar').classList.toggle('hidden', !S.isMod);
@@ -1668,12 +1704,19 @@ function renderModControls() {
   const resetBtn     = document.getElementById('resetBtn');
   const reEstBtn      = document.getElementById('reEstimateBtn');
   const arBtn     = document.getElementById('autoRevealBtn');
+  const scaleSelect = document.getElementById('modScaleSelect');
 
   startBtn.classList.toggle('hidden',  S.status !== 'waiting');
   revealBtn.classList.toggle('hidden', S.status !== 'voting');
   resetBtn.classList.toggle('hidden',  S.status !== 'revealed');
   reEstBtn.classList.toggle('hidden',  S.status !== 'revealed');
   arBtn.classList.toggle('active', S.autoReveal);
+
+  // Sync dropdown to current scale
+  const currentKey = S.originalScale.length && JSON.stringify(S.scale) === JSON.stringify(S.originalScale)
+    ? '__session'
+    : (Object.entries(SCALES).find(([,v]) => JSON.stringify(v) === JSON.stringify(S.scale))?.[0] || '__session');
+  if (scaleSelect.value !== currentKey) scaleSelect.value = currentKey;
 
   // Disable reveal until at least one person voted
   const voters = Object.values(S.participants).filter(p => p && !p.spectator && p.online !== false);
@@ -1744,6 +1787,21 @@ async function resetRound() {
     updates['participants/' + uid + '/vote'] = null;
   });
   await dbUpdate('sessions/' + S.roomCode, updates);
+}
+
+async function changeScale(presetKey) {
+  if (!S.roomCode || !S.isMod) return;
+  const newScale = presetKey === '__session' ? S.originalScale : SCALES[presetKey];
+  if (!newScale || !newScale.length) return;
+  // Reset any in-progress votes when scale changes
+  const updates = { 'config/scale': JSON.stringify(newScale) };
+  Object.keys(S.participants).forEach(uid => {
+    updates['participants/' + uid + '/vote'] = null;
+  });
+  if (S.status === 'revealed') updates.status = 'waiting';
+  const label = presetKey === '__session' ? 'Session Scale' : (presetKey.replace('storypoints','Story Points').replace('timebox','Time Box'));
+  await dbUpdate('sessions/' + S.roomCode, updates);
+  toast('Scale changed to ' + label);
 }
 
 async function reEstimate() {
@@ -2359,6 +2417,9 @@ function wireEvents() {
   document.getElementById('revealBtn').addEventListener('click', revealVotes);
   document.getElementById('resetBtn').addEventListener('click', resetRound);
   document.getElementById('reEstimateBtn').addEventListener('click', reEstimate);
+  document.getElementById('modScaleSelect').addEventListener('change', function() {
+    changeScale(this.value);
+  });
 
   // Leave modal
   document.getElementById('leaveRoomBtn').addEventListener('click', () => {
