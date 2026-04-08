@@ -43,12 +43,22 @@ export default {
         Authorization: 'Basic ' + btoa(env.JIRA_EMAIL + ':' + env.JIRA_TOKEN),
         Accept: 'application/json, image/*, */*',
       },
+      redirect: 'manual',
     });
 
-    const body = await upstream.arrayBuffer();
-    const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
+    // Jira attachment endpoints return 302 → signed CDN URL.
+    // Follow that redirect WITHOUT auth headers so the CDN accepts it.
+    let finalRes = upstream;
+    if (upstream.status >= 301 && upstream.status <= 308) {
+      const location = upstream.headers.get('location');
+      if (location) {
+        finalRes = await fetch(location);
+      }
+    }
+    const body = await finalRes.arrayBuffer();
+    const contentType = finalRes.headers.get('content-type') || 'application/octet-stream';
     return new Response(body, {
-      status: upstream.status,
+      status: finalRes.status,
       headers: {
         'Content-Type': contentType,
         ...corsHeaders(),
