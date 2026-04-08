@@ -260,7 +260,7 @@
 
     .room-main {
       overflow-y: auto; padding: 28px; display: flex; flex-direction: column; gap: 24px;
-      min-height: 0;
+      min-height: 0; flex: 1;
     }
 
     .room-sidebar {
@@ -609,12 +609,17 @@
     .jira-attachments-grid a { flex-shrink: 0; }
 
     /* ── Poll panel ──────────────────────────────────────────────── */
-    .poll-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; }
-    .poll-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 10px; }
+    /* Poll section fills all available room-main height when active */
+    .room-main { flex: 1; min-height: 0; }
+    .poll-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden;
+      display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .poll-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 10px; flex-shrink: 0; }
     .poll-title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
     .poll-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; padding: 2px 7px; border-radius: 999px; background: rgba(251,191,36,.15); color: #fbbf24; border: 1px solid rgba(251,191,36,.3); flex-shrink: 0; }
     .poll-question { font-size: 14px; font-weight: 700; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .poll-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .poll-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;
+      flex: 1; overflow-y: auto; min-height: 0; }
+    .poll-footer { flex-shrink: 0; }
     .poll-option-btn {
       width: 100%; text-align: left; padding: 10px 14px; border-radius: var(--r-lg);
       border: 2px solid var(--border); background: var(--elevated);
@@ -628,8 +633,20 @@
     .poll-option-content { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .poll-option-pct { font-size: 12px; font-weight: 700; color: var(--accent-l); flex-shrink: 0; }
     .poll-option-count { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
-    .poll-footer { padding: 8px 16px 12px; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); color: var(--text-3); font-size: 12px; }
+    .poll-footer { padding: 8px 16px 12px; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); color: var(--text-3); font-size: 12px; flex-shrink: 0; }
     .poll-footer-spacer { flex: 1; }
+    .poll-progress { font-size: 12px; font-weight: 700; cursor: default; }
+    .poll-progress.all-voted { color: var(--green); }
+    /* Host voter breakdown */
+    .poll-voter-breakdown { border-top: 1px solid var(--border); padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .poll-voter-breakdown-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text-3); margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+    .poll-breakdown-toggle { margin-left: auto; background: none; border: 1px solid var(--border); border-radius: var(--r); padding: 2px 8px; font-size: 11px; font-weight: 600; color: var(--text-3); cursor: pointer; transition: color .15s, border-color .15s; }
+    .poll-breakdown-toggle:hover { color: var(--text-1); border-color: var(--text-3); }
+    .poll-voter-rows.hidden-breakdown { display: none; }
+    .poll-voter-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .poll-voter-name { flex: 1; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .poll-voter-answer { font-size: 12px; font-weight: 600; color: var(--accent-l); background: rgba(99,102,241,.15); border-radius: var(--r); padding: 2px 7px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .poll-voter-pending { font-size: 12px; color: var(--text-3); font-style: italic; }
     /* Poll creation modal */
     .poll-modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.60); align-items: center; justify-content: center; }
     .poll-modal-overlay.open { display: flex; }
@@ -661,6 +678,10 @@
     .history-poll-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
     .history-poll-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .4s; }
     .history-poll-pct { font-size: 11px; color: var(--text-3); width: 30px; text-align: right; flex-shrink: 0; }
+    /* Voter breakdown inside history items */
+    .history-item .poll-voter-breakdown { border-top: 1px solid var(--border); margin-top: 4px; padding: 6px 0 0; flex-shrink: unset; }
+    .history-item .poll-voter-breakdown-title { font-size: 10px; }
+    .history-item .poll-voter-rows { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
 
     /* Lightbox */
     .lightbox { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.85); align-items: center; justify-content: center; }
@@ -1000,6 +1021,7 @@
         </button>
         <button class="btn btn-ghost btn-sm hidden" id="startVotingBtn">▶ Start Voting</button>
         <button class="btn btn-success btn-sm hidden" id="revealBtn">👁 Reveal votes</button>
+        <button class="btn btn-ghost btn-sm hidden" id="cancelVotingBtn" title="Cancel this round and go back to waiting">✕ Cancel</button>
         <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
         <button class="btn btn-ghost btn-sm hidden" id="reEstimateBtn">↻ Re-estimate</button>
         <button class="btn btn-ghost btn-sm" id="createPollBtn" title="Create a quick poll">&#128202; Poll</button>
@@ -1580,16 +1602,17 @@ function renderStory() {
     input.value = S.storyTitle;
   }
 
-  // Jira URL row: visible for mod when waiting
-  jiraRow.classList.toggle('hidden', !editable);
+  // Jira URL row: visible for mod when waiting (but not when a poll is active)
+  jiraRow.classList.toggle('hidden', !editable || !!(S.poll && S.poll.active));
   if (document.activeElement !== jiraInput) {
     jiraInput.value = S.jiraUrl;
   }
 
-  // Jira panel: visible when a URL is stored AND not in revealed state
+  // Jira panel: visible when a URL is stored AND not in revealed state AND no active poll
   const safeUrl = (S.jiraUrl && /^https?:\/\//i.test(S.jiraUrl)) ? S.jiraUrl : '';
   const isRevealed = S.status === 'revealed';
-  if (safeUrl && !isRevealed) {
+  const pollActive = !!(S.poll && S.poll.active);
+  if (safeUrl && !isRevealed && !pollActive) {
     jiraPanel.classList.remove('hidden');
     const ticketId = extractJiraTicketId(safeUrl);
     document.getElementById('jiraTicketId').textContent = ticketId || 'Jira Ticket';
@@ -1810,17 +1833,26 @@ function renderResults() {
 
 function renderModControls() {
   if (!S.isMod) return;
-  const startBtn  = document.getElementById('startVotingBtn');
-  const revealBtn = document.getElementById('revealBtn');
-  const resetBtn     = document.getElementById('resetBtn');
-  const reEstBtn      = document.getElementById('reEstimateBtn');
-  const arBtn     = document.getElementById('autoRevealBtn');
-  const scaleSelect = document.getElementById('modScaleSelect');
+  const modBar    = document.getElementById('modBar');
+  // Hide entire mod bar while a poll is running — host uses ✕ Close inside the poll panel
+  if (S.poll && S.poll.active) {
+    modBar.classList.add('hidden');
+    return;
+  }
+  modBar.classList.remove('hidden');
+  const startBtn        = document.getElementById('startVotingBtn');
+  const revealBtn       = document.getElementById('revealBtn');
+  const cancelVotingBtn = document.getElementById('cancelVotingBtn');
+  const resetBtn        = document.getElementById('resetBtn');
+  const reEstBtn        = document.getElementById('reEstimateBtn');
+  const arBtn           = document.getElementById('autoRevealBtn');
+  const scaleSelect     = document.getElementById('modScaleSelect');
 
-  startBtn.classList.toggle('hidden',  S.status !== 'waiting');
-  revealBtn.classList.toggle('hidden', S.status !== 'voting');
-  resetBtn.classList.toggle('hidden',  S.status !== 'revealed');
-  reEstBtn.classList.toggle('hidden',  S.status !== 'revealed');
+  startBtn.classList.toggle('hidden',        S.status !== 'waiting');
+  revealBtn.classList.toggle('hidden',       S.status !== 'voting');
+  cancelVotingBtn.classList.toggle('hidden', S.status !== 'voting');
+  resetBtn.classList.toggle('hidden',        S.status !== 'revealed');
+  reEstBtn.classList.toggle('hidden',        S.status !== 'revealed');
   arBtn.classList.toggle('active', S.autoReveal);
 
   // Sync dropdown to current scale
@@ -1856,6 +1888,16 @@ function castVote(value) {
 
 async function startVoting() {
   await dbUpdate('sessions/' + S.roomCode, { status: 'voting' });
+}
+
+async function cancelVoting() {
+  if (!S.isMod) return;
+  const updates = { status: 'waiting' };
+  Object.keys(S.participants).forEach(uid => {
+    updates['participants/' + uid + '/vote'] = null;
+  });
+  await dbUpdate('sessions/' + S.roomCode, updates);
+  toast('Voting cancelled.');
 }
 
 async function revealVotes() {
@@ -1943,12 +1985,92 @@ function _pollVoteCount(votes, optionIndex, multiSelect) {
   }, 0);
 }
 
+// Builds the "who voted what" breakdown HTML for closed poll results and history.
+// Pass `participants` (live S.participants) for real-time view, or `nameMap` for history.
+function _buildPollVoterBreakdownHtml(votes, options, multiSelect, participants, nameMap) {
+  const entries = Object.entries(votes || {});
+  if (entries.length === 0) return '';
+  const rows = entries.map(([uid, v]) => {
+    const name = (participants && participants[uid] && participants[uid].name)
+      || (nameMap && nameMap[uid])
+      || uid;
+    let answers = '';
+    if (multiSelect && Array.isArray(v)) {
+      answers = v.map(i => `<span class="poll-voter-answer">${escHtml(options[i] ?? '?')}</span>`).join(' ');
+    } else {
+      answers = `<span class="poll-voter-answer">${escHtml(options[v] ?? '?')}</span>`;
+    }
+    return `<div class="poll-voter-row">
+      <span class="poll-voter-name">${escHtml(name)}</span>
+      ${answers}
+    </div>`;
+  }).join('');
+  return `<div class="poll-voter-breakdown">
+    <div class="poll-voter-breakdown-title">Who voted what</div>
+    <div class="poll-voter-rows">${rows}</div>
+  </div>`;
+}
+
 function renderPoll() {
   const section = document.getElementById('pollSection');
-  if (!S.poll || !S.poll.active) {
+  if (!S.poll) {
     section.classList.add('hidden');
     return;
   }
+
+  // ── Closed poll: show final results ──────────────────────────
+  if (!S.poll.active) {
+    const p = S.poll;
+    const multiSelect = !!p.multiSelect;
+    const votes = p.votes || {};
+    const totalVoters = Object.keys(votes).length;
+    const optionCounts = (p.options || []).map((_, i) => _pollVoteCount(votes, i, multiSelect));
+    section.classList.remove('hidden');
+    section.innerHTML = `
+      <div class="poll-header">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span class="poll-badge" style="background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.3);">Results</span>
+          <span class="poll-question">${escHtml(p.question)}</span>
+        </div>
+        ${S.isMod ? `<button class="btn btn-ghost btn-sm" id="dismissPollBtn">✕ Dismiss</button>` : ''}
+      </div>
+      <div class="poll-body">
+        ${(p.options || []).map((opt, i) => {
+          const count = optionCounts[i];
+          const pct = totalVoters ? Math.round(count / totalVoters * 100) : 0;
+          return `<div class="poll-option-btn" style="cursor:default;">
+            <div class="poll-option-bar" style="width:0%" data-pct="${pct}"></div>
+            <div class="poll-option-content">
+              <span>${escHtml(opt)}</span>
+              <span class="poll-option-pct" style="opacity:0" data-pct="${pct}">${pct}%</span>
+              <span class="poll-option-count" style="opacity:0">${count}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="poll-footer">
+        <span>${totalVoters} vote${totalVoters !== 1 ? 's' : ''}</span>
+      </div>
+      ${_buildPollVoterBreakdownHtml(votes, p.options || [], multiSelect, S.participants, null)}`;
+    if (S.isMod) {
+      section.querySelector('#dismissPollBtn')?.addEventListener('click', async () => {
+        await dbSet('sessions/' + S.roomCode + '/poll', null);
+      });
+    }
+    // Animate bars in after paint
+    requestAnimationFrame(() => {
+      section.querySelectorAll('.poll-option-bar[data-pct]').forEach(bar => {
+        bar.style.width = bar.dataset.pct + '%';
+      });
+      section.querySelectorAll('.poll-option-pct, .poll-option-count').forEach(el => {
+        el.style.transition = 'opacity .3s .2s';
+        el.style.opacity = '1';
+      });
+    });
+    return;
+  }
+
+  // ── Active poll ───────────────────────────────────────────────
   section.classList.remove('hidden');
   const p = S.poll;
   const multiSelect = !!p.multiSelect;
@@ -1960,12 +2082,18 @@ function renderPoll() {
   if (multiSelect && !hasVoted && !S._pollDraft) S._pollDraft = [];
   if (hasVoted) S._pollDraft = null;
   const canVote = !S.isSpectator && !hasVoted;
-  const showResults = S.isMod || hasVoted;
+  // Results (bars + counts) only shown after poll is closed — keeps voting anonymous
+  const showResults = false;
+
+  // Eligible voters (non-spectators, online)
+  const eligibleVoters = Object.entries(S.participants)
+    .filter(([, p]) => p && !p.spectator && p.online !== false);
+  const eligibleCount = eligibleVoters.length;
+  const allVoted = eligibleCount > 0 && totalVoters >= eligibleCount;
 
   const optionCounts = (p.options || []).map((_, i) => _pollVoteCount(votes, i, multiSelect));
 
-  // For multi: totalVoters who submitted — for display purposes each voter counts once
-  const voterWord = `${totalVoters} vote${totalVoters !== 1 ? 's' : ''}`;
+  const voterWord = `${totalVoters} of ${eligibleCount} voted`;
 
   let footerRight = '';
   if (hasVoted) {
@@ -1974,6 +2102,40 @@ function renderPoll() {
     footerRight = multiSelect
       ? `<button class="btn btn-primary btn-sm" id="pollSubmitBtn" ${S._pollDraft && S._pollDraft.length ? '' : 'disabled'}>Submit</button>`
       : '<span>Select an option to vote</span>';
+  }
+
+  // Host voter breakdown: show who voted what and who hasn't voted yet
+  let breakdownHtml = '';
+  if (S.isMod) {
+    const rows = eligibleVoters.map(([uid, participant]) => {
+      const v = votes[uid];
+      const voted = v !== undefined;
+      let answerHtml = '';
+      if (voted) {
+        if (multiSelect && Array.isArray(v)) {
+          answerHtml = v.map(i => `<span class="poll-voter-answer">${escHtml(p.options[i] || '?')}</span>`).join(' ');
+        } else {
+          answerHtml = `<span class="poll-voter-answer">${escHtml(p.options[v] || '?')}</span>`;
+        }
+      } else {
+        answerHtml = '<span class="poll-voter-pending">waiting…</span>';
+      }
+      return `<div class="poll-voter-row">
+        <span class="poll-voter-name">${escHtml(participant.name || uid)}</span>
+        ${answerHtml}
+      </div>`;
+    }).join('');
+    const breakdownOpen = !!S._pollBreakdownOpen;
+    breakdownHtml = `
+      <div class="poll-voter-breakdown">
+        <div class="poll-voter-breakdown-title">
+          Responses
+          <button class="poll-breakdown-toggle" id="pollBreakdownToggle">${breakdownOpen ? '🙈 Hide' : '👁 Show'}</button>
+        </div>
+        <div class="poll-voter-rows${breakdownOpen ? '' : ' hidden-breakdown'}" id="pollVoterRows">
+          ${rows}
+        </div>
+      </div>`;
   }
 
   section.innerHTML = `
@@ -2006,12 +2168,17 @@ function renderPoll() {
       }).join('')}
     </div>
     <div class="poll-footer">
-      <span>${voterWord}</span>
+      <span class="poll-progress${allVoted ? ' all-voted' : ''}">${allVoted ? '✓ Everyone voted' : voterWord}</span>
       <span style="flex:1"></span>
       ${footerRight}
-    </div>`;
+    </div>
+    ${breakdownHtml}`;
 
   if (S.isMod) section.querySelector('#closePollBtn')?.addEventListener('click', closePoll);
+  section.querySelector('#pollBreakdownToggle')?.addEventListener('click', () => {
+    S._pollBreakdownOpen = !S._pollBreakdownOpen;
+    renderPoll();
+  });
   if (multiSelect && !hasVoted) {
     section.querySelector('#pollSubmitBtn')?.addEventListener('click', submitPollVote);
   }
@@ -2103,6 +2270,11 @@ async function submitPollVote() {
 async function closePoll() {
   if (!S.isMod || !S.poll) return;
   const p = S.poll;
+  // Snapshot participant names so history can display them even after they leave
+  const nameMap = {};
+  Object.entries(S.participants || {}).forEach(([uid, part]) => {
+    if (part && part.name) nameMap[uid] = part.name;
+  });
   // Save to poll history
   const histKey = 'ph' + Date.now();
   await dbSet('sessions/' + S.roomCode + '/pollHistory/' + histKey, {
@@ -2110,6 +2282,7 @@ async function closePoll() {
     question: p.question,
     options:  p.options || [],
     votes:    p.votes   || {},
+    names:    nameMap,
     multiSelect: !!p.multiSelect,
     timestamp: Date.now(),
   });
@@ -2508,12 +2681,11 @@ function renderHistory() {
           <span style="font-size:11px;color:var(--text-3);flex-shrink:0">${timeStr}</span>
         </div>
         <div class="history-poll-results">${optionBars}</div>
-        <div class="history-item-meta"><span>${totalVoters} vote${totalVoters !== 1 ? 's' : ''}</span></div>`;
+        <div class="history-item-meta"><span>${totalVoters} vote${totalVoters !== 1 ? 's' : ''}</span></div>
+        ${_buildPollVoterBreakdownHtml(votes, item.options || [], multiSelect, null, item.names || {})}`;
     } else {
-      const votes = item.votes ? Object.values(item.votes) : [];
-      const voteChips = votes
-        .map(v => `<span class="history-vote-chip">${escHtml(v.vote || '—')}</span>`)
-        .join('');
+      const votesMap = item.votes || {};
+      const voteEntries = Object.values(votesMap);
       const pointClass = item.consensus ? 'history-item-point consensus' : 'history-item-point';
       const pointLabel = item.finalPoint
         ? escHtml(item.finalPoint)
@@ -2521,6 +2693,11 @@ function renderHistory() {
       const timeStr = item.timestamp
         ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         : '';
+      const voterRows = Object.values(votesMap)
+        .map(v => `<div class="poll-voter-row">
+          <span class="poll-voter-name">${escHtml(v.name || '?')}</span>
+          <span class="poll-voter-answer">${escHtml(v.vote || '—')}</span>
+        </div>`).join('');
       div.className = 'history-item';
       div.innerHTML = `
         <div class="history-item-header">
@@ -2528,12 +2705,15 @@ function renderHistory() {
           <span class="${pointClass}">${pointLabel}</span>
         </div>
         <div class="history-item-meta">
-          <span>${votes.length} voter${votes.length !== 1 ? 's' : ''}</span>
+          <span>${voteEntries.length} voter${voteEntries.length !== 1 ? 's' : ''}</span>
           ${item.consensus ? '<span style="color:var(--green)">✓ Consensus</span>' : ''}
           ${item.avg != null ? `<span>avg ${item.avg.toFixed(1)}</span>` : ''}
           <span>${timeStr}</span>
         </div>
-        <div class="history-votes-row">${voteChips}</div>`;
+        ${voterRows ? `<div class="poll-voter-breakdown" style="border-top:1px solid var(--border);margin-top:4px;padding:6px 0 0;">
+          <div class="poll-voter-breakdown-title">Who voted what</div>
+          <div class="poll-voter-rows" style="margin-top:4px;">${voterRows}</div>
+        </div>` : ''}`;
     }
     list.appendChild(div);
   });
@@ -2743,6 +2923,7 @@ function wireEvents() {
   // Mod controls
   document.getElementById('startVotingBtn').addEventListener('click', startVoting);
   document.getElementById('revealBtn').addEventListener('click', revealVotes);
+  document.getElementById('cancelVotingBtn').addEventListener('click', cancelVoting);
   document.getElementById('resetBtn').addEventListener('click', resetRound);
   document.getElementById('reEstimateBtn').addEventListener('click', reEstimate);
   document.getElementById('modScaleSelect').addEventListener('change', function() {
