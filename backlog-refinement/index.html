@@ -549,7 +549,36 @@
     .jira-badge-priority-low    { background: rgba(134,239,172,.12); color: #86efac; }
     .jira-card-desc-wrap { padding: 0 16px 14px; }
     .jira-card-desc-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-bottom: 6px; }
-    .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; white-space: pre-wrap; max-height: 140px; overflow-y: auto; padding: 10px 12px; background: var(--elevated); border-radius: var(--r); border: 1px solid var(--border); }
+    .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; max-height: 260px; overflow-y: auto; padding: 12px 14px; background: var(--elevated); border-radius: var(--r); border: 1px solid var(--border); }
+    /* ADF rendered content */
+    .jira-card-desc p { margin: 0 0 8px; }
+    .jira-card-desc p:last-child { margin-bottom: 0; }
+    .jira-card-desc h1,.jira-card-desc h2,.jira-card-desc h3,.jira-card-desc h4,.jira-card-desc h5,.jira-card-desc h6 { margin: 12px 0 4px; font-weight: 700; color: var(--text-1); line-height: 1.3; }
+    .jira-card-desc h1 { font-size: 16px; } .jira-card-desc h2 { font-size: 14px; } .jira-card-desc h3 { font-size: 13px; }
+    .jira-card-desc h4,.jira-card-desc h5,.jira-card-desc h6 { font-size: 12px; }
+    .jira-card-desc ul,.jira-card-desc ol { margin: 4px 0 8px 20px; padding: 0; }
+    .jira-card-desc li { margin-bottom: 3px; }
+    .jira-card-desc ul { list-style: disc; } .jira-card-desc ol { list-style: decimal; }
+    .jira-card-desc blockquote { border-left: 3px solid var(--accent); margin: 8px 0; padding: 6px 12px; color: var(--text-3); background: rgba(99,102,241,.06); border-radius: 0 var(--r) var(--r) 0; }
+    .jira-card-desc code { font-family: 'SF Mono','Fira Code',Consolas,monospace; font-size: .85em; background: rgba(255,255,255,.1); padding: 1px 5px; border-radius: 3px; }
+    .jira-card-desc pre { font-family: 'SF Mono','Fira Code',Consolas,monospace; font-size: 12px; background: #1a1a2e; color: #e2e8f0; padding: 12px 14px; border-radius: var(--r); overflow-x: auto; margin: 8px 0; white-space: pre; }
+    .jira-card-desc pre code { background: none; padding: 0; font-size: inherit; }
+    .jira-card-desc a { color: var(--accent-l); text-decoration: underline; text-underline-offset: 2px; }
+    .jira-card-desc a:hover { opacity: .8; }
+    .jira-card-desc hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .jira-card-desc table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12px; }
+    .jira-card-desc th,.jira-card-desc td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+    .jira-card-desc th { background: rgba(255,255,255,.06); font-weight: 600; color: var(--text-1); }
+    .jira-adf-mention { display: inline; background: rgba(99,102,241,.15); color: var(--accent-l); border-radius: 3px; padding: 0 4px; font-size: .9em; }
+    .jira-adf-panel { padding: 10px 14px; border-radius: var(--r); margin: 8px 0; border-left: 3px solid var(--border); background: rgba(255,255,255,.04); }
+    .jira-adf-panel-info  { border-color: #60a5fa; background: rgba(96,165,250,.07); }
+    .jira-adf-panel-note  { border-color: #fbbf24; background: rgba(251,191,36,.07); }
+    .jira-adf-panel-warning { border-color: #f87171; background: rgba(248,113,113,.07); }
+    .jira-adf-panel-success { border-color: #4ade80; background: rgba(74,222,128,.07); }
+    .jira-adf-panel-error   { border-color: #f87171; background: rgba(248,113,113,.1); }
+    .jira-adf-card-link { display: inline-block; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: var(--r); padding: 2px 8px; font-size: 12px; color: var(--accent-l); text-decoration: none; }
+    .jira-adf-media { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: rgba(255,255,255,.04); border: 1px dashed var(--border); border-radius: var(--r); margin: 6px 0; font-size: 12px; color: var(--text-3); }
+    .jira-card-desc details summary { cursor: pointer; font-weight: 600; color: var(--text-2); padding: 4px 0; }
     .jira-connect-prompt { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .jira-connect-title { font-size: 13px; font-weight: 500; color: var(--text-1); }
     .jira-connect-hint { font-size: 11px; color: var(--text-3); line-height: 1.5; }
@@ -1721,13 +1750,92 @@ function clearJiraProxy() {
   _jiraCache = { url: null, data: null, error: null, loading: false };
 }
 
-function adfToText(node) {
+function adfToHtml(node) {
   if (!node) return '';
-  if (node.type === 'text') return node.text || '';
-  if (node.type === 'hardBreak') return '\n';
-  if (!node.content) return '';
-  const inner = node.content.map(adfToText).join('');
-  return (node.type === 'paragraph' || node.type === 'heading') ? inner + '\n' : inner;
+
+  function ch(n) { return (n.content || []).map(adfToHtml).join(''); }
+
+  function applyMarks(text, marks) {
+    let out = escHtml(text);
+    (marks || []).reverse().forEach(m => {
+      switch (m.type) {
+        case 'strong':    out = `<strong>${out}</strong>`; break;
+        case 'em':        out = `<em>${out}</em>`; break;
+        case 'underline': out = `<u>${out}</u>`; break;
+        case 'strike':    out = `<s>${out}</s>`; break;
+        case 'code':      out = `<code>${out}</code>`; break;
+        case 'superscript': out = `<sup>${out}</sup>`; break;
+        case 'subscript':   out = `<sub>${out}</sub>`; break;
+        case 'textColor': {
+          const c = m.attrs && m.attrs.color;
+          if (c) out = `<span style="color:${escHtml(c)}">${out}</span>`;
+          break;
+        }
+        case 'link': {
+          const href = m.attrs && m.attrs.href;
+          if (href && /^https?:\/\//i.test(href)) {
+            out = `<a href="${escHtml(href)}" target="_blank" rel="noopener noreferrer">${out}</a>`;
+          }
+          break;
+        }
+      }
+    });
+    return out;
+  }
+
+  switch (node.type) {
+    case 'doc':         return ch(node);
+    case 'text':        return applyMarks(node.text || '', node.marks);
+    case 'hardBreak':   return '<br>';
+    case 'paragraph':   return `<p>${ch(node) || ''}</p>`;
+    case 'heading': {
+      const lv = Math.min(6, Math.max(1, (node.attrs && node.attrs.level) || 1));
+      return `<h${lv}>${ch(node)}</h${lv}>`;
+    }
+    case 'bulletList':  return `<ul>${ch(node)}</ul>`;
+    case 'orderedList': return `<ol>${ch(node)}</ol>`;
+    case 'listItem':    return `<li>${ch(node)}</li>`;
+    case 'blockquote':  return `<blockquote>${ch(node)}</blockquote>`;
+    case 'rule':        return '<hr>';
+    case 'codeBlock': {
+      const lang = node.attrs && node.attrs.language ? ` data-lang="${escHtml(node.attrs.language)}"` : '';
+      return `<pre${lang}><code>${ch(node)}</code></pre>`;
+    }
+    case 'panel': {
+      const pt = (node.attrs && node.attrs.panelType) || 'info';
+      return `<div class="jira-adf-panel jira-adf-panel-${escHtml(pt)}">${ch(node)}</div>`;
+    }
+    case 'expand': {
+      const title = escHtml((node.attrs && node.attrs.title) || 'Details');
+      return `<details><summary>${title}</summary>${ch(node)}</details>`;
+    }
+    case 'mention': {
+      const name = escHtml((node.attrs && (node.attrs.text || node.attrs.displayName)) || '@mention');
+      return `<span class="jira-adf-mention">${name}</span>`;
+    }
+    case 'emoji': {
+      return escHtml((node.attrs && node.attrs.text) || (node.attrs && node.attrs.shortName) || '');
+    }
+    case 'inlineCard': {
+      const u = node.attrs && node.attrs.url;
+      if (!u || !/^https?:\/\//i.test(u)) return '';
+      const label = extractJiraTicketId(u) || u.replace(/^https?:\/\/[^/]+\//, '').slice(0, 40);
+      return `<a class="jira-adf-card-link" href="${escHtml(u)}" target="_blank" rel="noopener">${escHtml(label)}</a>`;
+    }
+    case 'blockCard': {
+      const u = node.attrs && node.attrs.url;
+      if (!u || !/^https?:\/\//i.test(u)) return '';
+      return `<div><a class="jira-adf-card-link" href="${escHtml(u)}" target="_blank" rel="noopener">${escHtml(u)}</a></div>`;
+    }
+    case 'table':       return `<table><tbody>${ch(node)}</tbody></table>`;
+    case 'tableRow':    return `<tr>${ch(node)}</tr>`;
+    case 'tableHeader': return `<th>${ch(node)}</th>`;
+    case 'tableCell':   return `<td>${ch(node)}</td>`;
+    case 'mediaSingle':
+    case 'mediaGroup':  return `<div class="jira-adf-media">🖼️ Attachment (not previewable here — <a href="${escHtml(url)}" target="_blank" rel="noopener">open in Jira</a>)</div>`;
+    case 'media':       return '';
+    default:            return ch(node);
+  }
 }
 
 async function fetchJiraTicket(url) {
@@ -1832,7 +1940,7 @@ function renderJiraPanel(url) {
   const priority   = (f.priority  && f.priority.name)      || '';
   const assignee   = (f.assignee  && f.assignee.displayName) || 'Unassigned';
   const storyPts   = f.customfield_10016 != null ? f.customfield_10016 : null;
-  const descText   = f.description ? adfToText(f.description).trim() : '';
+  const descHtml  = f.description ? adfToHtml(f.description) : '';
 
   const typeIcon   = /bug/i.test(issueType) ? '🐞'
                    : /epic/i.test(issueType) ? '⚡'
@@ -1878,10 +1986,10 @@ function renderJiraPanel(url) {
         <div class="jira-meta-value" style="font-size:15px;font-weight:700;color:var(--accent-l)">${storyPts}</div>
       </div>` : ''}
     </div>
-    ${descText ? `
+    ${descHtml ? `
     <div class="jira-card-desc-wrap">
       <div class="jira-card-desc-label">Description</div>
-      <div class="jira-card-desc">${escHtml(descText)}</div>
+      <div class="jira-card-desc">${descHtml}</div>
     </div>` : ''}`;
 }
 
