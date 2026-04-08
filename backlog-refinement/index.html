@@ -942,7 +942,7 @@
 <div class="modal-overlay hidden" id="leaveModal">
   <div class="modal-card">
     <div class="modal-title">Leave session?</div>
-    <div class="modal-sub">You will be removed from the room. You can rejoin with the same room code.</div>
+    <div class="modal-sub" id="leaveModalSub">You will be removed from the room. You can rejoin with the same room code.</div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="leaveCancelBtn">Stay</button>
       <button class="btn btn-danger" id="leaveConfirmBtn">Leave</button>
@@ -1178,7 +1178,8 @@ async function createSession({ name, sessionName, scale, isSpectator }) {
 
   // Set up disconnect cleanup
   if (!S._demoMode) {
-    db.ref('sessions/' + S.roomCode + '/participants/' + S.userId + '/online').onDisconnect().set(false);
+    // Host disconnecting removes the whole session so everyone is kicked
+    db.ref('sessions/' + S.roomCode).onDisconnect().remove();
   }
 
   enterRoom();
@@ -1238,9 +1239,13 @@ function leaveRoom() {
   S._listeners.forEach(fn => fn());
   S._listeners = [];
 
-  // Remove participant
   if (S.roomCode && S.userId) {
-    dbRemove('sessions/' + S.roomCode + '/participants/' + S.userId).catch(() => {});
+    if (S.isMod) {
+      // Host leaving ends the session for everyone
+      dbRemove('sessions/' + S.roomCode).catch(() => {});
+    } else {
+      dbRemove('sessions/' + S.roomCode + '/participants/' + S.userId).catch(() => {});
+    }
   }
 
   S.roomCode = null; S.userId = null; S.userName = null;
@@ -1288,7 +1293,7 @@ function handleSessionUpdate(data) {
   S.myVote = me ? (me.vote || null) : null;
 
   // Detect if we were removed by the host
-  if (!S.isMod && !me && S.status !== 'waiting') {
+  if (!S.isMod && !me) {
     toast('You were removed from the session.', 'error');
     leaveRoom();
     return;
@@ -2109,6 +2114,9 @@ function wireEvents() {
 
   // Leave modal
   document.getElementById('leaveRoomBtn').addEventListener('click', () => {
+    document.getElementById('leaveModalSub').textContent = S.isMod
+      ? 'You are the facilitator. Leaving will end the session and remove everyone.'
+      : 'You will be removed from the room. You can rejoin with the same room code.';
     document.getElementById('leaveModal').classList.remove('hidden');
   });
   document.getElementById('leaveCancelBtn').addEventListener('click', () => {
