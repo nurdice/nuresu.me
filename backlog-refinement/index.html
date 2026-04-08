@@ -814,7 +814,9 @@
         <div class="field">
           <label class="label">Voting scale <span>*</span></label>
           <div class="scale-presets" id="scalePresets">
-            <button class="scale-preset active" data-scale="fibonacci">Fibonacci</button>
+            <button class="scale-preset active" data-scale="storypoints">Story Points</button>
+            <button class="scale-preset" data-scale="timebox">Time Box</button>
+            <button class="scale-preset" data-scale="fibonacci">Fibonacci</button>
             <button class="scale-preset" data-scale="modified">Modified Fib</button>
             <button class="scale-preset" data-scale="tshirt">T-Shirt</button>
             <button class="scale-preset" data-scale="powers2">Powers of 2</button>
@@ -1052,10 +1054,12 @@ const FIREBASE_CONFIG = {
 
 // ── Scale Presets ────────────────────────────────────────────
 const SCALES = {
-  fibonacci:  ['1','2','3','5','8','13','21','34','?','☕'],
-  modified:   ['0','1','2','3','5','8','13','20','40','100','?','☕'],
-  tshirt:     ['XS','S','M','L','XL','XXL','?'],
-  powers2:    ['1','2','4','8','16','32','64','?'],
+  storypoints: ['1','2','3','5','8','?','☕'],
+  timebox:     ['1-2 hrs','Half day','1 day','2 days','3 days','4 days','5 days','5+ days'],
+  fibonacci:   ['1','2','3','5','8','13','21','34','?','☕'],
+  modified:    ['0','1','2','3','5','8','13','20','40','100','?','☕'],
+  tshirt:      ['XS','S','M','L','XL','XXL','?'],
+  powers2:     ['1','2','4','8','16','32','64','?'],
 };
 
 // ── App State ────────────────────────────────────────────────
@@ -2159,14 +2163,14 @@ function escHtml(s) {
 // ════════════════════════════════════════════════════════════
 //  SCALE PRESET UI
 // ════════════════════════════════════════════════════════════
-let selectedPreset = 'fibonacci';
+let selectedPreset = 'storypoints';
 
 function getSelectedScale() {
   if (selectedPreset === 'custom') {
     const raw = document.getElementById('customScaleInput').value;
     return raw.split(',').map(v => v.trim()).filter(Boolean);
   }
-  return SCALES[selectedPreset] || SCALES.fibonacci;
+  return SCALES[selectedPreset] || SCALES.storypoints;
 }
 
 function updateScalePreview() {
@@ -2216,6 +2220,13 @@ function wireEvents() {
 
   // Create
   document.getElementById('createBackBtn').addEventListener('click', () => showScreen('landing'));
+  // Enter key on create form inputs
+  ['createName','createSession','customScaleInput'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('createSubmitBtn').click();
+    });
+  });
   document.getElementById('createSubmitBtn').addEventListener('click', async () => {
     const name = document.getElementById('createName').value.trim();
     const session = document.getElementById('createSession').value.trim();
@@ -2258,6 +2269,12 @@ function wireEvents() {
   });
   document.getElementById('joinCode').addEventListener('input', function() {
     this.value = this.value.toUpperCase();
+  });
+  // Enter key on join form inputs
+  ['joinCode','joinName'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('joinSubmitBtn').click();
+    });
   });
   document.getElementById('joinSubmitBtn').addEventListener('click', async () => {
     const code = document.getElementById('joinCode').value.trim();
