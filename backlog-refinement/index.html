@@ -256,7 +256,7 @@
 
     .room-sidebar {
       background: var(--surface); border-left: 1px solid var(--border);
-      overflow-y: auto; display: flex; flex-direction: column;
+      overflow: hidden; display: flex; flex-direction: column;
     }
 
     /* Story Panel */
@@ -496,6 +496,95 @@
     .av-5 { background: #ef4444; }
     .av-6 { background: #8b5cf6; }
     .av-7 { background: #06b6d4; }
+
+    /* ── Story inline input ─────────────────────────────────────── */
+    .story-inline-input {
+      width: 100%; background: transparent; border: 1px solid transparent;
+      border-radius: var(--r); padding: 8px 10px; font-size: 17px; font-weight: 600;
+      color: var(--text); outline: none; transition: border-color .15s, background .15s;
+      font-family: inherit; line-height: 1.5; display: block;
+    }
+    .story-inline-input::placeholder { color: var(--text-3); font-weight: 400; font-style: italic; font-size: 15px; }
+    .story-inline-input:not([readonly]):hover { border-color: var(--border); background: var(--elevated); }
+    .story-inline-input:not([readonly]):focus { border-color: var(--accent); background: var(--elevated); }
+    .story-inline-input[readonly] { cursor: default; }
+
+    /* ── Jira panel ──────────────────────────────────────────────── */
+    .jira-url-row { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+    .jira-panel { margin-top: 12px; border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+    .jira-panel-bar {
+      padding: 10px 14px; background: var(--elevated);
+      display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border);
+    }
+    .jira-ticket-id {
+      font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+      font-size: 13px; font-weight: 700; color: var(--accent-l);
+      background: rgba(99,102,241,.12); padding: 2px 8px; border-radius: 4px;
+    }
+    .jira-panel-spacer { flex: 1; }
+    .jira-embed-wrap { background: #fff; }
+    .jira-iframe { display: block; width: 100%; height: 480px; border: none; background: #fff; }
+    .jira-blocked-msg {
+      padding: 10px 14px; text-align: center; color: var(--text-3); font-size: 12px;
+      background: var(--surface); border-top: 1px solid var(--border);
+    }
+
+    /* ── Sidebar tabs ────────────────────────────────────────────── */
+    .sidebar-tabs {
+      display: flex; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--surface); z-index: 2; flex-shrink: 0;
+    }
+    .sidebar-tab {
+      flex: 1; padding: 11px 8px; text-align: center;
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px;
+      color: var(--text-3); cursor: pointer; border: none; background: none;
+      border-bottom: 2px solid transparent; transition: color .15s, border-color .15s;
+    }
+    .sidebar-tab.active { color: var(--accent-l); border-bottom-color: var(--accent); }
+    .sidebar-tab:hover:not(.active) { color: var(--text-2); }
+    .sidebar-pane { display: none; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+    .sidebar-pane.active { display: flex; }
+
+    /* ── History panel ───────────────────────────────────────────── */
+    .history-list { display: flex; flex-direction: column; overflow-y: auto; flex: 1; }
+    .history-empty { padding: 28px 20px; text-align: center; color: var(--text-3); font-size: 13px; }
+    .history-item {
+      padding: 12px 16px; cursor: default;
+      border-bottom: 1px solid rgba(63,63,70,.4); transition: background .12s;
+    }
+    .history-item:hover { background: var(--elevated); }
+    .history-item:last-child { border-bottom: none; }
+    .history-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; gap: 8px; }
+    .history-item-story {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1;
+    }
+    .history-item-point {
+      font-size: 14px; font-weight: 800; color: var(--accent-l); flex-shrink: 0;
+      background: rgba(99,102,241,.1); padding: 1px 8px; border-radius: 4px;
+    }
+    .history-item-point.consensus { color: var(--green); background: rgba(34,197,94,.1); }
+    .history-item-meta { font-size: 11px; color: var(--text-3); display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+    .history-votes-row { display: flex; gap: 4px; flex-wrap: wrap; }
+    .history-vote-chip {
+      font-size: 11px; font-weight: 600; padding: 2px 6px;
+      border-radius: 4px; background: var(--elevated); border: 1px solid var(--border); color: var(--text-2);
+    }
+
+    /* ── Auto-reveal toggle ──────────────────────────────────────── */
+    .auto-reveal-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; color: var(--text-3);
+      cursor: pointer; padding: 4px 10px; border-radius: var(--r);
+      border: 1px solid var(--border); background: transparent;
+      transition: all .15s; white-space: nowrap;
+    }
+    .auto-reveal-btn:hover { border-color: var(--green); color: var(--text); }
+    .auto-reveal-btn.active { border-color: var(--green); color: var(--green); background: rgba(34,197,94,.08); }
+    .auto-reveal-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+    /* ── participants-list scrollable ────────────────────────────── */
+    .participants-list { overflow-y: auto; flex: 1; }
   </style>
 </head>
 <body>
@@ -744,14 +833,26 @@
       <section class="story-panel">
         <div class="story-panel-header">
           <span class="story-panel-label">Current Story</span>
-          <button class="btn btn-ghost btn-sm hidden" id="editStoryBtn">Edit</button>
         </div>
-        <div id="storyDisplay" class="story-title-display empty">No story set — waiting for facilitator…</div>
-        <div id="storyEditForm" class="story-edit-form hidden" style="margin-top:12px;">
-          <input class="input" id="storyTitleInput" type="text" placeholder="Story title or ticket ID (e.g. PROJ-123)" maxlength="200" />
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-primary btn-sm" id="saveStoryBtn">Save</button>
-            <button class="btn btn-ghost btn-sm" id="cancelStoryBtn">Cancel</button>
+        <input class="story-inline-input" id="storyTitleInput" type="text"
+          placeholder="Waiting for facilitator to set the story…" maxlength="200" readonly />
+        <div id="jiraUrlRow" class="jira-url-row hidden">
+          <input class="input" id="jiraUrlInput" type="text"
+            placeholder="Paste Jira ticket URL to embed (optional)…" maxlength="500"
+            style="font-size:13px;height:36px;" />
+        </div>
+        <div id="jiraPanel" class="jira-panel hidden">
+          <div class="jira-panel-bar">
+            <span class="jira-ticket-id" id="jiraTicketId"></span>
+            <span class="jira-panel-spacer"></span>
+            <a id="jiraOpenBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Open in Jira ↗</a>
+            <button id="jiraClearBtn" class="btn btn-ghost btn-sm hidden" style="color:var(--text-3);" title="Remove link">✕</button>
+          </div>
+          <div class="jira-embed-wrap">
+            <iframe id="jiraIframe" class="jira-iframe" loading="lazy" referrerpolicy="no-referrer"></iframe>
+          </div>
+          <div class="jira-blocked-msg">
+            🔒 Jira may block embedding — if the frame is blank, click <strong>Open in Jira ↗</strong> above.
           </div>
         </div>
       </section>
@@ -778,27 +879,43 @@
 
       <!-- Mod Controls -->
       <div class="mod-bar hidden" id="modBar">
-        <span class="mod-bar-label">Facilitator controls</span>
+        <span class="mod-bar-label">Facilitator</span>
+        <button class="auto-reveal-btn active" id="autoRevealBtn" title="Toggle auto-reveal when all voted">
+          <span class="auto-reveal-dot"></span> Auto-reveal
+        </button>
         <button class="btn btn-ghost btn-sm hidden" id="startVotingBtn">▶ Start Voting</button>
-        <button class="btn btn-success btn-sm hidden" id="revealBtn">Reveal votes</button>
+        <button class="btn btn-success btn-sm hidden" id="revealBtn">👁 Reveal votes</button>
         <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
       </div>
     </main>
 
-    <!-- Sidebar: Participants -->
+    <!-- Sidebar: Participants + History -->
     <aside class="room-sidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-title">Participants</span>
-        <span class="participant-count" id="participantCount">0</span>
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" id="tabParticipants" data-tab="pane-participants">
+          Participants <span id="participantCount" style="margin-left:4px;padding:1px 6px;background:var(--elevated);border-radius:100px;font-size:10px;">0</span>
+        </button>
+        <button class="sidebar-tab" id="tabHistory" data-tab="pane-history">
+          History <span id="historyCount" style="margin-left:4px;padding:1px 6px;background:var(--elevated);border-radius:100px;font-size:10px;">0</span>
+        </button>
       </div>
-      <div class="progress-bar-wrap" id="progressWrap">
-        <div class="progress-label" id="progressLabel">0 of 0 voted</div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+
+      <div class="sidebar-pane active" id="pane-participants">
+        <div class="progress-bar-wrap" id="progressWrap">
+          <div class="progress-label" id="progressLabel">0 of 0 voted</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="participants-list" id="participantsList">
+          <div class="sidebar-waiting">Waiting for participants…</div>
         </div>
       </div>
-      <div class="participants-list" id="participantsList">
-        <div class="sidebar-waiting">Waiting for participants…</div>
+
+      <div class="sidebar-pane" id="pane-history">
+        <div class="history-list" id="historyList">
+          <div class="history-empty">No rounds completed yet.</div>
+        </div>
       </div>
     </aside>
   </div>
@@ -1025,10 +1142,11 @@ async function createSession({ name, sessionName, scale, isSpectator }) {
     config: {
       name: S.sessionName,
       scale: JSON.stringify(scale),
+      autoReveal: true,
       createdAt: Date.now(),
     },
     status: 'waiting',
-    story: { title: '', round: 1 },
+    story: { title: '', jiraUrl: '', round: 1 },
     moderatorId: S.userId,
   };
 
@@ -1068,6 +1186,7 @@ async function joinSession({ roomCode, name, isSpectator }) {
   S.roomCode = code;
   S.scale = JSON.parse(data.config.scale || '[]');
   S.sessionName = data.config.name || 'Refinement Session';
+  S.autoReveal = data.config.autoReveal !== false;
 
   await dbSet('sessions/' + code + '/participants/' + S.userId, {
     name: S.userName,
@@ -1135,8 +1254,16 @@ function handleSessionUpdate(data) {
   const prevStatus = S.status;
   S.status      = data.status || 'waiting';
   S.storyTitle  = (data.story && data.story.title) || '';
+  S.jiraUrl     = (data.story && data.story.jiraUrl) || '';
   S.round       = (data.story && data.story.round) || 1;
+  S.autoReveal  = !data.config || data.config.autoReveal !== false;
   S.participants = data.participants || {};
+
+  // Build sorted history array from Firebase
+  const rawHistory = data.history || {};
+  S.history = Object.entries(rawHistory)
+    .map(([id, h]) => ({ id, ...h }))
+    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
   // If moderator id matches us (may have been promoted)
   if (data.moderatorId === S.userId) S.isMod = true;
@@ -1145,10 +1272,20 @@ function handleSessionUpdate(data) {
   const me = S.participants[S.userId];
   S.myVote = me ? (me.vote || null) : null;
 
+  // Reset auto-reveal trigger when a fresh voting round begins
+  if (S.status === 'voting' && prevStatus !== 'voting') {
+    S._autoRevealTriggered = false;
+  }
+
   renderRoom();
 
   if (prevStatus !== 'revealed' && S.status === 'revealed') {
     toast('Votes revealed!', 'success');
+  }
+
+  // Auto-reveal check (mod only)
+  if (S.isMod && S.autoReveal && S.status === 'voting') {
+    checkAutoReveal();
   }
 }
 
@@ -1161,7 +1298,6 @@ function renderRoomStatic() {
 
   // Mod bar visibility
   document.getElementById('modBar').classList.toggle('hidden', !S.isMod);
-  document.getElementById('editStoryBtn').classList.toggle('hidden', !S.isMod);
 }
 
 function renderRoom() {
@@ -1171,6 +1307,7 @@ function renderRoom() {
   renderParticipants();
   renderModControls();
   renderResults();
+  renderHistory();
 }
 
 function renderStatus() {
@@ -1182,13 +1319,43 @@ function renderStatus() {
 }
 
 function renderStory() {
-  const display = document.getElementById('storyDisplay');
-  if (S.storyTitle) {
-    display.textContent = S.storyTitle;
-    display.classList.remove('empty');
+  const input    = document.getElementById('storyTitleInput');
+  const jiraRow  = document.getElementById('jiraUrlRow');
+  const jiraPanel = document.getElementById('jiraPanel');
+  const jiraInput = document.getElementById('jiraUrlInput');
+
+  // Editable only by mod when in waiting state
+  const editable = S.isMod && S.status === 'waiting';
+  input.readOnly = !editable;
+  input.placeholder = editable
+    ? 'Enter story title or ticket ID (e.g. PROJ-123)…'
+    : (S.storyTitle ? '' : 'Waiting for facilitator to set the story…');
+
+  // Only update value when input is not focused (don’t disrupt typing)
+  if (document.activeElement !== input) {
+    input.value = S.storyTitle;
+  }
+
+  // Jira URL row: visible for mod when waiting
+  jiraRow.classList.toggle('hidden', !editable);
+  if (document.activeElement !== jiraInput) {
+    jiraInput.value = S.jiraUrl;
+  }
+
+  // Jira panel: visible when a URL is stored
+  const safeUrl = (S.jiraUrl && /^https?:\/\//i.test(S.jiraUrl)) ? S.jiraUrl : '';
+  if (safeUrl) {
+    jiraPanel.classList.remove('hidden');
+    const ticketId = extractJiraTicketId(safeUrl);
+    document.getElementById('jiraTicketId').textContent = ticketId || 'Jira Ticket';
+    document.getElementById('jiraOpenBtn').href = safeUrl;
+    document.getElementById('jiraClearBtn').classList.toggle('hidden', !editable);
+    const iframe = document.getElementById('jiraIframe');
+    if (iframe.getAttribute('src') !== safeUrl) {
+      iframe.setAttribute('src', safeUrl);
+    }
   } else {
-    display.textContent = 'No story set — waiting for facilitator…';
-    display.classList.add('empty');
+    jiraPanel.classList.add('hidden');
   }
 }
 
@@ -1388,10 +1555,12 @@ function renderModControls() {
   const startBtn  = document.getElementById('startVotingBtn');
   const revealBtn = document.getElementById('revealBtn');
   const resetBtn  = document.getElementById('resetBtn');
+  const arBtn     = document.getElementById('autoRevealBtn');
 
   startBtn.classList.toggle('hidden',  S.status !== 'waiting');
   revealBtn.classList.toggle('hidden', S.status !== 'voting');
   resetBtn.classList.toggle('hidden',  S.status !== 'revealed');
+  arBtn.classList.toggle('active', S.autoReveal);
 
   // Disable reveal until at least one person voted
   const voters = Object.values(S.participants).filter(p => p && !p.spectator && p.online !== false);
@@ -1423,12 +1592,41 @@ async function startVoting() {
 }
 
 async function revealVotes() {
+  // Save a history snapshot before revealing
+  const entries = Object.entries(S.participants).filter(([,p]) => p && !p.spectator);
+  const numericVotes = entries.map(([,p]) => p.vote).filter(v => v && isNumeric(v)).map(numeric);
+  const avg = numericVotes.length
+    ? numericVotes.reduce((a, b) => a + b, 0) / numericVotes.length : null;
+  const allSame = entries.length > 0 && entries.every(([,p]) => p.vote === entries[0][1].vote);
+  const finalPoint = allSame && entries.length > 0
+    ? (entries[0][1].vote || null)
+    : (avg != null ? String(findNearestScale(avg) || avg.toFixed(1)) : null);
+  const votesSnapshot = {};
+  entries.forEach(([uid, p]) => {
+    votesSnapshot[uid] = { name: p.name || 'Unknown', vote: p.vote || null };
+  });
+  const histEntry = {
+    story:      S.storyTitle || '(untitled)',
+    jiraUrl:    S.jiraUrl || '',
+    votes:      votesSnapshot,
+    avg:        avg != null ? parseFloat(avg.toFixed(2)) : null,
+    finalPoint: finalPoint,
+    consensus:  allSame,
+    timestamp:  Date.now(),
+    round:      S.round,
+  };
+  const histKey = 'h' + Date.now();
+  await dbSet('sessions/' + S.roomCode + '/history/' + histKey, histEntry);
   await dbUpdate('sessions/' + S.roomCode, { status: 'revealed' });
 }
 
 async function resetRound() {
-  const updates = { status: 'waiting' };
-  // Clear all votes
+  const updates = {
+    status: 'waiting',
+    'story/title': '',
+    'story/jiraUrl': '',
+    'story/round': (S.round || 1) + 1,
+  };
   Object.keys(S.participants).forEach(uid => {
     updates['participants/' + uid + '/vote'] = null;
   });
@@ -1436,8 +1634,23 @@ async function resetRound() {
 }
 
 async function saveStory(title) {
+  if (!S.roomCode || !S.isMod) return;
   const t = title.trim();
   await dbUpdate('sessions/' + S.roomCode + '/story', { title: t });
+}
+
+async function saveJiraUrl(url) {
+  if (!S.roomCode || !S.isMod) return;
+  const u = url.trim();
+  // Only allow http/https to prevent javascript: injection
+  if (u && !/^https?:\/\//i.test(u)) return;
+  await dbUpdate('sessions/' + S.roomCode + '/story', { jiraUrl: u });
+}
+
+function extractJiraTicketId(url) {
+  if (!url) return '';
+  const m = url.match(/[A-Z][A-Z0-9]*-\d+/);
+  return m ? m[0] : '';
 }
 
 function copyRoomLink() {
@@ -1452,6 +1665,71 @@ function copyRoomLink() {
       document.execCommand('copy'); document.body.removeChild(ta);
       toast('Link copied!', 'success');
     });
+}
+
+// ── Auto-reveal ───────────────────────────────────────────────
+function checkAutoReveal() {
+  if (S._autoRevealTriggered) return;
+  const voters = Object.values(S.participants).filter(p => p && !p.spectator && p.online !== false);
+  if (voters.length === 0) return;
+  const allVoted = voters.every(p => p.vote != null);
+  if (allVoted) {
+    S._autoRevealTriggered = true;
+    toast('All voted — revealing…', 'success');
+    setTimeout(() => revealVotes(), 700);
+  }
+}
+
+async function toggleAutoReveal() {
+  const newVal = !S.autoReveal;
+  S.autoReveal = newVal;
+  await dbUpdate('sessions/' + S.roomCode + '/config', { autoReveal: newVal });
+  toast(newVal ? 'Auto-reveal enabled' : 'Auto-reveal disabled');
+}
+
+// ── History render ────────────────────────────────────────────
+function renderHistory() {
+  const list     = document.getElementById('historyList');
+  const countEl  = document.getElementById('historyCount');
+  if (!list) return;
+  if (countEl) countEl.textContent = S.history.length;
+
+  if (S.history.length === 0) {
+    list.innerHTML = '<div class="history-empty">No rounds completed yet.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  // Show most recent first
+  [...S.history].reverse().forEach(item => {
+    const votes = item.votes ? Object.values(item.votes) : [];
+    const voteChips = votes
+      .map(v => `<span class="history-vote-chip">${escHtml(v.vote || '—')}</span>`)
+      .join('');
+    const pointClass = item.consensus ? 'history-item-point consensus' : 'history-item-point';
+    const pointLabel = item.finalPoint
+      ? escHtml(item.finalPoint)
+      : (item.avg != null ? item.avg.toFixed(1) : '—');
+    const timeStr = item.timestamp
+      ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : '';
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div class="history-item-header">
+        <span class="history-item-story" title="${escHtml(item.story)}">${escHtml(item.story)}</span>
+        <span class="${pointClass}">${pointLabel}</span>
+      </div>
+      <div class="history-item-meta">
+        <span>${votes.length} voter${votes.length !== 1 ? 's' : ''}</span>
+        ${item.consensus ? '<span style="color:var(--green)">✓ Consensus</span>' : ''}
+        ${item.avg != null ? `<span>avg ${item.avg.toFixed(1)}</span>` : ''}
+        <span>${timeStr}</span>
+      </div>
+      <div class="history-votes-row">${voteChips}</div>
+    `;
+    list.appendChild(div);
+  });
 }
 
 // ── XSS helper ───────────────────────────────────────────────
@@ -1596,44 +1874,49 @@ function wireEvents() {
     document.getElementById('leaveModal').classList.remove('hidden');
   });
 
-  // Room: story editing
-  document.getElementById('editStoryBtn').addEventListener('click', () => {
-    document.getElementById('storyTitleInput').value = S.storyTitle;
-    document.getElementById('storyEditForm').classList.remove('hidden');
-    document.getElementById('editStoryBtn').classList.add('hidden');
-    document.getElementById('storyTitleInput').focus();
+  // Room: story inline editing (auto-saves with debounce)
+  let storyDebounce = null;
+  document.getElementById('storyTitleInput').addEventListener('input', function() {
+    clearTimeout(storyDebounce);
+    storyDebounce = setTimeout(() => saveStory(this.value), 600);
   });
-  document.getElementById('cancelStoryBtn').addEventListener('click', () => {
-    document.getElementById('storyEditForm').classList.add('hidden');
-    document.getElementById('editStoryBtn').classList.remove('hidden');
+  document.getElementById('storyTitleInput').addEventListener('blur', function() {
+    clearTimeout(storyDebounce);
+    saveStory(this.value);
   });
-  document.getElementById('saveStoryBtn').addEventListener('click', async () => {
-    const title = document.getElementById('storyTitleInput').value;
-    await saveStory(title);
-    document.getElementById('storyEditForm').classList.add('hidden');
-    document.getElementById('editStoryBtn').classList.remove('hidden');
+
+  // Jira URL: auto-saves on blur
+  let jiraDebounce = null;
+  document.getElementById('jiraUrlInput').addEventListener('input', function() {
+    clearTimeout(jiraDebounce);
+    jiraDebounce = setTimeout(() => saveJiraUrl(this.value), 800);
   });
-  document.getElementById('storyTitleInput').addEventListener('keydown', async e => {
-    if (e.key === 'Enter') {
-      const title = document.getElementById('storyTitleInput').value;
-      await saveStory(title);
-      document.getElementById('storyEditForm').classList.add('hidden');
-      document.getElementById('editStoryBtn').classList.remove('hidden');
-    }
-    if (e.key === 'Escape') {
-      document.getElementById('storyEditForm').classList.add('hidden');
-      document.getElementById('editStoryBtn').classList.remove('hidden');
-    }
+  document.getElementById('jiraUrlInput').addEventListener('blur', function() {
+    clearTimeout(jiraDebounce);
+    saveJiraUrl(this.value);
+  });
+  document.getElementById('jiraClearBtn').addEventListener('click', () => {
+    document.getElementById('jiraUrlInput').value = '';
+    saveJiraUrl('');
+  });
+
+  // Auto-reveal toggle
+  document.getElementById('autoRevealBtn').addEventListener('click', toggleAutoReveal);
+
+  // Sidebar tabs
+  document.querySelectorAll('.sidebar-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.sidebar-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
   });
 
   // Mod controls
   document.getElementById('startVotingBtn').addEventListener('click', startVoting);
   document.getElementById('revealBtn').addEventListener('click', revealVotes);
-  document.getElementById('resetBtn').addEventListener('click', async () => {
-    // Reset story too
-    document.getElementById('storyTitleInput').value = '';
-    await resetRound();
-  });
+  document.getElementById('resetBtn').addEventListener('click', resetRound);
 
   // Leave modal
   document.getElementById('leaveRoomBtn').addEventListener('click', () => {
