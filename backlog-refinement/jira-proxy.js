@@ -47,22 +47,28 @@ export default {
     });
 
     // Jira attachment endpoints return 302 → signed CDN URL.
-    // Follow that redirect WITHOUT auth headers so the CDN accepts it.
-    let finalRes = upstream;
+    // In CF Workers, opaque redirect responses don't expose the location header,
+    // so we extract it from the raw response headers via the Headers iterator.
     if (upstream.status >= 301 && upstream.status <= 308) {
-      const location = upstream.headers.get('location');
+      let location = null;
+      for (const [k, v] of upstream.headers.entries()) {
+        if (k.toLowerCase() === 'location') { location = v; break; }
+      }
       if (location) {
-        finalRes = await fetch(location);
+        // Forward the redirect to the browser — <img> will follow it without auth.
+        return new Response(null, {
+          status: 302,
+          headers: { 'Location': location, ...corsHeaders() },
+        });
       }
     }
-    const body = await finalRes.arrayBuffer();
-    const contentType = finalRes.headers.get('content-type') || 'application/octet-stream';
+
+    // Non-redirect response (JSON, direct binary, errors).
+    const body = await upstream.arrayBuffer();
+    const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
     return new Response(body, {
-      status: finalRes.status,
-      headers: {
-        'Content-Type': contentType,
-        ...corsHeaders(),
-      },
+      status: upstream.status,
+      headers: { 'Content-Type': contentType, ...corsHeaders() },
     });
   },
 };

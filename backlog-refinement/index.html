@@ -6,6 +6,7 @@
   <title>Estimation App — Anonymous Story Point Estimation</title>
   <meta name="description" content="Free anonymous story point estimation tool for agile teams" />
   <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -98,6 +99,13 @@
 
     /* ── Screens ───────────────────────────────────────────────── */
     .screen { min-height: 100vh; display: flex; flex-direction: column; }
+    #screen-room {
+      position: fixed; inset: 0;
+      min-height: unset;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      z-index: 1;
+    }
 
     /* ── Navbar ────────────────────────────────────────────────── */
     .navbar {
@@ -213,7 +221,7 @@
     .scale-preset.active { border-color: var(--accent); background: rgba(99,102,241,.15); color: var(--accent-l); }
 
     /* ── Room Screen ───────────────────────────────────────────── */
-    .room-screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    /* (base styles combined with .screen override above) */
     .room-header {
       background: var(--surface); border-bottom: 1px solid var(--border);
       padding: 14px 24px; display: flex; align-items: center;
@@ -245,32 +253,30 @@
 
     /* ── Room Body ─────────────────────────────────────────────── */
     .room-body {
-      flex: 1; display: grid; overflow: hidden;
+      flex: 1; min-height: 0; display: grid; overflow: hidden;
       grid-template-columns: 1fr 300px;
       grid-template-rows: 1fr;
     }
 
     .room-main {
       overflow-y: auto; padding: 28px; display: flex; flex-direction: column; gap: 24px;
+      min-height: 0;
     }
 
     .room-sidebar {
       background: var(--surface); border-left: 1px solid var(--border);
-      overflow: hidden; display: flex; flex-direction: column;
+      overflow: hidden; display: flex; flex-direction: column; min-height: 0;
     }
 
-    /* Story Panel */
-    /* ── Top bar: story + controls ──────────────────────────────── */
-    .room-topbar { display: flex; gap: 20px; align-items: flex-start; position: sticky; top: 0; z-index: 20; background: var(--bg); padding-bottom: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+    /* ── Top bar: stacked story title + mod controls + vote cards ── */
+    .room-topbar { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;
+      padding: 10px 28px 12px; background: var(--bg); border-bottom: 1px solid var(--border); }
+    .room-topbar-row1 { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .room-topbar-story {
-      width: 300px; flex-shrink: 0;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-xl); padding: 16px 20px;
-      display: flex; flex-direction: column; gap: 8px;
+      flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;
     }
-    .room-topbar-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
-    .story-panel-label { font-size: 11px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 1px; color: var(--text-3); margin-bottom: 2px; }
+    .story-panel-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--text-3); white-space: nowrap; flex-shrink: 0; }
 
     .story-title-display {
       font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.5;
@@ -480,11 +486,12 @@
       .room-body {
         grid-template-columns: 1fr;
         grid-template-rows: 1fr auto;
-        overflow: visible;
+        overflow: hidden;
       }
-      .room-main { overflow-y: visible; }
-      .room-topbar { flex-direction: column; }
-      .room-topbar-story { width: 100%; }
+      .room-main { overflow-y: auto; }
+      .room-topbar { padding: 10px 16px 12px; gap: 8px; }
+      .room-topbar-row1 { gap: 8px; }
+      .room-topbar-story { flex: 1; }
       .room-sidebar {
         border-left: none; border-top: 1px solid var(--border);
         max-height: 260px;
@@ -510,10 +517,10 @@
 
     /* ── Story inline input ─────────────────────────────────────── */
     .story-inline-input {
-      width: 100%; background: transparent; border: 1px solid transparent;
-      border-radius: var(--r); padding: 8px 10px; font-size: 17px; font-weight: 600;
+      flex: 1; min-width: 0; background: transparent; border: 1px solid transparent;
+      border-radius: var(--r); padding: 6px 10px; font-size: 16px; font-weight: 600;
       color: var(--text); outline: none; transition: border-color .15s, background .15s;
-      font-family: inherit; line-height: 1.5; display: block;
+      font-family: inherit; line-height: 1.4;
     }
     .story-inline-input::placeholder { color: var(--text-3); font-weight: 400; font-style: italic; font-size: 15px; }
     .story-inline-input:not([readonly]):hover { border-color: var(--border); background: var(--elevated); }
@@ -534,13 +541,14 @@
     }
     .jira-panel-spacer { flex: 1; }
     /* Ticket card */
-    .jira-card-body { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 6px; }
+    .jira-card-body { padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 4px; }
     .jira-card-top { display: flex; align-items: flex-start; gap: 10px; }
-    .jira-card-type-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
-    .jira-card-heading { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
-    .jira-card-summary { font-size: 15px; font-weight: 700; color: var(--text-1); line-height: 1.4; }
-    .jira-card-key { font-size: 12px; color: var(--text-3); font-family: 'SF Mono','Fira Code',Consolas,monospace; }
-    .jira-card-meta-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 2px 0 10px; }
+    .jira-card-type-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+    .jira-card-heading { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+    .jira-card-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+    .jira-card-summary { font-size: 14px; font-weight: 700; color: var(--text-1); line-height: 1.4; }
+    .jira-card-key { font-size: 12px; color: var(--text-3); font-family: 'SF Mono','Fira Code',Consolas,monospace; flex-shrink: 0; }
+    .jira-card-meta-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 0; }
     .jira-meta-inline-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-3); }
     .jira-meta-inline-sep { color: var(--border); }
     .jira-meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: .7px; color: var(--text-3); font-weight: 600; }
@@ -552,9 +560,12 @@
     .jira-badge-priority-high   { background: rgba(239,68,68,.12);  color: #f87171; }
     .jira-badge-priority-medium { background: rgba(251,191,36,.12); color: #fbbf24; }
     .jira-badge-priority-low    { background: rgba(134,239,172,.12); color: #86efac; }
-    .jira-card-desc-wrap { padding: 0 16px 16px; }
+    .jira-card-desc-wrap { padding: 0 16px 12px; }
     .jira-card-desc-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-bottom: 6px; }
     .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; padding: 12px 14px; background: var(--elevated); border-radius: var(--r); border: 1px solid var(--border); }
+    /* Scrollable description + images container */
+    .jira-card-scroll { overflow-y: auto; max-height: 520px; padding: 0 16px 14px;
+      display: flex; flex-direction: column; gap: 10px; }
     /* ADF rendered content */
     .jira-card-desc p { margin: 0 0 8px; }
     .jira-card-desc p:last-child { margin-bottom: 0; }
@@ -587,8 +598,16 @@
     .jira-adf-img { max-width: 100%; height: auto; border-radius: 6px; display: block; }
     .jira-adf-media-unavail { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(255,255,255,.04); border: 1px dashed var(--border); border-radius: var(--r); font-size: 12px; color: var(--text-3); }
     .jira-attachments-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-    .jira-attach-thumb { width: 96px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: block; background: var(--bg); }
+    .jira-attach-thumb { width: 96px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: block; background: var(--bg); cursor: zoom-in; transition: opacity .15s; }
+    .jira-attach-thumb:hover { opacity: .85; }
     .jira-attachments-grid a { flex-shrink: 0; }
+
+    /* Lightbox */
+    .lightbox { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.85); align-items: center; justify-content: center; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+    .lightbox-close { position: absolute; top: 20px; right: 24px; font-size: 28px; color: #fff; cursor: pointer; line-height: 1; background: none; border: none; opacity: .8; }
+    .lightbox-close:hover { opacity: 1; }
     .jira-card-desc details summary { cursor: pointer; font-weight: 600; color: var(--text-2); padding: 4px 0; }
     .jira-connect-prompt { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .jira-connect-title { font-size: 13px; font-weight: 500; color: var(--text-1); }
@@ -894,44 +913,47 @@
     </div>
   </header>
 
+  <!-- Topbar: always-visible story + controls (outside scroll area) -->
+  <div class="room-topbar">
+    <!-- Row 1: Current Story label + title input + mod controls -->
+    <div class="room-topbar-row1">
+      <div class="room-topbar-story">
+        <span class="story-panel-label">Current Story:</span>
+        <input class="story-inline-input" id="storyTitleInput" type="text"
+          placeholder="Waiting for facilitator to set the story…" maxlength="200" readonly />
+      </div>
+      <!-- Facilitator controls (mod-only, inline) -->
+      <div class="mod-bar hidden" id="modBar">
+        <span class="mod-bar-label">Facilitator</span>
+        <button class="auto-reveal-btn active" id="autoRevealBtn" title="Toggle auto-reveal when all voted">
+          <span class="auto-reveal-dot"></span> Auto-reveal
+        </button>
+        <button class="btn btn-ghost btn-sm hidden" id="startVotingBtn">▶ Start Voting</button>
+        <button class="btn btn-success btn-sm hidden" id="revealBtn">👁 Reveal votes</button>
+        <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
+        <button class="btn btn-ghost btn-sm hidden" id="reEstimateBtn">↻ Re-estimate</button>
+      </div>
+    </div>
+    <!-- Jira URL row (mod-only, shown below title) -->
+    <div id="jiraUrlRow" class="jira-url-row hidden">
+      <input class="input" id="jiraUrlInput" type="text"
+        placeholder="Paste Jira ticket URL…" maxlength="500"
+        style="font-size:13px;height:36px;" />
+    </div>
+    <!-- Vote cards row -->
+    <section class="vote-section" id="voteSection">
+      <div class="vote-section-label">
+        <span id="voteSectionLabel">Cast your vote</span>
+        <span class="you-voted hidden" id="youVotedBadge">✓ You voted</span>
+      </div>
+      <div class="vote-cards-grid" id="voteCardsGrid"></div>
+    </section>
+  </div>
+
   <!-- Room Body -->
   <div class="room-body">
     <!-- Main column -->
     <main class="room-main">
-      <!-- Top bar: story (left, compact) + mod controls / vote cards (right) -->
-      <div class="room-topbar">
-        <div class="room-topbar-story">
-          <span class="story-panel-label">Current Story</span>
-          <input class="story-inline-input" id="storyTitleInput" type="text"
-            placeholder="Waiting for facilitator to set the story…" maxlength="200" readonly />
-          <div id="jiraUrlRow" class="jira-url-row hidden">
-            <input class="input" id="jiraUrlInput" type="text"
-              placeholder="Paste Jira ticket URL…" maxlength="500"
-              style="font-size:13px;height:36px;" />
-          </div>
-        </div>
-        <div class="room-topbar-right">
-          <!-- Facilitator controls (mod-only) -->
-          <div class="mod-bar hidden" id="modBar">
-            <span class="mod-bar-label">Facilitator</span>
-            <button class="auto-reveal-btn active" id="autoRevealBtn" title="Toggle auto-reveal when all voted">
-              <span class="auto-reveal-dot"></span> Auto-reveal
-            </button>
-            <button class="btn btn-ghost btn-sm hidden" id="startVotingBtn">▶ Start Voting</button>
-            <button class="btn btn-success btn-sm hidden" id="revealBtn">👁 Reveal votes</button>
-            <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
-          </div>
-          <!-- Vote cards (all non-spectator participants) -->
-          <section class="vote-section" id="voteSection">
-            <div class="vote-section-label">
-              <span id="voteSectionLabel">Cast your vote</span>
-              <span class="you-voted hidden" id="youVotedBadge">✓ You voted</span>
-            </div>
-            <div class="vote-cards-grid" id="voteCardsGrid"></div>
-          </section>
-        </div>
-      </div>
-
       <!-- Jira ticket card (full width below) -->
       <div id="jiraPanel" class="jira-panel hidden">
         <div class="jira-panel-bar">
@@ -1420,9 +1442,10 @@ function renderStory() {
     jiraInput.value = S.jiraUrl;
   }
 
-  // Jira panel: visible when a URL is stored
+  // Jira panel: visible when a URL is stored AND not in revealed state
   const safeUrl = (S.jiraUrl && /^https?:\/\//i.test(S.jiraUrl)) ? S.jiraUrl : '';
-  if (safeUrl) {
+  const isRevealed = S.status === 'revealed';
+  if (safeUrl && !isRevealed) {
     jiraPanel.classList.remove('hidden');
     const ticketId = extractJiraTicketId(safeUrl);
     document.getElementById('jiraTicketId').textContent = ticketId || 'Jira Ticket';
@@ -1638,12 +1661,14 @@ function renderModControls() {
   if (!S.isMod) return;
   const startBtn  = document.getElementById('startVotingBtn');
   const revealBtn = document.getElementById('revealBtn');
-  const resetBtn  = document.getElementById('resetBtn');
+  const resetBtn     = document.getElementById('resetBtn');
+  const reEstBtn      = document.getElementById('reEstimateBtn');
   const arBtn     = document.getElementById('autoRevealBtn');
 
   startBtn.classList.toggle('hidden',  S.status !== 'waiting');
   revealBtn.classList.toggle('hidden', S.status !== 'voting');
   resetBtn.classList.toggle('hidden',  S.status !== 'revealed');
+  reEstBtn.classList.toggle('hidden',  S.status !== 'revealed');
   arBtn.classList.toggle('active', S.autoReveal);
 
   // Disable reveal until at least one person voted
@@ -1709,6 +1734,18 @@ async function resetRound() {
     status: 'waiting',
     'story/title': '',
     'story/jiraUrl': '',
+    'story/round': (S.round || 1) + 1,
+  };
+  Object.keys(S.participants).forEach(uid => {
+    updates['participants/' + uid + '/vote'] = null;
+  });
+  await dbUpdate('sessions/' + S.roomCode, updates);
+}
+
+async function reEstimate() {
+  // Keep the same story title and Jira URL, just reset votes and go back to waiting
+  const updates = {
+    status: 'waiting',
     'story/round': (S.round || 1) + 1,
   };
   Object.keys(S.participants).forEach(uid => {
@@ -1947,6 +1984,16 @@ function renderJiraPanel(url) {
   const f          = _jiraCache.data.fields || {};
   const key        = _jiraCache.data.key || extractJiraTicketId(url);
   const summary    = f.summary || '(No summary)';
+
+  // Auto-update story title to "KEY - Summary" if mod and in waiting state
+  if (key && summary && S.isMod && S.status === 'waiting') {
+    const autoTitle = key + ' - ' + summary;
+    const titleInput = document.getElementById('storyTitleInput');
+    if (titleInput && titleInput.value !== autoTitle) {
+      titleInput.value = autoTitle;
+      saveStory(autoTitle);
+    }
+  }
   const status     = (f.status    && f.status.name)        || '';
   const statusCat  = (f.status    && f.status.statusCategory && f.status.statusCategory.colorName) || '';
   const issueType  = (f.issuetype && f.issuetype.name)     || '';
@@ -1974,46 +2021,52 @@ function renderJiraPanel(url) {
       <div class="jira-card-top">
         <div class="jira-card-type-icon" title="${escHtml(issueType)}">${typeIcon}</div>
         <div class="jira-card-heading">
-          <div class="jira-card-summary">${escHtml(summary)}</div>
-          ${key ? `<div class="jira-card-key">${escHtml(key)}</div>` : ''}
+          <div class="jira-card-title-row">
+            ${key ? `<span class="jira-card-key">${escHtml(key)}</span>` : ''}
+            <span class="jira-card-summary">${escHtml(summary)}</span>
+          </div>
+          <div class="jira-card-meta-inline">
+            <span class="jira-meta-inline-item">
+              <span class="jira-status-dot" style="background:${statusColor}"></span>
+              ${escHtml(status)}
+            </span>
+            ${priority ? `<span class="jira-meta-inline-sep">&bull;</span>
+            <span class="jira-meta-inline-item"><span class="jira-badge ${prioClass}">${escHtml(priority)}</span></span>` : ''}
+            ${assignee !== 'Unassigned' ? `<span class="jira-meta-inline-sep">&bull;</span>
+            <span class="jira-meta-inline-item">&#128100; ${escHtml(assignee)}</span>` : ''}
+            ${storyPts != null ? `<span class="jira-meta-inline-sep">&bull;</span>
+            <span class="jira-meta-inline-item" style="font-weight:700;color:var(--accent-l)">&#9733; ${storyPts} pts</span>` : ''}
+          </div>
         </div>
       </div>
-      <div class="jira-card-meta-inline">
-        <span class="jira-meta-inline-item">
-          <span class="jira-status-dot" style="background:${statusColor}"></span>
-          ${escHtml(status)}
-        </span>
-        ${priority ? `<span class="jira-meta-inline-sep">&bull;</span>
-        <span class="jira-meta-inline-item"><span class="jira-badge ${prioClass}">${escHtml(priority)}</span></span>` : ''}
-        ${assignee !== 'Unassigned' ? `<span class="jira-meta-inline-sep">&bull;</span>
-        <span class="jira-meta-inline-item">&#128100; ${escHtml(assignee)}</span>` : ''}
-        ${storyPts != null ? `<span class="jira-meta-inline-sep">&bull;</span>
-        <span class="jira-meta-inline-item" style="font-weight:700;color:var(--accent-l)">&#9733; ${storyPts} pts</span>` : ''}
-      </div>
     </div>
-    ${descHtml ? `
-    <div class="jira-card-desc-wrap">
-      <div class="jira-card-desc-label">Description</div>
-      <div class="jira-card-desc">${descHtml}</div>
-    </div>` : ''}
-    ${imageAttachments.length ? `
-    <div class="jira-card-desc-wrap">
-      <div class="jira-card-desc-label">Images (${imageAttachments.length})</div>
-      <div class="jira-attachments-grid">
-        ${imageAttachments.map(a => {
-          const thumbSrc = _jiraProxyUrl
-            ? `${_jiraProxyUrl}?url=${encodeURIComponent(_jiraDomain + '/rest/api/3/attachment/thumbnail/' + a.id)}`
-            : '';
-          const fullSrc  = _jiraProxyUrl
-            ? `${_jiraProxyUrl}?url=${encodeURIComponent(_jiraDomain + '/rest/api/3/attachment/content/' + a.id)}`
-            : '';
-          return thumbSrc
-            ? `<a href="${escHtml(fullSrc)}" target="_blank" rel="noopener" title="${escHtml(a.filename)}">
-                <img src="${escHtml(thumbSrc)}" class="jira-attach-thumb" loading="lazy" alt="${escHtml(a.filename)}">
-               </a>`
-            : '';
-        }).join('')}
-      </div>
+    ${(descHtml || imageAttachments.length) ? `
+    <div class="jira-card-scroll">
+      ${descHtml ? `
+      <div>
+        <div class="jira-card-desc-label">Description</div>
+        <div class="jira-card-desc">${descHtml}</div>
+      </div>` : ''}
+      ${imageAttachments.length ? `
+      <div>
+        <div class="jira-card-desc-label">Images (${imageAttachments.length})</div>
+        <div class="jira-attachments-grid">
+          ${imageAttachments.map(a => {
+            const thumbSrc = _jiraProxyUrl
+              ? `${_jiraProxyUrl}?url=${encodeURIComponent(_jiraDomain + '/rest/api/3/attachment/thumbnail/' + a.id)}`
+              : '';
+            const fullSrc  = _jiraProxyUrl
+              ? `${_jiraProxyUrl}?url=${encodeURIComponent(_jiraDomain + '/rest/api/3/attachment/content/' + a.id)}`
+              : '';
+            return thumbSrc
+              ? `<img src="${escHtml(thumbSrc)}" class="jira-attach-thumb" loading="lazy"
+                  alt="${escHtml(a.filename)}" title="${escHtml(a.filename)}"
+                  onclick="openLightbox('${escHtml(fullSrc)}')"
+                 >`
+              : '';
+          }).join('')}
+        </div>
+      </div>` : ''}
     </div>` : ''}`;
 }
 
@@ -2288,6 +2341,7 @@ function wireEvents() {
   document.getElementById('startVotingBtn').addEventListener('click', startVoting);
   document.getElementById('revealBtn').addEventListener('click', revealVotes);
   document.getElementById('resetBtn').addEventListener('click', resetRound);
+  document.getElementById('reEstimateBtn').addEventListener('click', reEstimate);
 
   // Leave modal
   document.getElementById('leaveRoomBtn').addEventListener('click', () => {
@@ -2341,6 +2395,23 @@ function boot() {
 }
 
 document.addEventListener('DOMContentLoaded', boot);
+</script>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <img id="lightboxImg" src="" alt="preview" onclick="event.stopPropagation()">
+</div>
+<script>
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 </script>
 </body>
 </html>
