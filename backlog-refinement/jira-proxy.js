@@ -8,7 +8,7 @@
  *       JIRA_EMAIL   your Atlassian account email
  *       JIRA_TOKEN   an API token from https://id.atlassian.com/manage-profile/security/api-tokens
  *  4. Deploy. Copy the worker URL (e.g. https://jira-proxy.yourname.workers.dev).
- *  5. Paste that URL into the Jira panel inside the Sprint Poker app.
+ *  5. Paste that URL into the Jira panel inside the Estimation App app.
  *
  * The worker only proxies requests to *.atlassian.net/rest/api/ paths.
  * Your credentials never leave Cloudflare's servers.
