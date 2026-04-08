@@ -1693,25 +1693,22 @@ function extractJiraTicketId(url) {
 }
 
 // ── Jira API integration ─────────────────────────────────────────
-let _jiraCache = { url: null, data: null, error: null, loading: false };
-let _jiraCreds  = null;
+let _jiraCache    = { url: null, data: null, error: null, loading: false };
+let _jiraProxyUrl = '';
 
-function loadJiraCreds() {
-  try {
-    const raw = sessionStorage.getItem('jiraCreds');
-    if (raw) _jiraCreds = JSON.parse(raw);
-  } catch(_) {}
+function loadJiraProxy() {
+  try { _jiraProxyUrl = localStorage.getItem('jiraProxyUrl') || ''; } catch(_) {}
 }
 
-function saveJiraCreds(email, token) {
-  _jiraCreds = { email: email.trim(), token: token.trim() };
-  try { sessionStorage.setItem('jiraCreds', JSON.stringify(_jiraCreds)); } catch(_) {}
+function saveJiraProxy(proxyUrl) {
+  _jiraProxyUrl = proxyUrl.trim();
+  try { localStorage.setItem('jiraProxyUrl', _jiraProxyUrl); } catch(_) {}
 }
 
-function clearJiraCreds() {
-  _jiraCreds = null;
+function clearJiraProxy() {
+  _jiraProxyUrl = '';
   _jiraCache = { url: null, data: null, error: null, loading: false };
-  try { sessionStorage.removeItem('jiraCreds'); } catch(_) {}
+  try { localStorage.removeItem('jiraProxyUrl'); } catch(_) {}
 }
 
 function adfToText(node) {
@@ -1724,7 +1721,7 @@ function adfToText(node) {
 }
 
 async function fetchJiraTicket(url) {
-  if (!_jiraCreds) { renderJiraPanel(url); return; }
+  if (!_jiraProxyUrl) { renderJiraPanel(url); return; }
   const domainMatch = url.match(/^(https?:\/\/[^/]+)/i);
   const ticketId = extractJiraTicketId(url);
   if (!domainMatch || !ticketId) { renderJiraPanel(url); return; }
@@ -1733,22 +1730,18 @@ async function fetchJiraTicket(url) {
   _jiraCache = { url, data: null, error: null, loading: true };
   renderJiraPanel(url);
   try {
-    const res = await fetch(apiUrl, {
-      headers: {
-        'Authorization': 'Basic ' + btoa(_jiraCreds.email + ':' + _jiraCreds.token),
-        'Accept': 'application/json',
-      }
-    });
+    const proxyTarget = _jiraProxyUrl + '?url=' + encodeURIComponent(apiUrl);
+    const res = await fetch(proxyTarget, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) {
       const msg = (res.status === 401 || res.status === 403)
-        ? 'Invalid credentials — check your email and API token.'
-        : 'Jira API error: ' + res.status;
+        ? 'Access denied — check your Jira credentials in the proxy Worker.'
+        : 'Proxy error: ' + res.status;
       _jiraCache = { url, data: null, error: msg, loading: false };
     } else {
       _jiraCache = { url, data: await res.json(), error: null, loading: false };
     }
   } catch(e) {
-    _jiraCache = { url, data: null, error: 'Could not reach Jira. Check your network or the Jira URL.', loading: false };
+    _jiraCache = { url, data: null, error: 'Could not reach the proxy. Is it deployed?', loading: false };
   }
   renderJiraPanel(url);
 }
@@ -1767,30 +1760,30 @@ function renderJiraPanel(url) {
   const card = document.getElementById('jiraCard');
   if (!card) return;
 
-  if (!_jiraCreds) {
+  if (!_jiraProxyUrl) {
     card.innerHTML = `
       <div class="jira-connect-prompt">
-        <div class="jira-connect-title">Connect Jira to view ticket details</div>
+        <div class="jira-connect-title">Connect Jira</div>
         <div class="jira-connect-hint">
-          Your Atlassian email and an <a href="https://id.atlassian.com/manage-profile/security/api-tokens"
-          target="_blank" rel="noopener" style="color:var(--accent-l)">API token</a>
-          are stored only in your browser session — never shared.
+          Jira blocks direct browser requests (CORS policy).
+          Deploy the included <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;">jira-proxy.js</code>
+          as a free <a href="https://dash.cloudflare.com" target="_blank" rel="noopener"
+          style="color:var(--accent-l)">Cloudflare Worker</a>, then paste the worker URL below.
+          Your API token lives only in Cloudflare — never in the browser.
         </div>
         <div class="jira-connect-fields">
-          <input class="input" id="jiraEmailInput" type="email" placeholder="you@company.com"
-            style="height:36px;font-size:13px;" />
-          <input class="input" id="jiraTokenInput" type="password" placeholder="Atlassian API token"
+          <input class="input" id="jiraProxyInput" type="url"
+            placeholder="https://jira-proxy.yourname.workers.dev"
             style="height:36px;font-size:13px;" />
         </div>
         <div class="jira-connect-row">
-          <button class="btn btn-primary btn-sm" id="jiraConnectBtn">Connect</button>
+          <button class="btn btn-primary btn-sm" id="jiraSaveProxyBtn">Save</button>
         </div>
       </div>`;
-    card.querySelector('#jiraConnectBtn').addEventListener('click', () => {
-      const email = card.querySelector('#jiraEmailInput').value.trim();
-      const token = card.querySelector('#jiraTokenInput').value.trim();
-      if (!email || !token) { toast('Enter both email and API token.', 'error'); return; }
-      saveJiraCreds(email, token);
+    card.querySelector('#jiraSaveProxyBtn').addEventListener('click', () => {
+      const val = card.querySelector('#jiraProxyInput').value.trim();
+      if (!val || !/^https?:\/\//.test(val)) { toast('Enter a valid proxy URL.', 'error'); return; }
+      saveJiraProxy(val);
       _jiraCache = { url: null, data: null, error: null, loading: false };
       fetchJiraTicket(url);
     });
@@ -1809,7 +1802,7 @@ function renderJiraPanel(url) {
         <button class="btn btn-ghost btn-sm" id="jiraReconnectBtn">Update credentials</button>
       </div>`;
     card.querySelector('#jiraReconnectBtn').addEventListener('click', () => {
-      clearJiraCreds();
+      clearJiraProxy();
       renderJiraPanel(url);
     });
     return;
@@ -2140,7 +2133,7 @@ function wireEvents() {
 //  BOOT
 // ════════════════════════════════════════════════════════════
 function boot() {
-  loadJiraCreds();
+  loadJiraProxy();
   wireEvents();
   initScalePresets();
 
