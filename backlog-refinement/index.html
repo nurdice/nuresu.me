@@ -260,15 +260,17 @@
     }
 
     /* Story Panel */
-    .story-panel {
+    /* ── Top bar: story + controls ──────────────────────────────── */
+    .room-topbar { display: flex; gap: 20px; align-items: flex-start; }
+    .room-topbar-story {
+      width: 300px; flex-shrink: 0;
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-xl); padding: 24px;
+      border-radius: var(--r-xl); padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 8px;
     }
-    .story-panel-header {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
-    }
+    .room-topbar-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
     .story-panel-label { font-size: 11px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 1px; color: var(--text-3); }
+      letter-spacing: 1px; color: var(--text-3); margin-bottom: 2px; }
 
     .story-title-display {
       font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.5;
@@ -372,12 +374,12 @@
 
     /* Mod Controls bar */
     .mod-bar {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-xl); padding: 16px 20px;
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      padding: 10px 14px; background: rgba(99,102,241,.06);
+      border: 1px solid rgba(99,102,241,.2); border-radius: var(--r-lg);
     }
-    .mod-bar-label { font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: .8px; color: var(--text-3); flex: 1; }
+    .mod-bar-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--accent-l); margin-right: 4px; }
 
     /* ── Sidebar: Participants ──────────────────────────────────── */
     .sidebar-header {
@@ -481,6 +483,8 @@
         overflow: visible;
       }
       .room-main { overflow-y: visible; }
+      .room-topbar { flex-direction: column; }
+      .room-topbar-story { width: 100%; }
       .room-sidebar {
         border-left: none; border-top: 1px solid var(--border);
         max-height: 260px;
@@ -517,7 +521,7 @@
     .story-inline-input[readonly] { cursor: default; }
 
     /* ── Jira panel ──────────────────────────────────────────────── */
-    .jira-url-row { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+    .jira-url-row { margin-top: 4px; display: flex; gap: 8px; align-items: center; }
     .jira-panel { margin-top: 16px; border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; background: var(--surface); }
     .jira-panel-bar {
       padding: 10px 14px; background: var(--elevated);
@@ -887,30 +891,41 @@
   <div class="room-body">
     <!-- Main column -->
     <main class="room-main">
-      <!-- Story Panel -->
-      <section class="story-panel">
-        <div class="story-panel-header">
+      <!-- Top bar: story (left, compact) + mod controls / vote cards (right) -->
+      <div class="room-topbar">
+        <div class="room-topbar-story">
           <span class="story-panel-label">Current Story</span>
+          <input class="story-inline-input" id="storyTitleInput" type="text"
+            placeholder="Waiting for facilitator to set the story…" maxlength="200" readonly />
+          <div id="jiraUrlRow" class="jira-url-row hidden">
+            <input class="input" id="jiraUrlInput" type="text"
+              placeholder="Paste Jira ticket URL…" maxlength="500"
+              style="font-size:13px;height:36px;" />
+          </div>
         </div>
-        <input class="story-inline-input" id="storyTitleInput" type="text"
-          placeholder="Waiting for facilitator to set the story…" maxlength="200" readonly />
-        <div id="jiraUrlRow" class="jira-url-row hidden">
-          <input class="input" id="jiraUrlInput" type="text"
-            placeholder="Paste Jira ticket URL…" maxlength="500"
-            style="font-size:13px;height:36px;" />
+        <div class="room-topbar-right">
+          <!-- Facilitator controls (mod-only) -->
+          <div class="mod-bar hidden" id="modBar">
+            <span class="mod-bar-label">Facilitator</span>
+            <button class="auto-reveal-btn active" id="autoRevealBtn" title="Toggle auto-reveal when all voted">
+              <span class="auto-reveal-dot"></span> Auto-reveal
+            </button>
+            <button class="btn btn-ghost btn-sm hidden" id="startVotingBtn">▶ Start Voting</button>
+            <button class="btn btn-success btn-sm hidden" id="revealBtn">👁 Reveal votes</button>
+            <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
+          </div>
+          <!-- Vote cards (all non-spectator participants) -->
+          <section class="vote-section" id="voteSection">
+            <div class="vote-section-label">
+              <span id="voteSectionLabel">Cast your vote</span>
+              <span class="you-voted hidden" id="youVotedBadge">✓ You voted</span>
+            </div>
+            <div class="vote-cards-grid" id="voteCardsGrid"></div>
+          </section>
         </div>
-      </section>
+      </div>
 
-      <!-- Voting Section (only shown when voting or waiting as voter) -->
-      <section class="vote-section" id="voteSection">
-        <div class="vote-section-label">
-          <span id="voteSectionLabel">Cast your vote</span>
-          <span class="you-voted hidden" id="youVotedBadge">✓ You voted</span>
-        </div>
-        <div class="vote-cards-grid" id="voteCardsGrid"></div>
-      </section>
-
-      <!-- Jira ticket card (below vote cards) -->
+      <!-- Jira ticket card (full width below) -->
       <div id="jiraPanel" class="jira-panel hidden">
         <div class="jira-panel-bar">
           <span class="jira-ticket-id" id="jiraTicketId"></span>
@@ -931,17 +946,6 @@
         <div id="distributionSection" style="margin-top:16px;"></div>
         <div id="consensusBanner"></div>
       </section>
-
-      <!-- Mod Controls -->
-      <div class="mod-bar hidden" id="modBar">
-        <span class="mod-bar-label">Facilitator</span>
-        <button class="auto-reveal-btn active" id="autoRevealBtn" title="Toggle auto-reveal when all voted">
-          <span class="auto-reveal-dot"></span> Auto-reveal
-        </button>
-        <button class="btn btn-ghost btn-sm hidden" id="startVotingBtn">▶ Start Voting</button>
-        <button class="btn btn-success btn-sm hidden" id="revealBtn">👁 Reveal votes</button>
-        <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
-      </div>
     </main>
 
     <!-- Sidebar: Participants + History -->
