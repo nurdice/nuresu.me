@@ -1694,21 +1694,20 @@ function extractJiraTicketId(url) {
 
 // ── Jira API integration ─────────────────────────────────────────
 let _jiraCache    = { url: null, data: null, error: null, loading: false };
-let _jiraProxyUrl = '';
+const JIRA_PROXY  = 'https://floral-moon-66a9.nurrali786.workers.dev';
+let _jiraProxyUrl = JIRA_PROXY;
 
 function loadJiraProxy() {
-  try { _jiraProxyUrl = localStorage.getItem('jiraProxyUrl') || ''; } catch(_) {}
+  // Proxy URL is hardcoded; nothing to load.
 }
 
 function saveJiraProxy(proxyUrl) {
   _jiraProxyUrl = proxyUrl.trim();
-  try { localStorage.setItem('jiraProxyUrl', _jiraProxyUrl); } catch(_) {}
 }
 
 function clearJiraProxy() {
-  _jiraProxyUrl = '';
+  _jiraProxyUrl = JIRA_PROXY;
   _jiraCache = { url: null, data: null, error: null, loading: false };
-  try { localStorage.removeItem('jiraProxyUrl'); } catch(_) {}
 }
 
 function adfToText(node) {
