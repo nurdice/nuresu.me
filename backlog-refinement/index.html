@@ -505,7 +505,8 @@
       .room-header { padding: 12px 16px; }
       .room-main { padding: 16px; }
       .landing-title { font-size: 30px; }
-      .jira-card-scroll { max-height: clamp(140px, 28vh, 300px); }
+      /* Mobile: topbar wraps more, browser chrome eats ~80px extra → subtract ~560px total */
+      .jira-card-scroll { max-height: clamp(120px, calc(100dvh - 560px), 340px); }
     }
     @media (max-width: 480px) {
       .form-card { padding: 24px 20px; }
@@ -570,9 +571,26 @@
     .jira-card-desc-wrap { padding: 0 16px 12px; }
     .jira-card-desc-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-bottom: 6px; }
     .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; padding: 12px 14px; background: var(--elevated); border-radius: var(--r); border: 1px solid var(--border); }
-    /* Scrollable description + images container */
-    .jira-card-scroll { overflow-y: auto; max-height: clamp(180px, 40vh, 520px); padding: 0 16px 14px;
-      display: flex; flex-direction: column; gap: 10px; }
+    /* Scrollable description + images — always-visible scrollbar track, responds to real viewport */
+    .jira-card-scroll {
+      overflow-y: auto;
+      /* 100dvh = dynamic viewport (shrinks for mobile browser chrome/address bar).
+         Subtract: ~52px header + ~200px topbar + ~130px panel-top + ~80px room padding */
+      max-height: clamp(160px, calc(100dvh - 480px), 560px);
+      padding: 0 16px 14px;
+      display: flex; flex-direction: column; gap: 10px;
+      -webkit-overflow-scrolling: touch; /* smooth inertia on iOS */
+      /* Always-visible scrollbar so users know content scrolls */
+      scrollbar-width: thin;
+      scrollbar-color: var(--muted) var(--elevated);
+      /* Bottom fade gradient: hints at overflowing content */
+      mask-image: linear-gradient(to bottom, black calc(100% - 28px), transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 28px), transparent 100%);
+    }
+    .jira-card-scroll::-webkit-scrollbar { width: 6px; }
+    .jira-card-scroll::-webkit-scrollbar-track { background: var(--elevated); border-radius: 3px; }
+    .jira-card-scroll::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
+    .jira-card-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
     /* ADF rendered content */
     .jira-card-desc p { margin: 0 0 8px; }
     .jira-card-desc p:last-child { margin-bottom: 0; }
