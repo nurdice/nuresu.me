@@ -501,21 +501,41 @@
         grid-template-rows: 1fr auto;
         overflow: hidden;
       }
-      .room-main { overflow-y: auto; }
-      .room-topbar { padding: 10px 16px 12px; gap: 8px; }
-      .room-topbar-row1 { gap: 8px; }
-      .room-topbar-story { flex: 1; }
+      .room-main { overflow-y: auto; padding: 12px 16px; }
+      .room-topbar {
+        padding: 8px 12px 10px; gap: 6px;
+        /* Cap topbar height on mobile so it never pushes room-body off screen */
+        max-height: 46dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .room-topbar-row1 { gap: 8px; flex-wrap: wrap; }
+      .room-topbar-story { flex: 1; min-width: 0; }
+      /* Vote cards: horizontal scroll instead of vertical wrapping — saves screen space */
+      .vote-cards-grid {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+      }
+      .vote-cards-grid::-webkit-scrollbar { display: none; }
+      .vote-card { min-width: 48px; height: 64px; font-size: 16px; flex-shrink: 0; }
       .room-sidebar {
         border-left: none; border-top: 1px solid var(--border);
-        max-height: 260px;
+        max-height: 220px;
       }
-      .room-header { padding: 12px 16px; }
-      .room-main { padding: 16px; }
+      .room-header { padding: 10px 14px; }
       .landing-title { font-size: 30px; }
+      .jira-card-scroll { max-height: min(300px, 35vh); }
+      .mod-bar { padding: 8px 10px; gap: 6px; }
     }
     @media (max-width: 480px) {
       .form-card { padding: 24px 20px; }
       .setup-card { padding: 28px 20px; }
+      .room-topbar { max-height: 42dvh; }
+      .vote-card { min-width: 44px; height: 58px; font-size: 15px; }
+      .jira-card-scroll { max-height: min(220px, 30vh); }
     }
 
     /* ── Avatar colours (cycle through 8) ──────────────────────── */
@@ -576,11 +596,22 @@
     .jira-card-desc-wrap { padding: 0 16px 12px; }
     .jira-card-desc-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-bottom: 6px; }
     .jira-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; padding: 12px 14px; background: var(--elevated); border-radius: var(--r); border: 1px solid var(--border); }
-    /* Scrollable description + images — no max-height; room-main handles scrolling */
+    /* Scrollable description + images — always-visible persistent scrollbar */
     .jira-card-scroll {
+      overflow-y: auto;
+      /* min(520px, 45vh): on a 768px-tall screen → 346px; on 1080px → 486px; never more than 520px */
+      max-height: min(520px, 45vh);
       padding: 0 16px 14px;
       display: flex; flex-direction: column; gap: 10px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--muted) var(--elevated);
     }
+    /* Defining ::-webkit-scrollbar disables macOS overlay scrollbar → always visible */
+    .jira-card-scroll::-webkit-scrollbar { width: 6px; }
+    .jira-card-scroll::-webkit-scrollbar-track { background: var(--elevated); border-radius: 3px; }
+    .jira-card-scroll::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
+    .jira-card-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
     /* ADF rendered content */
     .jira-card-desc p { margin: 0 0 8px; }
     .jira-card-desc p:last-child { margin-bottom: 0; }
@@ -748,6 +779,20 @@
       font-size: 11px; font-weight: 600; padding: 2px 6px;
       border-radius: 4px; background: var(--elevated); border: 1px solid var(--border); color: var(--text-2);
     }
+    /* History item action buttons — mod-only, visible on hover */
+    .history-item-actions {
+      display: flex; gap: 6px; margin-top: 8px; opacity: 0;
+      transition: opacity .15s;
+    }
+    .history-item:hover .history-item-actions { opacity: 1; }
+    .history-action-btn {
+      font-size: 11px; font-weight: 600; padding: 3px 9px;
+      border-radius: var(--r); border: 1px solid var(--border);
+      background: var(--elevated); color: var(--text-2);
+      cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+      white-space: nowrap;
+    }
+    .history-action-btn:hover { border-color: var(--accent); color: var(--accent-l); background: rgba(99,102,241,.1); }
 
     /* ── Auto-reveal toggle ──────────────────────────────────────── */
     .auto-reveal-btn {
@@ -760,6 +805,31 @@
     .auto-reveal-btn:hover { border-color: var(--green); color: var(--text); }
     .auto-reveal-btn.active { border-color: var(--green); color: var(--green); background: rgba(34,197,94,.08); }
     .auto-reveal-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+    /* ── Rejoin-as-host banner ───────────────────────────────────── */
+    .rejoin-banner {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      padding: 14px 20px; margin-bottom: 20px;
+      background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.35);
+      border-radius: var(--r-xl);
+    }
+    .rejoin-banner-icon { font-size: 22px; flex-shrink: 0; }
+    .rejoin-banner-text { flex: 1; min-width: 0; }
+    .rejoin-banner-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .rejoin-banner-sub { font-size: 12px; color: var(--text-2); }
+    .rejoin-banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ── Transfer Host modal ─────────────────────────────────────── */
+    .transfer-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; max-height: 260px; overflow-y: auto; }
+    .transfer-option {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: var(--r-lg); border: 1.5px solid var(--border);
+      background: var(--elevated); cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .transfer-option:hover { border-color: var(--accent); background: rgba(99,102,241,.08); }
+    .transfer-option.selected { border-color: var(--accent); background: rgba(99,102,241,.15); }
+    .transfer-option-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .transfer-option-role { font-size: 11px; color: var(--text-3); }
 
     /* ── participants-list scrollable ────────────────────────────── */
     .participants-list { overflow-y: auto; flex: 1; }
@@ -857,6 +927,20 @@
         Anonymous story point voting for agile teams.<br>
         Create a session, share the link — everyone estimates simultaneously.
       </p>
+
+      <!-- Rejoin-as-host banner: shown by JS when a saved session is detected -->
+      <div class="rejoin-banner hidden" id="rejoinBanner">
+        <div class="rejoin-banner-icon">⚡</div>
+        <div class="rejoin-banner-text">
+          <div class="rejoin-banner-title" id="rejoinBannerTitle">Rejoin your session</div>
+          <div class="rejoin-banner-sub" id="rejoinBannerSub">You were facilitating a session. Tap to rejoin as host.</div>
+        </div>
+        <div class="rejoin-banner-actions">
+          <button class="btn btn-primary btn-sm" id="rejoinBtn">Rejoin as host</button>
+          <button class="btn btn-ghost btn-sm" id="rejoinDismissBtn">Dismiss</button>
+        </div>
+      </div>
+
       <div class="landing-actions">
         <button class="btn btn-primary btn-lg btn-block" id="landingCreateBtn">
           Host a session
@@ -1034,6 +1118,7 @@
         <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
         <button class="btn btn-ghost btn-sm hidden" id="reEstimateBtn">↻ Re-estimate</button>
         <button class="btn btn-ghost btn-sm" id="createPollBtn" title="Create a quick poll">&#128202; Poll</button>
+        <button class="btn btn-ghost btn-sm" id="transferHostBtn" title="Hand off facilitator role to someone else">&#8646; Transfer host</button>
       </div>
     </div>
     <!-- Jira URL row (mod-only, shown below title) -->
@@ -1153,11 +1238,26 @@
 ═════════════════════════════════════════════════════════ -->
 <div class="modal-overlay hidden" id="leaveModal">
   <div class="modal-card">
-    <div class="modal-title">Leave session?</div>
+    <div class="modal-title" id="leaveModalTitle">Leave session?</div>
     <div class="modal-sub" id="leaveModalSub">You will be removed from the room. You can rejoin with the same room code.</div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="leaveCancelBtn">Stay</button>
       <button class="btn btn-danger" id="leaveConfirmBtn">Leave</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     MODAL: Transfer host
+═════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="transferModal">
+  <div class="modal-card">
+    <div class="modal-title">Transfer host</div>
+    <div class="modal-sub">Choose a participant to become the new facilitator. You will remain in the session as a regular voter.</div>
+    <div class="transfer-list" id="transferList"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="transferCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="transferConfirmBtn" disabled>Transfer</button>
     </div>
   </div>
 </div>
@@ -1396,10 +1496,20 @@ async function createSession({ name, sessionName, scale, isSpectator }) {
     joinedAt: Date.now(),
   });
 
+  // Persist host identity so we can rejoin after navigating away
+  try {
+    localStorage.setItem('sp_host_session', JSON.stringify({
+      roomCode:    S.roomCode,
+      userId:      S.userId,
+      userName:    S.userName,
+      sessionName: S.sessionName,
+    }));
+  } catch(e) { /* storage unavailable */ }
+
   // Set up disconnect cleanup
   if (!S._demoMode) {
-    // Host disconnecting removes the whole session so everyone is kicked
-    db.ref('sessions/' + S.roomCode).onDisconnect().remove();
+    // Host disconnecting: only mark offline (session stays alive so team can keep working)
+    db.ref('sessions/' + S.roomCode + '/participants/' + S.userId + '/online').onDisconnect().set(false);
   }
 
   enterRoom();
@@ -1462,8 +1572,15 @@ function leaveRoom() {
 
   if (S.roomCode && S.userId) {
     if (S.isMod) {
-      // Host leaving ends the session for everyone
-      dbRemove('sessions/' + S.roomCode).catch(() => {});
+      // Host leaves: preserve the session (history, polls, config) but clear moderatorId
+      // so anyone can claim host on rejoin. Remove own participant entry.
+      dbUpdate('sessions/' + S.roomCode, { moderatorId: null }).catch(() => {});
+      dbRemove('sessions/' + S.roomCode + '/participants/' + S.userId).catch(() => {});
+      // Cancel the onDisconnect set we registered
+      if (!S._demoMode) {
+        db.ref('sessions/' + S.roomCode + '/participants/' + S.userId + '/online')
+          .onDisconnect().cancel();
+      }
     } else {
       dbRemove('sessions/' + S.roomCode + '/participants/' + S.userId).catch(() => {});
     }
@@ -1521,8 +1638,8 @@ function handleSessionUpdate(data) {
     .map(([id, h]) => ({ id, ...h }))
     .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
-  // If moderator id matches us (may have been promoted)
-  if (data.moderatorId === S.userId) S.isMod = true;
+  // Sync moderator status — works for both promotion AND demotion (e.g. after transfer)
+  S.isMod = data.moderatorId === S.userId;
 
   // Sync our own vote from state
   const me = S.participants[S.userId];
@@ -2663,7 +2780,7 @@ function renderHistory() {
   }
 
   list.innerHTML = '';
-  allItems.forEach(item => {
+  allItems.forEach((item, idx) => {
     const div = document.createElement('div');
 
     if (item._type === 'poll') {
@@ -2682,6 +2799,11 @@ function renderHistory() {
           <span class="history-poll-pct">${pct}%</span>
         </div>`;
       }).join('');
+      const actionsBtnHtml = S.isMod
+        ? `<div class="history-item-actions">
+            <button class="history-action-btn" onclick="relaunchPollFromHistory(${idx})">&#8635; Re-poll</button>
+           </div>`
+        : '';
       div.className = 'history-item poll-item';
       div.innerHTML = `
         <div class="history-item-header">
@@ -2691,7 +2813,8 @@ function renderHistory() {
         </div>
         <div class="history-poll-results">${optionBars}</div>
         <div class="history-item-meta"><span>${totalVoters} vote${totalVoters !== 1 ? 's' : ''}</span></div>
-        ${_buildPollVoterBreakdownHtml(votes, item.options || [], multiSelect, null, item.names || {})}`;
+        ${_buildPollVoterBreakdownHtml(votes, item.options || [], multiSelect, null, item.names || {})}
+        ${actionsBtnHtml}`;
     } else {
       const votesMap = item.votes || {};
       const voteEntries = Object.values(votesMap);
@@ -2707,6 +2830,11 @@ function renderHistory() {
           <span class="poll-voter-name">${escHtml(v.name || '?')}</span>
           <span class="poll-voter-answer">${escHtml(v.vote || '—')}</span>
         </div>`).join('');
+      const actionsBtnHtml = S.isMod
+        ? `<div class="history-item-actions">
+            <button class="history-action-btn" onclick="reEstimateFromHistory(${idx})">&#8635; Re-estimate</button>
+           </div>`
+        : '';
       div.className = 'history-item';
       div.innerHTML = `
         <div class="history-item-header">
@@ -2722,13 +2850,184 @@ function renderHistory() {
         ${voterRows ? `<div class="poll-voter-breakdown" style="border-top:1px solid var(--border);margin-top:4px;padding:6px 0 0;">
           <div class="poll-voter-breakdown-title">Who voted what</div>
           <div class="poll-voter-rows" style="margin-top:4px;">${voterRows}</div>
-        </div>` : ''}`;
+        </div>` : ''}
+        ${actionsBtnHtml}`;
     }
+    // Store item data on the element for action handlers
+    div._historyItem = item;
+    div._historyIdx  = idx;
     list.appendChild(div);
   });
+
+  // Expose merged list for action handlers
+  renderHistory._items = allItems;
 }
 
-// ── XSS helper ───────────────────────────────────────────────
+// ── Rejoin as host / Transfer host ───────────────────────────────
+
+function checkRejoinBanner() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem('sp_host_session') || 'null'); } catch(e) { return; }
+  if (!saved || !saved.roomCode) return;
+
+  const banner = document.getElementById('rejoinBanner');
+  document.getElementById('rejoinBannerTitle').textContent =
+    'Rejoin "' + (saved.sessionName || saved.roomCode) + '"';
+  document.getElementById('rejoinBannerSub').textContent =
+    'Room ' + saved.roomCode + ' · You were the facilitator';
+  banner.classList.remove('hidden');
+}
+
+function dismissRejoin() {
+  try { localStorage.removeItem('sp_host_session'); } catch(e) {}
+  document.getElementById('rejoinBanner').classList.add('hidden');
+}
+
+async function rejoinAsHost() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem('sp_host_session') || 'null'); } catch(e) {}
+  if (!saved || !saved.roomCode) { dismissRejoin(); return; }
+
+  // Verify session still exists in Firebase
+  let snap;
+  try { snap = await dbOnce('sessions/' + saved.roomCode); } catch(e) {
+    toast('Could not connect.', 'error'); return;
+  }
+  if (!snap.exists()) {
+    toast('Session no longer exists.', 'error');
+    dismissRejoin();
+    return;
+  }
+
+  // Restore state
+  const data = snap.val();
+  S.userId      = saved.userId;
+  S.userName    = saved.userName;
+  S.roomCode    = saved.roomCode;
+  S.sessionName = saved.sessionName || data.config?.name || 'Refinement Session';
+  S.isMod       = true;
+  S.isSpectator = false;
+  S.scale       = JSON.parse(data.config?.scale || '[]');
+  S.originalScale = JSON.parse(data.config?.originalScale || data.config?.scale || '[]');
+  S.autoReveal  = data.config?.autoReveal !== false;
+
+  // Re-add ourselves as a participant and claim moderator
+  await dbSet('sessions/' + saved.roomCode + '/participants/' + S.userId, {
+    name:      S.userName,
+    vote:      null,
+    spectator: false,
+    online:    true,
+    joinedAt:  Date.now(),
+  });
+  await dbUpdate('sessions/' + saved.roomCode, { moderatorId: S.userId });
+
+  if (!S._demoMode) {
+    db.ref('sessions/' + S.roomCode + '/participants/' + S.userId + '/online')
+      .onDisconnect().set(false);
+  }
+
+  enterRoom();
+  toast('Rejoined as facilitator!', 'success');
+}
+
+// ── Transfer host ─────────────────────────────────────────────────
+
+let _transferTarget = null;
+
+function openTransferModal() {
+  if (!S.isMod) return;
+  _transferTarget = null;
+  const list = document.getElementById('transferList');
+  const confirmBtn = document.getElementById('transferConfirmBtn');
+  confirmBtn.disabled = true;
+
+  // Build list of non-mod, online, non-spectator participants
+  const candidates = Object.entries(S.participants)
+    .filter(([uid, p]) => p && uid !== S.userId && p.online === true && p.spectator !== true);
+
+  if (candidates.length === 0) {
+    list.innerHTML = '<div style="color:var(--text-3);font-size:13px;padding:8px 0;">No other voters in the session yet.</div>';
+  } else {
+    list.innerHTML = '';
+    candidates.forEach(([uid, p]) => {
+      const opt = document.createElement('div');
+      opt.className = 'transfer-option';
+      opt.innerHTML = `
+        <div class="participant-avatar ${avatarBg(p.name || '')}">${escHtml(initials(p.name || '?'))}</div>
+        <div class="transfer-option-name">${escHtml(p.name || 'Unknown')}</div>
+        <div class="transfer-option-role">${p.spectator ? 'Spectator' : 'Voter'}</div>
+      `;
+      opt.addEventListener('click', () => {
+        list.querySelectorAll('.transfer-option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        _transferTarget = uid;
+        confirmBtn.disabled = false;
+      });
+      list.appendChild(opt);
+    });
+  }
+
+  document.getElementById('transferModal').classList.remove('hidden');
+}
+
+async function confirmTransferHost() {
+  if (!_transferTarget || !S.isMod) return;
+  const newHost = S.participants[_transferTarget];
+  if (!newHost) return;
+
+  // Write new moderator
+  await dbUpdate('sessions/' + S.roomCode, { moderatorId: _transferTarget });
+
+  // Demote ourselves — update our own localStorage too
+  S.isMod = false;
+  try { localStorage.removeItem('sp_host_session'); } catch(e) {}
+
+  document.getElementById('transferModal').classList.add('hidden');
+  _transferTarget = null;
+  toast('Host transferred to ' + (newHost.name || 'new facilitator') + '.');
+  renderRoom();
+}
+
+// ── History item actions ──────────────────────────────────────────
+
+async function reEstimateFromHistory(idx) {
+  if (!S.isMod) return;
+  const item = renderHistory._items && renderHistory._items[idx];
+  if (!item) return;
+  // Restore story title + Jira URL from the history entry, reset votes, go to waiting
+  const updates = {
+    status: 'waiting',
+    'story/title':   item.story   || '',
+    'story/jiraUrl': item.jiraUrl || '',
+    'story/round':   (S.round || 1) + 1,
+  };
+  Object.keys(S.participants).forEach(uid => {
+    updates['participants/' + uid + '/vote'] = null;
+  });
+  await dbUpdate('sessions/' + S.roomCode, updates);
+  // Switch sidebar back to participants tab so the team can see the new round
+  document.getElementById('tabParticipants')?.click();
+  toast('Re-estimating: ' + (item.story || '(untitled)'));
+}
+
+async function relaunchPollFromHistory(idx) {
+  if (!S.isMod) return;
+  const item = renderHistory._items && renderHistory._items[idx];
+  if (!item) return;
+  // Launch a fresh poll with the same question and options, clear previous votes
+  await dbSet('sessions/' + S.roomCode + '/poll', {
+    question:    item.question,
+    options:     item.options || [],
+    votes:       {},
+    active:      true,
+    multiSelect: !!item.multiSelect,
+    createdAt:   Date.now(),
+  });
+  document.getElementById('tabParticipants')?.click();
+  toast('Poll re-launched: ' + (item.question || ''));
+}
+
+// ── XSS helper ──────────────────────────────────────────────
 function escHtml(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -2941,6 +3240,11 @@ function wireEvents() {
 
   // Poll
   document.getElementById('createPollBtn').addEventListener('click', openPollModal);
+  document.getElementById('transferHostBtn').addEventListener('click', openTransferModal);
+  document.getElementById('transferCancelBtn').addEventListener('click', () => {
+    document.getElementById('transferModal').classList.add('hidden');
+  });
+  document.getElementById('transferConfirmBtn').addEventListener('click', confirmTransferHost);
   document.getElementById('pollCancelBtn').addEventListener('click', closePollModal);
   document.getElementById('pollLaunchBtn').addEventListener('click', launchPoll);
   document.getElementById('pollReuseBtn').addEventListener('click', applyPollReuse);
@@ -2962,9 +3266,18 @@ function wireEvents() {
 
   // Leave modal
   document.getElementById('leaveRoomBtn').addEventListener('click', () => {
-    document.getElementById('leaveModalSub').textContent = S.isMod
-      ? 'You are the facilitator. Leaving will end the session and remove everyone.'
-      : 'You will be removed from the room. You can rejoin with the same room code.';
+    const title   = document.getElementById('leaveModalTitle');
+    const sub     = document.getElementById('leaveModalSub');
+    const confirm = document.getElementById('leaveConfirmBtn');
+    if (S.isMod) {
+      title.textContent   = 'Leave session?';
+      sub.textContent     = 'Your session will stay active for the team. You can rejoin as host from the home screen.';
+      confirm.textContent = 'Leave (keep session alive)';
+    } else {
+      title.textContent   = 'Leave session?';
+      sub.textContent     = 'You will be removed from the room. You can rejoin with the same room code.';
+      confirm.textContent = 'Leave';
+    }
     document.getElementById('leaveModal').classList.remove('hidden');
   });
   document.getElementById('leaveCancelBtn').addEventListener('click', () => {
@@ -2974,6 +3287,9 @@ function wireEvents() {
     document.getElementById('leaveModal').classList.add('hidden');
     leaveRoom();
   });
+
+  document.getElementById('rejoinBtn').addEventListener('click', rejoinAsHost);
+  document.getElementById('rejoinDismissBtn').addEventListener('click', dismissRejoin);
 
   // Setup demo button
   document.getElementById('setupDemoBtn').addEventListener('click', () => {
@@ -3002,6 +3318,9 @@ function boot() {
   }
 
   showScreen('landing');
+
+  // Show rejoin-as-host banner if a saved host session exists
+  checkRejoinBanner();
 
   // Auto-navigate to join if ?room= is in URL
   if (urlRoom) {
