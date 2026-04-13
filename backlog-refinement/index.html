@@ -1141,7 +1141,6 @@
         <button class="btn btn-ghost btn-sm hidden" id="cancelVotingBtn" title="Cancel this round and go back to waiting">✕ Cancel</button>
         <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
         <button class="btn btn-ghost btn-sm hidden" id="reEstimateBtn">↻ Re-estimate</button>
-        <button class="btn btn-ghost btn-sm" id="jiraConnectBtn" title="Connect your own Jira proxy account">Jira account</button>
         <button class="btn btn-primary btn-sm hidden" id="updateJiraPointsBtn">Update Jira points</button>
         <button class="btn btn-ghost btn-sm" id="createPollBtn" title="Create a quick poll">&#128202; Poll</button>
         <button class="btn btn-ghost btn-sm" id="transferHostBtn" title="Hand off facilitator role to someone else">&#8646; Transfer host</button>
@@ -1321,30 +1320,6 @@
     <div class="modal-actions" style="margin-top: 12px;">
       <button class="btn btn-ghost" id="jiraPointsCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="jiraPointsUpdateBtn">Update Jira</button>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════════════════
-     MODAL: Connect Jira account
-═════════════════════════════════════════════════════════ -->
-<div class="modal-overlay hidden" id="jiraConnectModal">
-  <div class="modal-card">
-    <div class="modal-title">Connect your Jira account</div>
-    <div class="modal-sub">Use your own Jira proxy URL so updates are attributed to your Jira identity.</div>
-
-    <div class="field" style="margin-bottom: 6px;">
-      <label class="label" for="jiraConnectInput">Jira proxy URL</label>
-      <input class="input" id="jiraConnectInput" type="url" placeholder="https://jira-proxy.yourname.workers.dev" maxlength="500" />
-      <div class="error-text hidden" id="jiraConnectErr">Enter a valid URL starting with http:// or https://</div>
-    </div>
-
-    <div class="modal-actions" style="justify-content: space-between; margin-top: 12px;">
-      <button class="btn btn-danger" id="jiraDisconnectBtn">Disconnect</button>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-ghost" id="jiraConnectCancelBtn">Cancel</button>
-        <button class="btn btn-primary" id="jiraConnectSaveBtn">Save</button>
-      </div>
     </div>
   </div>
 </div>
@@ -2690,8 +2665,38 @@ async function updateJiraPoints() {
       throw new Error('Jira update failed (' + res.status + ')' + (detail ? ': ' + detail : ''));
     }
 
+    const commentApi = domain + '/rest/api/3/issue/' + ticketId + '/comment';
+    const commentTarget = _jiraProxyUrl + '?url=' + encodeURIComponent(commentApi);
+    const commentText = 'Story Points updated to ' + value + ' from the Estimation App';
+    const commentPayload = {
+      body: {
+        type: 'doc',
+        version: 1,
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: commentText }
+            ]
+          }
+        ]
+      }
+    };
+    const commentRes = await fetch(commentTarget, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(commentPayload),
+    });
+
     closeJiraPointsModal();
-    toast('Jira story points updated to ' + value + '.', 'success');
+    if (!commentRes.ok) {
+      toast('Story points updated to ' + value + ', but adding comment failed.', 'error');
+    } else {
+      toast('Jira story points updated to ' + value + '.', 'success');
+    }
     _jiraCache = { url: null, data: null, error: null, loading: false };
     syncJiraPanel(S.jiraUrl);
   } catch (e) {
@@ -2706,7 +2711,7 @@ async function updateJiraPoints() {
 // ── Jira API integration ─────────────────────────────────────────
 let _jiraCache    = { url: null, data: null, error: null, loading: false };
 let _jiraDomain   = '';
-const DEFAULT_JIRA_PROXY = '';
+const DEFAULT_JIRA_PROXY = 'https://floral-moon-66a9.nurrali786.workers.dev';
 let _jiraProxyUrl = DEFAULT_JIRA_PROXY;
 
 function loadJiraProxy() {
@@ -2727,46 +2732,6 @@ function clearJiraProxy() {
   _jiraProxyUrl = DEFAULT_JIRA_PROXY;
   try { localStorage.removeItem('sp_jira_proxy_url'); } catch(e) {}
   _jiraCache = { url: null, data: null, error: null, loading: false };
-}
-
-function configureJiraConnection() {
-  const modal = document.getElementById('jiraConnectModal');
-  const input = document.getElementById('jiraConnectInput');
-  const err = document.getElementById('jiraConnectErr');
-  err.classList.add('hidden');
-  input.value = _jiraProxyUrl || '';
-  modal.classList.remove('hidden');
-  input.focus();
-  input.select();
-}
-
-function closeJiraConnectModal() {
-  document.getElementById('jiraConnectModal').classList.add('hidden');
-}
-
-function saveJiraConnectionFromModal() {
-  const input = document.getElementById('jiraConnectInput');
-  const err = document.getElementById('jiraConnectErr');
-  const value = input.value.trim();
-
-  err.classList.add('hidden');
-  if (!value || !/^https?:\/\//i.test(value)) {
-    err.classList.remove('hidden');
-    return;
-  }
-
-  saveJiraProxy(value);
-  _jiraCache = { url: null, data: null, error: null, loading: false };
-  if (S.jiraUrl) syncJiraPanel(S.jiraUrl);
-  closeJiraConnectModal();
-  toast('Jira account connected for this browser.', 'success');
-}
-
-function disconnectJiraConnection() {
-  clearJiraProxy();
-  if (S.jiraUrl) syncJiraPanel(S.jiraUrl);
-  closeJiraConnectModal();
-  toast('Jira account disconnected for this browser.');
 }
 
 function adfToHtml(node) {
@@ -3566,7 +3531,6 @@ function wireEvents() {
   document.getElementById('cancelVotingBtn').addEventListener('click', cancelVoting);
   document.getElementById('resetBtn').addEventListener('click', resetRound);
   document.getElementById('reEstimateBtn').addEventListener('click', reEstimate);
-  document.getElementById('jiraConnectBtn').addEventListener('click', configureJiraConnection);
   document.getElementById('updateJiraPointsBtn').addEventListener('click', openJiraPointsModal);
   document.getElementById('modScaleSelect').addEventListener('change', function() {
     changeScale(this.value);
@@ -3580,15 +3544,6 @@ function wireEvents() {
     document.getElementById('transferModal').classList.add('hidden');
   });
   document.getElementById('transferConfirmBtn').addEventListener('click', confirmTransferHost);
-  document.getElementById('jiraConnectCancelBtn').addEventListener('click', closeJiraConnectModal);
-  document.getElementById('jiraConnectSaveBtn').addEventListener('click', saveJiraConnectionFromModal);
-  document.getElementById('jiraDisconnectBtn').addEventListener('click', disconnectJiraConnection);
-  document.getElementById('jiraConnectInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') saveJiraConnectionFromModal();
-  });
-  document.getElementById('jiraConnectModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('jiraConnectModal')) closeJiraConnectModal();
-  });
   document.getElementById('jiraPointsCancelBtn').addEventListener('click', closeJiraPointsModal);
   document.getElementById('jiraPointsUpdateBtn').addEventListener('click', updateJiraPoints);
   document.getElementById('jiraPointsUseSuggestedBtn').addEventListener('click', () => {
