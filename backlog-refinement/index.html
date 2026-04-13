@@ -1141,6 +1141,7 @@
         <button class="btn btn-ghost btn-sm hidden" id="cancelVotingBtn" title="Cancel this round and go back to waiting">✕ Cancel</button>
         <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
         <button class="btn btn-ghost btn-sm hidden" id="reEstimateBtn">↻ Re-estimate</button>
+        <button class="btn btn-ghost btn-sm" id="jiraConnectBtn" title="Connect your own Jira proxy account">Jira account</button>
         <button class="btn btn-primary btn-sm hidden" id="updateJiraPointsBtn">Update Jira points</button>
         <button class="btn btn-ghost btn-sm" id="createPollBtn" title="Create a quick poll">&#128202; Poll</button>
         <button class="btn btn-ghost btn-sm" id="transferHostBtn" title="Hand off facilitator role to someone else">&#8646; Transfer host</button>
@@ -2669,20 +2670,53 @@ async function updateJiraPoints() {
 // ── Jira API integration ─────────────────────────────────────────
 let _jiraCache    = { url: null, data: null, error: null, loading: false };
 let _jiraDomain   = '';
-const JIRA_PROXY  = 'https://floral-moon-66a9.nurrali786.workers.dev';
-let _jiraProxyUrl = JIRA_PROXY;
+const DEFAULT_JIRA_PROXY = '';
+let _jiraProxyUrl = DEFAULT_JIRA_PROXY;
 
 function loadJiraProxy() {
-  // Proxy URL is hardcoded; nothing to load.
+  try {
+    const saved = localStorage.getItem('sp_jira_proxy_url');
+    _jiraProxyUrl = (saved || DEFAULT_JIRA_PROXY || '').trim();
+  } catch(e) {
+    _jiraProxyUrl = DEFAULT_JIRA_PROXY;
+  }
 }
 
 function saveJiraProxy(proxyUrl) {
   _jiraProxyUrl = proxyUrl.trim();
+  try { localStorage.setItem('sp_jira_proxy_url', _jiraProxyUrl); } catch(e) {}
 }
 
 function clearJiraProxy() {
-  _jiraProxyUrl = JIRA_PROXY;
+  _jiraProxyUrl = DEFAULT_JIRA_PROXY;
+  try { localStorage.removeItem('sp_jira_proxy_url'); } catch(e) {}
   _jiraCache = { url: null, data: null, error: null, loading: false };
+}
+
+function configureJiraConnection() {
+  const current = _jiraProxyUrl || '';
+  const next = prompt(
+    'Paste your Jira proxy URL. Leave empty to disconnect your Jira account for this browser.',
+    current
+  );
+  if (next == null) return;
+
+  const value = next.trim();
+  if (!value) {
+    clearJiraProxy();
+    toast('Jira account disconnected for this browser.');
+    return;
+  }
+
+  if (!/^https?:\/\//i.test(value)) {
+    toast('Enter a valid proxy URL.', 'error');
+    return;
+  }
+
+  saveJiraProxy(value);
+  _jiraCache = { url: null, data: null, error: null, loading: false };
+  if (S.jiraUrl) syncJiraPanel(S.jiraUrl);
+  toast('Jira account connected for this browser.', 'success');
 }
 
 function adfToHtml(node) {
@@ -3464,6 +3498,7 @@ function wireEvents() {
   document.getElementById('cancelVotingBtn').addEventListener('click', cancelVoting);
   document.getElementById('resetBtn').addEventListener('click', resetRound);
   document.getElementById('reEstimateBtn').addEventListener('click', reEstimate);
+  document.getElementById('jiraConnectBtn').addEventListener('click', configureJiraConnection);
   document.getElementById('updateJiraPointsBtn').addEventListener('click', openJiraPointsModal);
   document.getElementById('modScaleSelect').addEventListener('change', function() {
     changeScale(this.value);
