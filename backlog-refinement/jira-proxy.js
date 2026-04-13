@@ -20,7 +20,8 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
-    if (request.method !== 'GET') {
+    const allowedMethods = new Set(['GET', 'PUT', 'PATCH']);
+    if (!allowedMethods.has(request.method)) {
       return new Response('Method not allowed', { status: 405 });
     }
 
@@ -38,11 +39,17 @@ export default {
       return new Response('Proxy not configured — set JIRA_EMAIL and JIRA_TOKEN secrets', { status: 503 });
     }
 
-    const upstream = await fetch(target, {
-      headers: {
+    const outboundHeaders = {
         Authorization: 'Basic ' + btoa(env.JIRA_EMAIL + ':' + env.JIRA_TOKEN),
         Accept: 'application/json, image/*, */*',
-      },
+      };
+    const requestContentType = request.headers.get('content-type');
+    if (requestContentType) outboundHeaders['Content-Type'] = requestContentType;
+
+    const upstream = await fetch(target, {
+      method: request.method,
+      headers: outboundHeaders,
+      body: request.method === 'GET' ? undefined : await request.arrayBuffer(),
       redirect: 'manual',
     });
 
@@ -76,7 +83,7 @@ export default {
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, PUT, PATCH, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 }

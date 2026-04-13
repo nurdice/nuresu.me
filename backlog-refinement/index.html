@@ -494,6 +494,30 @@
     .modal-sub { color: var(--text-2); font-size: 14px; margin-bottom: 24px; }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
+    /* ── Jira points modal ─────────────────────────────────────── */
+    .jira-points-meta {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 14px;
+    }
+    .jira-points-meta-item {
+      border: 1px solid var(--border); border-radius: var(--r);
+      background: var(--elevated); padding: 8px 10px;
+    }
+    .jira-points-meta-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .7px;
+      color: var(--text-3); font-weight: 700;
+    }
+    .jira-points-meta-value {
+      margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--text);
+    }
+    .jira-points-actions {
+      display: flex; gap: 8px; align-items: center; margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .jira-points-hint {
+      margin-top: 8px; font-size: 12px; color: var(--text-3); line-height: 1.5;
+    }
+
     /* ── Responsive ────────────────────────────────────────────── */
     @media (max-width: 768px) {
       .room-body {
@@ -1117,6 +1141,7 @@
         <button class="btn btn-ghost btn-sm hidden" id="cancelVotingBtn" title="Cancel this round and go back to waiting">✕ Cancel</button>
         <button class="btn btn-ghost btn-sm hidden" id="resetBtn">↺ Next story</button>
         <button class="btn btn-ghost btn-sm hidden" id="reEstimateBtn">↻ Re-estimate</button>
+        <button class="btn btn-primary btn-sm hidden" id="updateJiraPointsBtn">Update Jira points</button>
         <button class="btn btn-ghost btn-sm" id="createPollBtn" title="Create a quick poll">&#128202; Poll</button>
         <button class="btn btn-ghost btn-sm" id="transferHostBtn" title="Hand off facilitator role to someone else">&#8646; Transfer host</button>
       </div>
@@ -1263,6 +1288,43 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════
+     MODAL: Update Jira story points
+═════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="jiraPointsModal">
+  <div class="modal-card">
+    <div class="modal-title">Update Jira story points</div>
+    <div class="modal-sub" id="jiraPointsModalSub">Pick a point value to write to the linked Jira ticket.</div>
+
+    <div class="jira-points-meta">
+      <div class="jira-points-meta-item">
+        <div class="jira-points-meta-label">Consensus</div>
+        <div class="jira-points-meta-value" id="jiraConsensusMeta">-</div>
+      </div>
+      <div class="jira-points-meta-item">
+        <div class="jira-points-meta-label">Nearest Point</div>
+        <div class="jira-points-meta-value" id="jiraNearestMeta">-</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom: 6px;">
+      <label class="label" for="jiraPointsInput">Story points</label>
+      <input class="input" id="jiraPointsInput" type="text" inputmode="decimal" placeholder="e.g. 5" maxlength="16" />
+      <div class="error-text hidden" id="jiraPointsErr">Enter a numeric point value.</div>
+    </div>
+
+    <div class="jira-points-actions">
+      <button class="btn btn-ghost btn-sm" id="jiraPointsUseSuggestedBtn">Use suggested</button>
+    </div>
+    <div class="jira-points-hint" id="jiraPointsHint">Suggested point is based on this reveal.</div>
+
+    <div class="modal-actions" style="margin-top: 12px;">
+      <button class="btn btn-ghost" id="jiraPointsCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="jiraPointsUpdateBtn">Update Jira</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
      FIREBASE SDKs  (v10 compat — no bundler needed)
 ═════════════════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -1321,6 +1383,7 @@ const S = {
   _dbRef:      null,
   _listeners:  [],
   _demoMode:   false,
+  _jiraSuggestedPoint: null,
 };
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -1971,6 +2034,7 @@ function renderModControls() {
   const cancelVotingBtn = document.getElementById('cancelVotingBtn');
   const resetBtn        = document.getElementById('resetBtn');
   const reEstBtn        = document.getElementById('reEstimateBtn');
+  const updateJiraBtn   = document.getElementById('updateJiraPointsBtn');
   const arBtn           = document.getElementById('autoRevealBtn');
   const scaleSelect     = document.getElementById('modScaleSelect');
 
@@ -1979,6 +2043,9 @@ function renderModControls() {
   cancelVotingBtn.classList.toggle('hidden', S.status !== 'voting');
   resetBtn.classList.toggle('hidden',        S.status !== 'revealed');
   reEstBtn.classList.toggle('hidden',        S.status !== 'revealed');
+  updateJiraBtn.classList.toggle('hidden',
+    S.status !== 'revealed' || !(S.jiraUrl && extractJiraTicketId(S.jiraUrl) && /^https?:\/\//i.test(S.jiraUrl))
+  );
   arBtn.classList.toggle('active', S.autoReveal);
 
   // Sync dropdown to current scale
@@ -1997,6 +2064,29 @@ function findNearestScale(avg) {
   const nums = S.scale.filter(isNumeric).map(numeric);
   if (!nums.length) return null;
   return String(nums.reduce((prev, cur) => Math.abs(cur - avg) < Math.abs(prev - avg) ? cur : prev));
+}
+
+function computePointSuggestion() {
+  const entries = Object.entries(S.participants)
+    .filter(([,p]) => p && !p.spectator && p.online !== false && p.vote != null);
+  if (!entries.length) return null;
+
+  const votes = entries.map(([,p]) => String(p.vote));
+  const consensus = votes.every(v => v === votes[0]);
+  const consensusValue = consensus ? votes[0] : null;
+
+  const numericVotes = votes.filter(isNumeric).map(numeric);
+  const avg = numericVotes.length ? (numericVotes.reduce((a, b) => a + b, 0) / numericVotes.length) : null;
+  const nearest = avg != null ? findNearestScale(avg) : null;
+
+  let suggested = null;
+  if (consensusValue != null && isNumeric(consensusValue)) {
+    suggested = String(numeric(consensusValue));
+  } else if (nearest != null && isNumeric(nearest)) {
+    suggested = String(numeric(nearest));
+  }
+
+  return { consensus, consensusValue, avg, nearest, suggested };
 }
 
 // ════════════════════════════════════════════════════════════
@@ -2434,6 +2524,146 @@ function extractJiraTicketId(url) {
   if (!url) return '';
   const m = url.match(/[A-Z][A-Z0-9]*-\d+/);
   return m ? m[0] : '';
+}
+
+function getJiraDomain(url) {
+  const m = (url || '').match(/^(https?:\/\/[^/]+)/i);
+  return m ? m[1] : '';
+}
+
+const _jiraStoryPointFieldCache = {};
+
+async function resolveJiraStoryPointFieldId(domain) {
+  if (_jiraStoryPointFieldCache[domain]) return _jiraStoryPointFieldCache[domain];
+  if (!_jiraProxyUrl) throw new Error('Jira proxy is not configured.');
+
+  const fieldsApi = domain + '/rest/api/3/field';
+  const proxyTarget = _jiraProxyUrl + '?url=' + encodeURIComponent(fieldsApi);
+  const res = await fetch(proxyTarget, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error('Could not load Jira fields (' + res.status + ').');
+
+  const allFields = await res.json();
+  const candidates = (Array.isArray(allFields) ? allFields : []).filter(f => {
+    const name = String((f && f.name) || '').toLowerCase();
+    const isStoryPoints = name.includes('story point');
+    const isNumber = f && f.schema && f.schema.type === 'number';
+    return isStoryPoints && isNumber;
+  });
+
+  if (!candidates.length) {
+    throw new Error('Story points field not found in Jira.');
+  }
+
+  const preferred = candidates.find(f => /^story points$/i.test((f && f.name) || ''))
+    || candidates.find(f => /^story point estimate$/i.test((f && f.name) || ''))
+    || candidates[0];
+
+  _jiraStoryPointFieldCache[domain] = preferred.id;
+  return preferred.id;
+}
+
+function openJiraPointsModal() {
+  if (!S.isMod || S.status !== 'revealed') return;
+  if (!S.jiraUrl || !extractJiraTicketId(S.jiraUrl)) {
+    toast('Link a Jira ticket first.', 'error');
+    return;
+  }
+
+  const suggestion = computePointSuggestion();
+  S._jiraSuggestedPoint = suggestion ? suggestion.suggested : null;
+
+  document.getElementById('jiraConsensusMeta').textContent = suggestion
+    ? (suggestion.consensus ? (suggestion.consensusValue || '-') : 'No')
+    : '-';
+  document.getElementById('jiraNearestMeta').textContent = suggestion
+    ? (suggestion.nearest != null ? suggestion.nearest : '-')
+    : '-';
+
+  const input = document.getElementById('jiraPointsInput');
+  input.value = suggestion && suggestion.suggested != null ? suggestion.suggested : '';
+
+  const hint = document.getElementById('jiraPointsHint');
+  hint.textContent = suggestion && suggestion.suggested != null
+    ? 'Suggested: ' + suggestion.suggested + ' (you can override this manually).'
+    : 'No numeric suggestion available. Enter a point value manually.';
+
+  const useBtn = document.getElementById('jiraPointsUseSuggestedBtn');
+  useBtn.disabled = !(suggestion && suggestion.suggested != null);
+
+  document.getElementById('jiraPointsErr').classList.add('hidden');
+  document.getElementById('jiraPointsModal').classList.remove('hidden');
+  input.focus();
+  input.select();
+}
+
+function closeJiraPointsModal() {
+  document.getElementById('jiraPointsModal').classList.add('hidden');
+}
+
+async function updateJiraPoints() {
+  const errEl = document.getElementById('jiraPointsErr');
+  errEl.classList.add('hidden');
+
+  const raw = document.getElementById('jiraPointsInput').value.trim();
+  const value = Number(raw);
+  if (!raw || !Number.isFinite(value)) {
+    errEl.textContent = 'Enter a numeric point value.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  const domain = getJiraDomain(S.jiraUrl);
+  const ticketId = extractJiraTicketId(S.jiraUrl);
+  if (!domain || !ticketId) {
+    toast('Invalid Jira ticket URL.', 'error');
+    return;
+  }
+
+  const updateBtn = document.getElementById('jiraPointsUpdateBtn');
+  const cancelBtn = document.getElementById('jiraPointsCancelBtn');
+  const prevLabel = updateBtn.textContent;
+  updateBtn.disabled = true;
+  cancelBtn.disabled = true;
+  updateBtn.textContent = 'Updating...';
+
+  try {
+    const fieldId = await resolveJiraStoryPointFieldId(domain);
+    const issueApi = domain + '/rest/api/3/issue/' + ticketId;
+    const proxyTarget = _jiraProxyUrl + '?url=' + encodeURIComponent(issueApi);
+    const payload = { fields: {} };
+    payload.fields[fieldId] = value;
+
+    const res = await fetch(proxyTarget, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      let detail = '';
+      try {
+        const body = await res.json();
+        detail = (body.errorMessages || []).join(' ') || Object.values(body.errors || {}).join(' ');
+      } catch (e) {
+        // Ignore parse errors and keep status-only message
+      }
+      throw new Error('Jira update failed (' + res.status + ')' + (detail ? ': ' + detail : ''));
+    }
+
+    closeJiraPointsModal();
+    toast('Jira story points updated to ' + value + '.', 'success');
+    _jiraCache = { url: null, data: null, error: null, loading: false };
+    syncJiraPanel(S.jiraUrl);
+  } catch (e) {
+    toast(e.message || 'Failed to update Jira story points.', 'error');
+  } finally {
+    updateBtn.disabled = false;
+    cancelBtn.disabled = false;
+    updateBtn.textContent = prevLabel;
+  }
 }
 
 // ── Jira API integration ─────────────────────────────────────────
@@ -3234,6 +3464,7 @@ function wireEvents() {
   document.getElementById('cancelVotingBtn').addEventListener('click', cancelVoting);
   document.getElementById('resetBtn').addEventListener('click', resetRound);
   document.getElementById('reEstimateBtn').addEventListener('click', reEstimate);
+  document.getElementById('updateJiraPointsBtn').addEventListener('click', openJiraPointsModal);
   document.getElementById('modScaleSelect').addEventListener('change', function() {
     changeScale(this.value);
   });
@@ -3245,6 +3476,17 @@ function wireEvents() {
     document.getElementById('transferModal').classList.add('hidden');
   });
   document.getElementById('transferConfirmBtn').addEventListener('click', confirmTransferHost);
+  document.getElementById('jiraPointsCancelBtn').addEventListener('click', closeJiraPointsModal);
+  document.getElementById('jiraPointsUpdateBtn').addEventListener('click', updateJiraPoints);
+  document.getElementById('jiraPointsUseSuggestedBtn').addEventListener('click', () => {
+    if (S._jiraSuggestedPoint != null) {
+      document.getElementById('jiraPointsInput').value = S._jiraSuggestedPoint;
+      document.getElementById('jiraPointsErr').classList.add('hidden');
+    }
+  });
+  document.getElementById('jiraPointsModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('jiraPointsModal')) closeJiraPointsModal();
+  });
   document.getElementById('pollCancelBtn').addEventListener('click', closePollModal);
   document.getElementById('pollLaunchBtn').addEventListener('click', launchPoll);
   document.getElementById('pollReuseBtn').addEventListener('click', applyPollReuse);
