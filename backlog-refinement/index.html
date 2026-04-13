@@ -1326,6 +1326,30 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════
+     MODAL: Connect Jira account
+═════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="jiraConnectModal">
+  <div class="modal-card">
+    <div class="modal-title">Connect your Jira account</div>
+    <div class="modal-sub">Use your own Jira proxy URL so updates are attributed to your Jira identity.</div>
+
+    <div class="field" style="margin-bottom: 6px;">
+      <label class="label" for="jiraConnectInput">Jira proxy URL</label>
+      <input class="input" id="jiraConnectInput" type="url" placeholder="https://jira-proxy.yourname.workers.dev" maxlength="500" />
+      <div class="error-text hidden" id="jiraConnectErr">Enter a valid URL starting with http:// or https://</div>
+    </div>
+
+    <div class="modal-actions" style="justify-content: space-between; margin-top: 12px;">
+      <button class="btn btn-danger" id="jiraDisconnectBtn">Disconnect</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" id="jiraConnectCancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="jiraConnectSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
      FIREBASE SDKs  (v10 compat — no bundler needed)
 ═════════════════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -1629,7 +1653,19 @@ function enterRoom() {
   subscribeRoom();
 }
 
-function leaveRoom() {
+function leaveRoom(opts = {}) {
+  const skipTransferCheck = !!opts.skipTransferCheck;
+
+  if (!skipTransferCheck && S.isMod) {
+    const candidates = Object.entries(S.participants)
+      .filter(([uid, p]) => p && uid !== S.userId && p.online === true);
+    if (candidates.length > 0) {
+      toast('Transfer host rights before leaving.', 'error');
+      openTransferModal(true);
+      return;
+    }
+  }
+
   // Detach all listeners
   S._listeners.forEach(fn => fn());
   S._listeners = [];
@@ -1667,7 +1703,7 @@ function subscribeRoom() {
   // Listen to the whole session (status, story, participants)
   dbOn(base, snap => {
     const data = snap.val();
-    if (!data) { toast('Session ended.', 'error'); leaveRoom(); return; }
+    if (!data) { toast('Session ended.', 'error'); leaveRoom({ skipTransferCheck: true }); return; }
     handleSessionUpdate(data);
   });
 }
@@ -2694,29 +2730,43 @@ function clearJiraProxy() {
 }
 
 function configureJiraConnection() {
-  const current = _jiraProxyUrl || '';
-  const next = prompt(
-    'Paste your Jira proxy URL. Leave empty to disconnect your Jira account for this browser.',
-    current
-  );
-  if (next == null) return;
+  const modal = document.getElementById('jiraConnectModal');
+  const input = document.getElementById('jiraConnectInput');
+  const err = document.getElementById('jiraConnectErr');
+  err.classList.add('hidden');
+  input.value = _jiraProxyUrl || '';
+  modal.classList.remove('hidden');
+  input.focus();
+  input.select();
+}
 
-  const value = next.trim();
-  if (!value) {
-    clearJiraProxy();
-    toast('Jira account disconnected for this browser.');
-    return;
-  }
+function closeJiraConnectModal() {
+  document.getElementById('jiraConnectModal').classList.add('hidden');
+}
 
-  if (!/^https?:\/\//i.test(value)) {
-    toast('Enter a valid proxy URL.', 'error');
+function saveJiraConnectionFromModal() {
+  const input = document.getElementById('jiraConnectInput');
+  const err = document.getElementById('jiraConnectErr');
+  const value = input.value.trim();
+
+  err.classList.add('hidden');
+  if (!value || !/^https?:\/\//i.test(value)) {
+    err.classList.remove('hidden');
     return;
   }
 
   saveJiraProxy(value);
   _jiraCache = { url: null, data: null, error: null, loading: false };
   if (S.jiraUrl) syncJiraPanel(S.jiraUrl);
+  closeJiraConnectModal();
   toast('Jira account connected for this browser.', 'success');
+}
+
+function disconnectJiraConnection() {
+  clearJiraProxy();
+  if (S.jiraUrl) syncJiraPanel(S.jiraUrl);
+  closeJiraConnectModal();
+  toast('Jira account disconnected for this browser.');
 }
 
 function adfToHtml(node) {
@@ -3197,20 +3247,32 @@ async function rejoinAsHost() {
 // ── Transfer host ─────────────────────────────────────────────────
 
 let _transferTarget = null;
+let _transferLeaveMode = false;
 
-function openTransferModal() {
+function openTransferModal(leaveMode = false) {
   if (!S.isMod) return;
   _transferTarget = null;
+  _transferLeaveMode = !!leaveMode;
+
+  const transferModal = document.getElementById('transferModal');
+  const titleEl = transferModal.querySelector('.modal-title');
+  const subEl = transferModal.querySelector('.modal-sub');
   const list = document.getElementById('transferList');
   const confirmBtn = document.getElementById('transferConfirmBtn');
+
+  titleEl.textContent = leaveMode ? 'Transfer host before leaving' : 'Transfer host';
+  subEl.textContent = leaveMode
+    ? 'Choose a participant to become the new facilitator, then leave the session.'
+    : 'Choose a participant to become the new facilitator. You will remain in the session as a regular voter.';
+  confirmBtn.textContent = leaveMode ? 'Transfer & Leave' : 'Transfer';
   confirmBtn.disabled = true;
 
-  // Build list of non-mod, online, non-spectator participants
+  // Build list of all online participants except current facilitator
   const candidates = Object.entries(S.participants)
-    .filter(([uid, p]) => p && uid !== S.userId && p.online === true && p.spectator !== true);
+    .filter(([uid, p]) => p && uid !== S.userId && p.online === true);
 
   if (candidates.length === 0) {
-    list.innerHTML = '<div style="color:var(--text-3);font-size:13px;padding:8px 0;">No other voters in the session yet.</div>';
+    list.innerHTML = '<div style="color:var(--text-3);font-size:13px;padding:8px 0;">No other online participants available to transfer host rights.</div>';
   } else {
     list.innerHTML = '';
     candidates.forEach(([uid, p]) => {
@@ -3238,6 +3300,7 @@ async function confirmTransferHost() {
   if (!_transferTarget || !S.isMod) return;
   const newHost = S.participants[_transferTarget];
   if (!newHost) return;
+  const leaveAfterTransfer = _transferLeaveMode;
 
   // Write new moderator
   await dbUpdate('sessions/' + S.roomCode, { moderatorId: _transferTarget });
@@ -3248,7 +3311,12 @@ async function confirmTransferHost() {
 
   document.getElementById('transferModal').classList.add('hidden');
   _transferTarget = null;
+  _transferLeaveMode = false;
   toast('Host transferred to ' + (newHost.name || 'new facilitator') + '.');
+  if (leaveAfterTransfer) {
+    leaveRoom({ skipTransferCheck: true });
+    return;
+  }
   renderRoom();
 }
 
@@ -3508,9 +3576,19 @@ function wireEvents() {
   document.getElementById('createPollBtn').addEventListener('click', openPollModal);
   document.getElementById('transferHostBtn').addEventListener('click', openTransferModal);
   document.getElementById('transferCancelBtn').addEventListener('click', () => {
+    _transferLeaveMode = false;
     document.getElementById('transferModal').classList.add('hidden');
   });
   document.getElementById('transferConfirmBtn').addEventListener('click', confirmTransferHost);
+  document.getElementById('jiraConnectCancelBtn').addEventListener('click', closeJiraConnectModal);
+  document.getElementById('jiraConnectSaveBtn').addEventListener('click', saveJiraConnectionFromModal);
+  document.getElementById('jiraDisconnectBtn').addEventListener('click', disconnectJiraConnection);
+  document.getElementById('jiraConnectInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveJiraConnectionFromModal();
+  });
+  document.getElementById('jiraConnectModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('jiraConnectModal')) closeJiraConnectModal();
+  });
   document.getElementById('jiraPointsCancelBtn').addEventListener('click', closeJiraPointsModal);
   document.getElementById('jiraPointsUpdateBtn').addEventListener('click', updateJiraPoints);
   document.getElementById('jiraPointsUseSuggestedBtn').addEventListener('click', () => {
@@ -3548,7 +3626,7 @@ function wireEvents() {
     const confirm = document.getElementById('leaveConfirmBtn');
     if (S.isMod) {
       title.textContent   = 'Leave session?';
-      sub.textContent     = 'Your session will stay active for the team. You can rejoin as host from the home screen.';
+      sub.textContent     = 'Before leaving, please transfer facilitator rights to someone in the room.';
       confirm.textContent = 'Leave (keep session alive)';
     } else {
       title.textContent   = 'Leave session?';
