@@ -1282,6 +1282,7 @@
     <div class="transfer-list" id="transferList"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="transferCancelBtn">Cancel</button>
+      <button class="btn btn-ghost hidden" id="transferOnlyBtn" disabled>Transfer Host</button>
       <button class="btn btn-primary" id="transferConfirmBtn" disabled>Transfer</button>
     </div>
   </div>
@@ -3225,12 +3226,15 @@ function openTransferModal(leaveMode = false) {
   const list = document.getElementById('transferList');
   const confirmBtn = document.getElementById('transferConfirmBtn');
 
+  const transferOnlyBtn = document.getElementById('transferOnlyBtn');
   titleEl.textContent = leaveMode ? 'Transfer host before leaving' : 'Transfer host';
   subEl.textContent = leaveMode
     ? 'Choose a participant to become the new facilitator, then leave the session.'
     : 'Choose a participant to become the new facilitator. You will remain in the session as a regular voter.';
   confirmBtn.textContent = leaveMode ? 'Transfer & Leave' : 'Transfer';
   confirmBtn.disabled = true;
+  transferOnlyBtn.disabled = true;
+  transferOnlyBtn.classList.toggle('hidden', !leaveMode);
 
   // Build list of all online participants except current facilitator
   const candidates = Object.entries(S.participants)
@@ -3253,6 +3257,7 @@ function openTransferModal(leaveMode = false) {
         opt.classList.add('selected');
         _transferTarget = uid;
         confirmBtn.disabled = false;
+        transferOnlyBtn.disabled = false;
       });
       list.appendChild(opt);
     });
@@ -3261,11 +3266,11 @@ function openTransferModal(leaveMode = false) {
   document.getElementById('transferModal').classList.remove('hidden');
 }
 
-async function confirmTransferHost() {
+async function confirmTransferHost(skipLeave = false) {
   if (!_transferTarget || !S.isMod) return;
   const newHost = S.participants[_transferTarget];
   if (!newHost) return;
-  const leaveAfterTransfer = _transferLeaveMode;
+  const leaveAfterTransfer = _transferLeaveMode && !skipLeave;
 
   // Write new moderator
   await dbUpdate('sessions/' + S.roomCode, { moderatorId: _transferTarget });
@@ -3539,6 +3544,7 @@ function wireEvents() {
   // Poll
   document.getElementById('createPollBtn').addEventListener('click', openPollModal);
   document.getElementById('transferHostBtn').addEventListener('click', openTransferModal);
+  document.getElementById('transferOnlyBtn').addEventListener('click', () => confirmTransferHost(true));
   document.getElementById('transferCancelBtn').addEventListener('click', () => {
     _transferLeaveMode = false;
     document.getElementById('transferModal').classList.add('hidden');

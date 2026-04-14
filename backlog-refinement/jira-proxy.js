@@ -20,7 +20,7 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
-    const allowedMethods = new Set(['GET', 'PUT', 'PATCH']);
+    const allowedMethods = new Set(['GET', 'PUT', 'PATCH', 'POST']);
     if (!allowedMethods.has(request.method)) {
       return new Response('Method not allowed', { status: 405 });
     }
@@ -83,7 +83,7 @@ export default {
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, PUT, PATCH, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, PUT, PATCH, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
