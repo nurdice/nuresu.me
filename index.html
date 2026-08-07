@@ -157,6 +157,25 @@
             pointer-events: none;
         }
 
+        /* Non-intrusive name of the currently focused planet/moon */
+        #focus-name {
+            position: fixed;
+            top: 22px; left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            font-family: 'Orbitron', 'Poppins', sans-serif;
+            font-size: 15px; letter-spacing: 2px; text-transform: uppercase;
+            color: #eaf4ff;
+            background: rgba(10, 18, 38, 0.55);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            padding: 7px 18px; border-radius: 30px;
+            backdrop-filter: blur(8px);
+            text-shadow: 0 0 10px rgba(56,189,248,0.5);
+            pointer-events: none; z-index: 60;
+            opacity: 0; transition: opacity 0.35s, transform 0.35s;
+        }
+        #focus-name.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        @media (max-width: 768px){ #focus-name{ font-size: 12px; top: 14px; padding: 6px 14px; } }
+
         .label:hover {
             transform: translate(-50%, -50%) scale(1.1);
             text-shadow: 0 0 12px rgba(0,0,0,0.9), 0 0 25px rgba(56, 189, 248, 0.7);
@@ -240,7 +259,8 @@
             gap: 15px;
             pointer-events: auto;
             z-index: 20;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            white-space: nowrap;
         }
 
         .hud-btn {
@@ -263,6 +283,22 @@
             transform: translateY(-2px);
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
         }
+
+        .resume-menu-wrap { position: relative; user-select: none; }
+        .resume-menu {
+            position: absolute; bottom: calc(100% + 10px); left: 0;
+            display: none; flex-direction: column; gap: 2px;
+            background: rgba(15, 23, 42, 0.97); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px; padding: 6px; min-width: 190px;
+            backdrop-filter: blur(10px); z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .resume-menu.open { display: flex; }
+        .resume-menu button {
+            background: transparent; border: 0; color: #fff; font-family: 'Poppins', sans-serif;
+            font-size: 13px; text-align: left; padding: 10px 12px; border-radius: 8px;
+            cursor: pointer; text-transform: none; letter-spacing: 0; white-space: nowrap;
+        }
+        .resume-menu button:hover { background: rgba(56, 189, 248, 0.18); }
 
         .hud-btn:disabled,
         #solar-loading-overlay:not([style*="display: none"]) ~ #controls .hud-btn,
@@ -349,7 +385,7 @@
             border: 1px solid rgba(255,255,255,0.1);
             pointer-events: auto;
             height: calc(100% - 100px); /* Adjusted height */
-            overflow-y: hidden; /* Disable scrolling */
+            overflow-y: hidden; overflow-x: hidden; /* Disable scrolling */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -374,6 +410,8 @@
         #sky-close:hover { background: rgba(255, 255, 255, 0.3); }
         @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
         @keyframes simpleFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-point { transition: transform .16s cubic-bezier(.34,1.56,.64,1), box-shadow .16s ease, filter .16s ease; will-change: transform; }
+        .modal-point:hover { transform: translateX(6px) scale(1.05); box-shadow: 0 12px 30px rgba(56,189,248,.5); filter: brightness(1.25); position: relative; z-index: 3; }
         @keyframes slowSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulseGlow { 0% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); } 50% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.9); } 100% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); } }
         @keyframes charBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
@@ -763,6 +801,7 @@
     </div>
     <div id="blackhole-overlay"></div>
     <div id="ui-layer" style="display:none;"></div>
+    <div id="focus-name"></div>
     <div id="sky-details">
         <div id="sky-close" onclick="closeSkyModal()">✕</div>
         <h1 id="sky-title">Moon Title</h1>
@@ -773,24 +812,31 @@
         <div style="background:rgba(15, 23, 42, 0.95); padding:40px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-align:center; backdrop-filter:blur(10px); max-width: 400px; width: 90%;">
             <h2 style="color:#38bdf8; margin-top:0;">Download Resume</h2>
             <p style="color:#cbd5e1; margin-bottom:12px;">Choose a style for your PDF resume:</p>
-            <p style="color:#94a3b8; margin:0 0 24px; font-size:12px;">Fast download if available, otherwise it will generate on demand.</p>
-            
+            <p style="color:#94a3b8; margin:0 0 24px; font-size:12px;">Both are one-page, print-ready PDFs.</p>
+
             <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
-                <button onclick="event.stopPropagation(); downloadPDF('professional')" style="
-                    background: #e2e8f0; color: #0f172a; border:none; padding:12px 24px; border-radius:8px; 
+                <button onclick="event.stopPropagation(); downloadStaticResume('professional')" style="
+                    background: #e2e8f0; color: #0f172a; border:none; padding:12px 24px; border-radius:8px;
                     cursor:pointer; font-weight:600; font-family:'Poppins',sans-serif; transition:transform 0.2s;
                 " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     Professional
                 </button>
-                
-                <button onclick="event.stopPropagation(); downloadPDF('nurwars')" style="
-                    background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; border:2px solid #FFD700; padding:12px 24px; border-radius:8px; 
+
+                <button onclick="event.stopPropagation(); downloadStaticResume('nurwars')" style="
+                    background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; border:2px solid #FFD700; padding:12px 24px; border-radius:8px;
                     cursor:pointer; font-weight:700; font-family:'Poppins',sans-serif; transition:transform 0.2s; text-transform:uppercase; letter-spacing:2px;
                 " onmouseover="this.style.transform='scale(1.05)'; this.style.textShadow='0 0 10px #FFD700'" onmouseout="this.style.transform='scale(1)'; this.style.textShadow='none'">
                     ⚡ NUR WARS
                 </button>
+
+                <button onclick="event.stopPropagation(); downloadStaticResume('it')" style="
+                    background: #0f1830; color: #38bdf8; border:2px solid #38bdf8; padding:12px 24px; border-radius:8px;
+                    cursor:pointer; font-weight:700; font-family:'Poppins',sans-serif; transition:transform 0.2s;
+                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    💻 IT / Technical
+                </button>
             </div>
-            
+
             <button onclick="event.stopPropagation(); document.getElementById('pdf-modal').style.display='none'" style="margin-top:30px; background:transparent; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:20px; cursor:pointer;">
                 Cancel
             </button>
@@ -808,9 +854,15 @@
         <button class="hud-btn" onclick="event.stopPropagation(); resetView()">⊙ Reset View</button>
         <button class="hud-btn" onclick="toggleSound()" id="sound-btn">🔇 Sound Off</button>
         <button class="hud-btn" onclick="toggleOrbits()" id="orbits-btn">🪐 Show Orbits</button>
-        <button class="hud-btn" onclick="goToPreviousView()" id="back-btn" style="display: none;">← Back</button>
         <button class="hud-btn" onclick="startNurWars()" id="nur-wars-btn" aria-label="Nur Wars" style="background: url('assets/images/nurwars.png') no-repeat center/contain; background-color: transparent; border: none; width: 120px; height: 60px; padding: 0; min-width: auto; box-shadow: none; backdrop-filter: none;"></button>
-        <button class="hud-btn" onclick="event.stopPropagation(); document.getElementById('pdf-modal').style.display='flex'">📄 PDF Resume</button>
+        <div class="hud-btn resume-menu-wrap" id="resume-menu-btn" onclick="event.stopPropagation(); toggleResumeMenu(event)">📄 Résumé ▾
+            <div class="resume-menu" id="resume-menu-list">
+                <button onclick="event.stopPropagation(); closeResumeMenu(); window.open('resume-space.html','_blank')">🪐 Space résumé</button>
+                <button onclick="event.stopPropagation(); closeResumeMenu(); window.open('resume.html','_blank')">📋 Basic CV</button>
+                <button onclick="event.stopPropagation(); closeResumeMenu(); document.getElementById('pdf-modal').style.display='flex'">⬇️ Download PDF</button>
+            </div>
+        </div>
+        <button class="hud-btn" onclick="event.stopPropagation(); goToPreviousView()" id="back-btn" style="display: none;">← Back</button>
     </div>
 
     <!-- Movie Controls (NUR WARS only) -->
@@ -841,7 +893,7 @@
                 
                 <p style="margin: 0 0 30px 0;">During the battle, rebel spies managed to steal secret plans to the Empire's ultimate weapon, the MONOLITHIC ARCHITECTURE—a legacy system with enough power to destroy an entire business process.</p>
                 
-                <p style="margin: 0 0 30px 0;">In this epic tale, young NUR DAWOODANI emerges as the chosen Business Analyst, wielding 18+ years of experience across retail and banking galaxies. From the corporate towers of LULULEMON to the financial fortresses of HSBC, he has brought balance to the Force of digital transformation.</p>
+                <p style="margin: 0 0 30px 0;">In this epic tale, young NUR DAWOODANI emerges as the chosen Business Analyst, wielding hard-won experience since 2005 across retail and banking galaxies. From the corporate towers of LULULEMON to the financial fortresses of HSBC, he has brought balance to the Force of digital transformation.</p>
                 
                 <p style="margin: 0 0 30px 0;">His legendary achievements include architecting the Great Revamp that saved the Retail Galaxy from scalability collapse, wielding AI-driven Product Highlights to generate multi-million credit revenues, and leading the Paperless Rebellion that eliminated 2+ million sheets annually.</p>
                 
@@ -1236,7 +1288,8 @@
         // Black hole in the far background
         const blackHoleGroup = new THREE.Group();
         blackHoleGroup.userData = { isBlackHole: true, name: 'Black Hole' };
-        blackHoleGroup.position.set(900, 260, -250);
+        // Far beyond the outer orbits and above the ecliptic so it reads as a distant object, not part of the system
+        blackHoleGroup.position.set(1500, 820, -1350);
         blackHoleGroup.renderOrder = 0;
         scene.add(blackHoleGroup);
         clickableObjects.push(blackHoleGroup);
@@ -1244,15 +1297,16 @@
 
         blackHoleGroup.rotation.x = 0;
 
-        const blackHoleLight = new THREE.PointLight(0xffffff, 35.0, 3600);
+        const blackHoleLight = new THREE.PointLight(0xffffff, 30.0, 1500);
         blackHoleLight.position.set(0, 0, 0);
         blackHoleGroup.add(blackHoleLight);
 
-        const blackHoleHitGeo = new THREE.SphereGeometry(160, 24, 24);
+        const blackHoleHitGeo = new THREE.SphereGeometry(280, 24, 24);
         const blackHoleHitMat = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             transparent: true,
-            opacity: 0.02
+            opacity: 0.02,
+            fog: false
         });
         const blackHoleHit = new THREE.Mesh(blackHoleHitGeo, blackHoleHitMat);
         blackHoleHit.frustumCulled = false;
@@ -1260,10 +1314,11 @@
         blackHoleGroup.add(blackHoleHit);
 
         // Add black sphere at center to hide stars
-        const blackCenterGeo = new THREE.SphereGeometry(100, 32, 32);
+        const blackCenterGeo = new THREE.SphereGeometry(150, 32, 32);
         const blackCenterMat = new THREE.MeshBasicMaterial({
             color: 0x000000,
-            transparent: false
+            transparent: false,
+            fog: false
         });
         const blackCenter = new THREE.Mesh(blackCenterGeo, blackCenterMat);
         blackCenter.frustumCulled = false;
@@ -1285,6 +1340,7 @@
                                 if (!m) return;
                                 m.depthTest = true;
                                 m.depthWrite = true;
+                                m.fog = false; // stay crisp at distance instead of fading into fog
                                 m.needsUpdate = true;
                             });
                         }
@@ -1297,7 +1353,7 @@
                         }
                     }
                 });
-                blackHoleModel.scale.set(140, 140, 140);
+                blackHoleModel.scale.set(200, 200, 200);
                 blackHoleGroup.add(blackHoleModel);
             },
             undefined,
@@ -1377,7 +1433,7 @@
             throw new Error("WebGL Fallback");
         }
         webGLRenderer.setSize(window.innerWidth, window.innerHeight);
-        webGLRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        webGLRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
         webGLRenderer.shadowMap.enabled = true;
         webGLRenderer.shadowMap.type = THREE.PCFShadowShadowMap;
         if ('outputColorSpace' in webGLRenderer) {
@@ -1461,13 +1517,17 @@
                 
                 return true; // Successfully went back
             }
-            return false; // No previous view available
+            // No history left — return to the full solar-system view
+            if (typeof resetView === 'function') { resetView(); return true; }
+            return false;
         }
         
+        // Years of experience since 15 Aug 2005 (auto-updates every year)
+        function yearsSince(){ return Math.floor((Date.now()-Date.UTC(2005,7,15))/31557600000); }
         function updateBackButton() {
             const backBtn = document.getElementById('back-btn');
             if (backBtn) {
-                backBtn.style.display = (currentViewIndex > 0) ? 'block' : 'none';
+                backBtn.style.display = (currentViewIndex > 0 || focusedObject) ? 'block' : 'none';
             }
         }
         
@@ -3441,7 +3501,7 @@
 
         // === IMPROVED STARFIELD WITH CIRCULAR STARS ===
         const starsGeo = new THREE.BufferGeometry();
-        const starsCount = 10000;
+        const starsCount = 5000;
         const starPositions = new Float32Array(starsCount * 3);
         const starColors = new Float32Array(starsCount * 3);
         const starSizes = new Float32Array(starsCount);
@@ -3551,6 +3611,7 @@
             const name = (planetName || '').toLowerCase();
             
             // Map resume planet names to GLTF model folders
+            if (name.includes('community')) return 'assets/models/planet_earth/scene.gltf';        // Earth for Community/Volunteering
             if (name.includes('skills')) return 'assets/models/planet_of_phoenix/scene.gltf';      // Jupiter-like for Skills
             if (name.includes('experience')) return 'assets/models/lava_planet/scene.gltf';        // Mars-like for Experience
             if (name.includes('expertise')) return 'assets/models/saturn_planet/scene.gltf';       // Saturn for Expertise
@@ -3571,7 +3632,25 @@
             return 'assets/models/planet/scene.gltf';
         }
 
-        // Moon models removed - use simple procedural spheres for performance
+        // Realistic moon surfaces: reuse real moon photo-textures (from the model pack) on the moon spheres.
+        // Lightweight (7 shared 1024px textures) and keeps all orbit/click logic intact.
+        const _moonTexLoader = new THREE.TextureLoader();
+        const _moonTexPool = [
+            'assets/textures/moons/moon.jpg',
+            'assets/textures/moons/europa.jpg',
+            'assets/textures/moons/ganymede.jpg',
+            'assets/textures/moons/io.jpg',
+            'assets/textures/moons/callisto.jpg',
+            'assets/textures/moons/titan.jpg',
+            'assets/textures/moons/enceladus.jpg'
+        ].map(u => { const t = _moonTexLoader.load(u); t.colorSpace = THREE.SRGBColorSpace; return t; });
+        let _moonTexIndex = 0;
+        function getNextMoonTexture() {
+            if (!_moonTexPool.length) return createCanvasTexture(1024, 1024, drawRocky);
+            const t = _moonTexPool[_moonTexIndex % _moonTexPool.length];
+            _moonTexIndex++;
+            return t;
+        }
 
         // === CREATE PLANETS ===
         RESUME_DATA.planets.forEach((data, idx) => {
@@ -3709,18 +3788,16 @@
             // Moons
             if (data.moons) {
                 data.moons.forEach((moonData, moonIdx) => {
-                    // Use specific texture if defined, otherwise fallback logic
-                    const texName = moonData.texture;
-                    const specificTex = texName && textureMap[texName] ? createCanvasTexture(512, 512, textureMap[texName]) : null;
-
+                    // Realistic moon: real moon photo-texture mapped onto the sphere (cycled from the pool).
                     const moonGeo = new THREE.SphereGeometry(moonData.size, 64, 64);
-                    const moonTexture = specificTex || createCanvasTexture(1024, 1024, drawRocky);
+                    const moonTexture = getNextMoonTexture();
                     const moonMat = new THREE.MeshPhongMaterial({
                         map: moonTexture,
-                        shininess: 25,
+                        color: new THREE.Color(0xffffff),
+                        shininess: 5,
                         side: THREE.FrontSide,
-                        emissive: moonData.color ? new THREE.Color(moonData.color) : new THREE.Color(0x222222),
-                        emissiveIntensity: 0.15
+                        emissive: new THREE.Color(0x0b0b0b),
+                        emissiveIntensity: 0.12
                     });
                     const moon = new THREE.Mesh(moonGeo, moonMat);
                     moon.castShadow = true;
@@ -3904,6 +3981,11 @@
         window.addEventListener('click', (event) => onMouseClick(event));
 
         function onMouseClick(event) {
+            // Ignore clicks that land on UI (buttons, menus, modals) — never raycast into the 3D scene
+            if (event.target && event.target.closest &&
+                event.target.closest('#controls, #pdf-modal, #overlay-panel, #sky-details, #ui-layer, .resume-menu, .hud-btn, #focus-name, #blackhole-overlay')) {
+                return;
+            }
             if (isDragging) {
                 isDragging = false;
                 return;
@@ -4033,10 +4115,10 @@
             // Calculate direction from sun to black hole
             const directionToHole = blackHoleWorldPos.clone().sub(initialSunWorldPos).normalize();
 
-            // Position camera to see both sun (fully visible) and black hole centered on screen
-            // Camera positioned perpendicular to the sun-to-black-hole line for best view
-            const distanceBehind = 500;
-            const verticalOffset = 70; // Center camera at midpoint height between sun and black hole
+            // Position camera to see both sun and black hole; scale the framing to their distance so it works far out
+            const holeDist = blackHoleWorldPos.clone().sub(initialSunWorldPos).length();
+            const distanceBehind = Math.max(520, holeDist * 0.5);
+            const verticalOffset = blackHoleWorldPos.y * 0.5 + 40;
             const targetCameraPos = initialSunWorldPos.clone().add(directionToHole.clone().multiplyScalar(-distanceBehind)).add(new THREE.Vector3(0, verticalOffset, 0));
 
             // Smooth transition to camera position behind the sun
@@ -4083,10 +4165,8 @@
                         
                         // Calculate current direction to black hole
                         const currentDirToHole = blackHoleWorldPos.clone().sub(sunWorldPos).normalize();
-                        
-                        // Keep camera at constant distance behind sun, at same height as midpoint for alignment
-                        const distanceBehind = 500;
-                        const verticalOffset = 70; // Align camera with midpoint height
+
+                        // Reuse the distance-scaled framing computed above so both stay centred
                         const newCameraPos = sunWorldPos.clone().add(currentDirToHole.clone().multiplyScalar(-distanceBehind)).add(new THREE.Vector3(0, verticalOffset, 0));
                         camera.position.copy(newCameraPos);
                         
@@ -4341,10 +4421,25 @@
 
         // === INTERACTION HELPERS & OVERLAY ===
         // add focus / overlay functions (show moon surface + details)
+        function setFocusName(txt){
+            var el = document.getElementById('focus-name');
+            if (!el) return;
+            if (txt) { el.textContent = txt; el.classList.add('show'); }
+            else { el.classList.remove('show'); }
+        }
+
         function focusOnObject(object) {
             // Save current view before changing (unless it's the same object)
             if (object !== focusedObject) {
                 saveCurrentView();
+            }
+
+            // Show a subtle name chip for the focused planet/moon (hide for center/sun)
+            if (object && object.userData && object.userData.name &&
+                !object.userData.isSun && object.userData.viewType !== 'center') {
+                setFocusName(object.userData.name);
+            } else {
+                setFocusName(null);
             }
             
         	if (object && object.userData && (object.userData.isSun || object.userData.viewType === 'center')) {
@@ -4465,7 +4560,7 @@
                     <!-- Quick Stats -->
                     <div style="display: flex; justify-content: space-around; margin-top: 12px; flex-shrink: 0;">
                         <div style="text-align: center;">
-                            <div style="color: #38bdf8; font-size: 16px; font-weight: bold;">18+</div>
+                            <div style="color: #38bdf8; font-size: 16px; font-weight: bold;">${yearsSince()}+</div>
                             <div style="color: #94a3b8; font-size: 9px;">Years Experience</div>
                         </div>
                         <div style="text-align: center;">
@@ -4497,16 +4592,17 @@
             const isEducationMoon = parentName === 'Education';
             const isSkillsMoon = parentName === 'Skills & Tools';
             const isExperienceMoon = parentName === 'Experience';
+            const isCommunityMoon = parentName === 'Community';
             const isExpertiseMoon = parentName === 'Expertise & Impact';
             const isProjectsMoon = parentName === 'Projects';
             const isCertificationsMoon = parentName === 'Certifications';
             const isContactMoon = parentName === 'Contact';
-            
+
             if (isLanguagesMoon || isEducationMoon) {
                 showEnhancedModal(moon, parentName);
             } else if (isSkillsMoon || isCertificationsMoon) {
                 showSkillsModal(moon);
-            } else if (isExperienceMoon) {
+            } else if (isExperienceMoon || isCommunityMoon) {
                 showExperienceModal(moon);
             } else if (isExpertiseMoon) {
                 showExpertiseModal(moon);
@@ -4701,8 +4797,8 @@
                                         Highlights
                                     </h4>
                                     <div style="color: #e2e8f0; font-size: 12px; line-height: 1.4; text-align: left; max-height: 200px; overflow: hidden;">
-                                        ${achievements.slice(0, 4).map(achievement => `
-                                            <div style="display: flex; align-items: flex-start; margin-bottom: 6px; padding: 4px 0; text-align: left;">
+                                        ${achievements.slice(0, 4).map((achievement, i) => `
+                                            <div class="modal-point" style="display: flex; align-items: flex-start; margin-bottom: 6px; padding: 4px 0; text-align: left; opacity: 0; animation: simpleFadeIn 0.45s ease-out ${(i * 0.07).toFixed(2)}s forwards;">
                                                 <span style="color: #38bdf8; margin-right: 6px; margin-top: 1px; flex-shrink: 0;">•</span>
                                                 <span style="flex: 1; text-align: left;">${achievement}</span>
                                             </div>
@@ -4769,8 +4865,8 @@
                                 Skills & Tools
                             </h4>
                             <div style="display: grid; gap: 8px; max-height: 400px; overflow-y: auto;">
-                                ${pdfDetails.skills.map(skill => `
-                                    <div style="display: flex; align-items: center; padding: 10px 15px; background: rgba(56, 189, 248, 0.08); border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                                ${pdfDetails.skills.map((skill, i) => `
+                                    <div class="modal-point" style="display: flex; align-items: center; padding: 10px 15px; background: rgba(56, 189, 248, 0.08); border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); opacity: 0; animation: simpleFadeIn 0.45s ease-out ${(i * 0.07).toFixed(2)}s forwards;">
                                         <span style="color: #38bdf8; margin-right: 10px; font-size: 16px;">•</span>
                                         <span style="color: #e2e8f0; font-size: 15px; line-height: 1.4;">${skill}</span>
                                     </div>
@@ -4827,8 +4923,8 @@
                             Impact & Results
                         </h4>
                         <div style="display: grid; gap: 8px; max-height: 300px; overflow-y: auto;">
-                            ${(pdfDetails.impact || []).map(impact => `
-                                <div style="display: flex; align-items: center; padding: 10px 15px; background: rgba(231, 76, 60, 0.08); border-radius: 8px; border: 1px solid rgba(231, 76, 60, 0.2); transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                            ${(pdfDetails.impact || []).map((impact, i) => `
+                                <div class="modal-point" style="display: flex; align-items: center; padding: 10px 15px; background: rgba(231, 76, 60, 0.08); border-radius: 8px; border: 1px solid rgba(231, 76, 60, 0.2); opacity: 0; animation: simpleFadeIn 0.45s ease-out ${(i * 0.07).toFixed(2)}s forwards;">
                                     <span style="color: #e74c3c; margin-right: 10px; font-size: 16px;">•</span>
                                     <span style="color: #e2e8f0; font-size: 15px; line-height: 1.4;">${impact}</span>
                                 </div>
@@ -4922,8 +5018,8 @@
                     <div style="flex: 1; overflow-y: auto;">
                         <h3 style="color: #38bdf8; margin: 0 0 15px 0; font-size: 18px; text-align: center;">Key Achievements</h3>
                         <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px;">
-                            ${(pdfDetails.achievements || []).map(achievement => `
-                                <div style="background: rgba(56, 189, 248, 0.05); border-left: 3px solid #38bdf8; padding: 12px; margin-bottom: 10px; border-radius: 0 8px 8px 0;">
+                            ${(pdfDetails.achievements || []).map((achievement, idx) => `
+                                <div class="modal-point" style="background: rgba(56, 189, 248, 0.05); border-left: 3px solid #38bdf8; padding: 12px; margin-bottom: 10px; border-radius: 0 8px 8px 0; opacity: 0; animation: simpleFadeIn 0.5s ease-out ${(idx * 0.1).toFixed(2)}s forwards;">
                                     <p style="margin: 0; color: #e2e8f0; font-size: 14px; line-height: 1.5;">${achievement}</p>
                                 </div>
                             `).join('')}
@@ -4969,8 +5065,8 @@
                         ${pdfDetails.impact ? `
                             <div style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 15px;">
                                 <h4 style="color: #f39c12; margin: 0 0 12px 0; font-size: 16px; text-align: center;">📊 Measurable Impact</h4>
-                                ${pdfDetails.impact.map(item => `
-                                    <div style="background: rgba(243, 156, 18, 0.1); padding: 8px; margin-bottom: 8px; border-radius: 6px; border-left: 3px solid #f39c12;">
+                                ${pdfDetails.impact.map((item, i) => `
+                                    <div class="modal-point" style="background: rgba(243, 156, 18, 0.1); padding: 8px; margin-bottom: 8px; border-radius: 6px; border-left: 3px solid #f39c12; opacity: 0; animation: simpleFadeIn 0.45s ease-out ${(i * 0.07).toFixed(2)}s forwards;">
                                         <p style="margin: 0; color: #e2e8f0; font-size: 12px; line-height: 1.4;">${item}</p>
                                     </div>
                                 `).join('')}
@@ -4983,8 +5079,8 @@
                                 <h4 style="color: #f39c12; margin: 0 0 12px 0; font-size: 16px; text-align: center;">
                                     ${pdfDetails.problems ? '🎯 Problem Domains' : pdfDetails.approaches ? '🚀 Approaches' : '⚡ Capabilities'}
                                 </h4>
-                                ${(pdfDetails.problems || pdfDetails.approaches || pdfDetails.capabilities || []).map(item => `
-                                    <div style="background: rgba(243, 156, 18, 0.05); padding: 8px; margin-bottom: 8px; border-radius: 6px;">
+                                ${(pdfDetails.problems || pdfDetails.approaches || pdfDetails.capabilities || []).map((item, i) => `
+                                    <div class="modal-point" style="background: rgba(243, 156, 18, 0.05); padding: 8px; margin-bottom: 8px; border-radius: 6px; opacity: 0; animation: simpleFadeIn 0.45s ease-out ${(i * 0.07).toFixed(2)}s forwards;">
                                         <p style="margin: 0; color: #cbd5e1; font-size: 12px; line-height: 1.4;">${item}</p>
                                     </div>
                                 `).join('')}
@@ -5029,8 +5125,8 @@
                                 Skills & Tools
                             </h4>
                             <div style="display: grid; gap: 6px; max-height: 300px; overflow: hidden;">
-                                ${pdfDetails.skills.slice(0, 8).map(skill => `
-                                    <div style="display: flex; align-items: center; padding: 6px 10px; background: rgba(56, 189, 248, 0.08); border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                                ${pdfDetails.skills.slice(0, 8).map((skill, i) => `
+                                    <div class="modal-point" style="display: flex; align-items: center; padding: 6px 10px; background: rgba(56, 189, 248, 0.08); border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.2); opacity: 0; animation: simpleFadeIn 0.45s ease-out ${(i * 0.07).toFixed(2)}s forwards;">
                                         <span style="color: #38bdf8; margin-right: 6px; font-size: 12px;">•</span>
                                         <span style="color: #e2e8f0; font-size: 13px; line-height: 1.3;">${skill}</span>
                                     </div>
@@ -5529,7 +5625,7 @@
                         'Technical Architecture • Risk Mitigation',
                         'Digital Transformation • Process Excellence',
                         '',
-                        '18+ Years Driving Strategic Outcomes',
+                        yearsSince()+'+ Years Driving Strategic Outcomes',
                         'Across Retail & Financial Services',
                         '',
                         '',
@@ -6127,7 +6223,7 @@
                 '',
                 '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
                 'NUR DAWOODANI',
-                'Business Analyst • 18+ Years • Global Enterprise Transformation',
+                'Business Analyst • '+yearsSince()+'+ Years • Global Enterprise Transformation',
                 '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
                 '',
                 'CORE COMPETENCIES',
@@ -8674,6 +8770,7 @@
                 // Force reset when closing the sun modal
                 isCenterView = false;
                 focusedObject = null;
+                setFocusName(null);
                 controls.enableZoom = true;
                 controls.maxDistance = 2000;
                 controls.minDistance = 5;
@@ -8698,6 +8795,7 @@
                     const parentPlanet = focusedObject.userData.parentPlanet;
                     if (parentPlanet) {
                         focusedObject = parentPlanet; // Switch focus to parent
+                        setFocusName(parentPlanet.userData && parentPlanet.userData.name ? parentPlanet.userData.name : null);
                         parentPlanet.getWorldPosition(targetPos);
                         
                         // Update moon orbit visibility when returning to parent planet
@@ -8741,6 +8839,8 @@
         }
 
         function resetView() {
+            // Hide the focused-name chip
+            setFocusName(null);
             // Set flag to stop animation updates
             stopSuctionAnimation = true;
             
@@ -8778,9 +8878,9 @@
                 document.body.classList.remove('labels-hidden');
             }
             
-            // Reset black hole
+            // Reset black hole (match initial far placement)
             if (blackHoleGroup) {
-                blackHoleGroup.position.set(900, 260, -250);
+                blackHoleGroup.position.set(1500, 820, -1350);
                 blackHoleGroup.scale.set(1, 1, 1);
                 blackHoleGroup.rotation.set(0, 0, 0);
                 blackHoleGroup.updateMatrix();
@@ -9315,6 +9415,27 @@
             }, 1000);
         }, 1000);
         
+        }
+    </script>
+    <script>
+        // Résumé dropdown menu
+        function toggleResumeMenu(e){ if(e) e.stopPropagation(); document.getElementById('resume-menu-list').classList.toggle('open'); }
+        function closeResumeMenu(){ var m=document.getElementById('resume-menu-list'); if(m) m.classList.remove('open'); }
+        document.addEventListener('click', closeResumeMenu);
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeResumeMenu(); });
+
+        // Download a polished, pre-generated PDF (matches the HTML resumes)
+        function downloadStaticResume(kind){
+            var map = {
+                nurwars: 'pdf/Nur_Dawoodani_Resume_Generic_Space.pdf',
+                it: 'pdf/Nur_Dawoodani_Resume_IT.pdf'
+            };
+            var url = map[kind] || 'pdf/Nur_Dawoodani_Resume_Generic.pdf';
+            var a = document.createElement('a');
+            a.href = url; a.download = url.split('/').pop();
+            document.body.appendChild(a); a.click(); a.remove();
+            var modal = document.getElementById('pdf-modal');
+            if (modal) modal.style.display = 'none';
         }
     </script>
 </body>

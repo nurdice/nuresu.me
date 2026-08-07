@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nur Dawoodani — Resume</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="resume_data.js"></script>
+<style>
+  :root{
+    --accent:#c0392b; --accent2:#0f1830; --ink:#1a2230; --muted:#5a6577;
+    --bg:#eef1f6; --card:#ffffff; --line:#e6e9f0; --sub:#41505f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'Poppins',sans-serif;color:var(--ink);background:var(--bg);
+    min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+  .wrap{position:relative;max-width:900px;margin:0 auto;padding:26px 20px 60px;}
+
+  /* top bar */
+  .bar{display:flex;gap:10px;flex-wrap:nowrap;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .bar .spacer{display:none;}
+  .pill{background:#fff;border:1px solid var(--line);color:var(--ink);
+    padding:10px 18px;border-radius:30px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;
+    text-transform:uppercase;letter-spacing:1px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    transition:all .25s;box-shadow:0 1px 3px rgba(20,30,60,.06);white-space:nowrap;flex:0 0 auto;}
+  .pill:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(20,30,60,.12);}
+  .pill.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .role-picker{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);
+    border-radius:30px;padding:5px 8px 5px 15px;box-shadow:0 1px 3px rgba(20,30,60,.06);}
+  .role-lbl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  #role{appearance:none;-webkit-appearance:none;border:0;background:transparent;font-family:'Poppins',sans-serif;font-weight:700;
+    font-size:13px;color:var(--accent);padding:6px 28px 6px 8px;border-radius:24px;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23c0392b'/></svg>");
+    background-repeat:no-repeat;background-position:right 10px center;background-size:10px 6px;}
+  #role:hover{background-color:#f6f7fa;}
+  #role option{color:#1a2230;background:#fff;}
+
+  /* header */
+  header.hero{display:flex;gap:26px;align-items:center;margin-bottom:8px;}
+  .avatar-ring{position:relative;flex:0 0 auto;}
+  .avatar-ring img{width:112px;height:112px;border-radius:50%;object-fit:cover;
+    border:3px solid #fff;box-shadow:0 6px 22px rgba(20,30,60,.18);}
+  .avatar-ring::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:1px dashed rgba(192,57,43,.35);}
+  h1{font-family:'Poppins',sans-serif;font-weight:900;font-size:32px;margin:0 0 8px;letter-spacing:.5px;color:var(--ink);}
+  .tagline{color:var(--accent);font-weight:700;font-size:15px;margin:0;letter-spacing:.2px;}
+  .rtag{display:inline-block;margin-top:10px;font-family:'Poppins',sans-serif;font-size:10px;letter-spacing:3px;
+    color:var(--accent);border:1px solid rgba(192,57,43,.4);padding:4px 10px;border-radius:20px;text-transform:uppercase;}
+
+  .summary{font-size:15px;line-height:1.65;color:var(--sub);margin:22px 0 26px;}
+
+  .grid{display:grid;grid-template-columns:1fr 300px;gap:20px;}
+  @media(max-width:780px){.grid{grid-template-columns:1fr;}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:20px;
+    box-shadow:0 8px 24px rgba(20,30,60,.06);}
+  h2.sec{font-family:'Poppins',sans-serif;font-size:12.5px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--accent);margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+  h2.sec::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);}
+
+  .job{padding:0 0 14px;margin-bottom:14px;border-bottom:1px solid var(--line);}
+  .job:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0;}
+  .job-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;}
+  .job-role{font-weight:700;font-size:15px;margin:0;color:var(--ink);}
+  .job-co{color:var(--accent);}
+  .job-meta{font-size:12px;color:var(--muted);white-space:nowrap;}
+  .job ul{margin:9px 0 0;padding-left:2px;list-style:none;}
+  .job li{font-size:13.3px;color:var(--sub);margin-bottom:6px;padding-left:20px;position:relative;line-height:1.55;}
+  .job li::before{content:"▸";position:absolute;left:0;top:0;color:var(--accent);}
+
+  .proj{margin-bottom:12px;} .proj-t{font-weight:700;color:var(--ink);font-size:14px;}
+  .proj-t small{color:var(--muted);font-weight:400;}
+  .proj p{margin:3px 0 0 20px;font-size:12.8px;color:var(--sub);position:relative;}
+  .proj p::before{content:"▸";position:absolute;left:-16px;color:var(--accent);}
+
+  .edu-item{margin-bottom:11px;} .edu-deg{font-weight:700;color:var(--ink);font-size:13.6px;}
+  .edu-meta{font-size:12px;color:var(--muted);}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-size:12px;padding:6px 12px;border-radius:20px;color:var(--ink);
+    background:#f3f5f9;border:1px solid var(--line);}
+  .hl{margin:0;padding:0;list-style:none;}
+  .hl li{font-size:12.8px;color:var(--sub);margin-bottom:10px;padding-left:22px;position:relative;line-height:1.5;}
+  .hl li::before{content:"★";position:absolute;left:0;top:0;color:var(--accent);font-size:11px;}
+  .contact-row{font-size:12.8px;margin-bottom:10px;word-break:break-word;}
+  .contact-row .lbl{display:block;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+  .contact-row a{color:var(--accent);text-decoration:none;}
+  .lang-row{display:flex;justify-content:space-between;font-size:12.6px;margin-bottom:8px;}
+  .lang-row .lvl{color:var(--muted);}
+  .cert{font-size:12.6px;margin-bottom:6px;color:var(--sub);}
+
+  @media print{
+    @page{size:letter;margin:12mm;}
+    html,body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .bar,.avatar-ring::after,.rtag{display:none!important;}
+    .wrap{max-width:none;padding:0;}
+    /* stack to a single flowing column so it paginates (grid doesn't split across pages) */
+    .grid{display:block!important;}
+    #main,#side{display:block!important;width:100%!important;}
+    /* cards may flow across pages (a big section is taller than a page); keep entries whole */
+    .card{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important;break-inside:auto;page-break-inside:auto;margin-bottom:12px;}
+    .job,.proj,.edu-item,.hl li,.contact-row,.lang-row{break-inside:avoid;page-break-inside:avoid;}
+    h2.sec{break-after:avoid;}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="bar">
+      <a class="pill" href="index.html">← Mission Control</a>
+      <div class="role-picker"><span class="role-lbl">Version</span><select id="role" onchange="onRole()"></select></div>
+      <span class="spacer"></span>
+      <a class="pill" id="spaceLink" href="resume-space.html">🪐 Space version</a>
+      <a class="pill primary" id="dlpdf" href="pdf/Nur_Dawoodani_Resume_Generic.pdf" download style="text-decoration:none;">⬇ Download PDF</a>
+      <button class="pill" onclick="window.print()">Print</button>
+    </div>
+
+    <header class="hero">
+      <div class="avatar-ring"><img src="assets/images/Profile.jpg" alt="" onerror="this.style.display='none'"></div>
+      <div>
+        <h1 id="name"></h1>
+        <p class="tagline" id="tagline"></p>
+        <span class="rtag">Résumé</span>
+      </div>
+    </header>
+
+    <p class="summary" id="summary"></p>
+
+    <div class="grid">
+      <div id="main"></div>
+      <aside id="side"></aside>
+    </div>
+  </div>
+
+<script>
+  const D = window.RESUME_DATA, V = D.variants;
+  const P = n => D.planets.find(p => p.name === n);
+  const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const titleCase = s => (s||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()).replace(/Hsbc/g,"HSBC").replace(/Itqa/g,"ITQA");
+
+  const sel = document.getElementById('role');
+  Object.keys(V).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=V[k].label;sel.appendChild(o);});
+
+  const exp=P("Experience"),edu=P("Education"),proj=P("Projects"),skills=P("Skills & Tools");
+  const langMoon=skills.moons.find(m=>m.renderType==="languages");
+  const vol=D.volunteering||[];
+
+  function render(){
+    const v=V[sel.value];
+    document.getElementById('name').textContent=D.name;
+    document.getElementById('tagline').textContent=v.tagline;
+    document.getElementById('summary').textContent=v.summary;
+
+    // MAIN
+    let m=`<div class="card"><h2 class="sec">Experience</h2>`;
+    exp.moons.forEach(mo=>{const d=mo.pdfDetails;if(!d)return;
+      const bl=(d.achievements||[]).map(a=>`<li>${esc(a)}</li>`).join("");
+      m+=`<div class="job"><div class="job-head">
+        <p class="job-role">${esc(d.role)} · <span class="job-co">${esc(titleCase(d.company))}</span></p>
+        <span class="job-meta">${esc(d.duration)} · ${esc(d.location||"")}</span></div><ul>${bl}</ul></div>`;});
+    m+=`</div>`;
+
+    if(proj){m+=`<div class="card"><h2 class="sec">Key Projects</h2>`;
+      proj.moons.forEach(mo=>{const d=mo.pdfDetails;if(!d)return;
+        const one=(d.impact&&d.impact[0])?esc(d.impact[0]):"";
+        m+=`<div class="proj"><div class="proj-t">${esc(d.title)} <small>· ${esc(d.subtitle||"")}</small></div><p>${one}</p></div>`;});
+      m+=`</div>`;}
+
+    if(vol.length){m+=`<div class="card"><h2 class="sec">Volunteering &amp; Community</h2>`;
+      vol.forEach(x=>{const bl=(x.bullets||[]).map(b=>`<li>${esc(b)}</li>`).join("");
+        m+=`<div class="job"><div class="job-head">
+          <p class="job-role">${esc(x.role)} · <span class="job-co">${esc(x.organization)}</span></p>
+          <span class="job-meta">${esc(x.duration||"")}</span></div><ul>${bl}</ul></div>`;});
+      m+=`</div>`;}
+
+    m+=`<div class="card"><h2 class="sec">Education</h2>`;
+    edu.moons.forEach(mo=>{const deg=mo.degree?`${mo.degree}${mo.field? " — "+mo.field:""}`:(mo.pdfDetails&&mo.pdfDetails.degree)||mo.name;
+      m+=`<div class="edu-item"><div class="edu-deg">${esc(deg)}</div>
+        <div class="edu-meta">${esc(mo.institution||"")} · ${esc(mo.duration||"")}</div></div>`;});
+    m+=`</div>`;
+    document.getElementById('main').innerHTML=m;
+
+    // SIDE
+    const c=D.contact;
+    let s=`<div class="card"><h2 class="sec">Contact</h2>
+      <div class="contact-row"><span class="lbl">Email</span><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></div>
+      <div class="contact-row"><span class="lbl">Phone</span>${esc(c.phone)}</div>
+      <div class="contact-row"><span class="lbl">LinkedIn</span><a href="https://${esc(c.linkedin)}">${esc(c.linkedin)}</a></div>
+      ${c.website?`<div class="contact-row"><span class="lbl">Website</span><a href="https://${esc(c.website)}">${esc(c.website)}</a></div>`:""}
+      <div class="contact-row"><span class="lbl">Location</span>${esc(c.location)}</div></div>`;
+
+    s+=`<div class="card"><h2 class="sec">Key Impact</h2><ul class="hl">${
+      v.focusHighlights.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>`;
+
+    s+=`<div class="card"><h2 class="sec">Core Skills</h2><div class="chips">${
+      v.focusSkills.map(x=>`<span class="chip">${esc(x)}</span>`).join("")}</div></div>`;
+
+    if(D.certifications&&D.certifications.length){
+      s+=`<div class="card"><h2 class="sec">Certifications</h2>${
+        D.certifications.map(x=>`<div class="cert">${esc(x)}</div>`).join("")}
+        <div class="cert" style="color:var(--muted)">Agile / SAFe — practitioner</div></div>`;}
+
+    if(langMoon&&langMoon.pdfDetails&&langMoon.pdfDetails.languages){
+      s+=`<div class="card"><h2 class="sec">Languages</h2>${
+        langMoon.pdfDetails.languages.map(l=>`<div class="lang-row"><span>${esc(l.name)}</span><span class="lvl">${esc(l.proficiency)}</span></div>`).join("")}</div>`;}
+    document.getElementById('side').innerHTML=s;
+  }
+  const FILEPART={generic:'Generic',product:'Product',banking:'Banking',lead:'Lead',it:'IT'};
+  function updateLinks(){
+    document.getElementById('dlpdf').href='pdf/Nur_Dawoodani_Resume_'+FILEPART[sel.value]+'.pdf';
+    document.getElementById('spaceLink').href='resume-space.html?role='+sel.value;
+  }
+  function onRole(){ render(); updateLinks(); history.replaceState(null,'',location.pathname+'?role='+sel.value); }
+  (function(){ var r=new URLSearchParams(location.search).get('role'); if(r && V[r]) sel.value=r; })();
+  updateLinks();
+  render();
+</script>
+</body>
+</html>

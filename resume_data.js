@@ -10,11 +10,11 @@ window.RESUME_DATA = {
         phone: "+1 (236) 508-4786",
         website: "www.nuresu.me",
         linkedin: "linkedin.com/in/nur786",
-        location: "Port Coquitlam, BC"
+        location: "Port Coquitlam, BC Canada"
     },
-    summary: "Business Analyst with 18+ years of experience specialized in digital transformation for high-scale retail and banking platforms. Proven track record of bridging technical architecture with multi-million dollar business value. Expert at leading cross-functional teams in SAFe environments to deliver guest-facing products that impact millions",
-    pdfSummary: "Strategic Business Analyst with nearly two decades of experience driving operational excellence and digital innovation. Adept at navigating complex technical landscapes to deliver high-visibility projects, including architecture revamps and AI-driven personalization. A results-oriented leader focused on translating complex business needs into scalable, high-performance technical solutions within Agile and SAFe frameworks.",
-    spaceSummary: "MISSION SPECIALIST with 18 years of flight heritage navigating complex enterprise constellations. Expert in calculating optimal trajectories for business system architectures and aligning disparate planetary stakeholders. Proven capability in establishing high-fidelity communication links between Mission Control (Business) and Engineering Crews. Track record of deploying high-velocity, mission-critical payloads that maintain peak performance across the guest-facing universe.",
+    summary: "Business Analyst specializing in digital transformation for high-scale retail and banking platforms since 2005. Proven track record of bridging technical architecture with multi-million dollar business value. Expert at leading cross-functional teams in SAFe environments to deliver guest-facing products that impact millions",
+    pdfSummary: "Strategic Business Analyst driving operational excellence and digital innovation since 2005. Adept at navigating complex technical landscapes to deliver high-visibility projects, including architecture revamps and AI-driven personalization. A results-oriented leader focused on translating complex business needs into scalable, high-performance technical solutions within Agile and SAFe frameworks.",
+    spaceSummary: "MISSION SPECIALIST logging mission-critical flight time since 2005, navigating complex enterprise constellations. Expert in calculating optimal trajectories for business system architectures and aligning disparate planetary stakeholders. Proven capability in establishing high-fidelity communication links between Mission Control (Business) and Engineering Crews. Track record of deploying high-velocity, mission-critical payloads that maintain peak performance across the guest-facing universe.",
     certifications: [
         "Certified Business Analysis Professional (CBAP) - IIBA - Expired"
     ],
@@ -81,10 +81,10 @@ window.RESUME_DATA = {
                             "JIRA - Advanced workflows & reporting",
                             "Confluence - Documentation & knowledge base",
                             "SQL - Complex queries & optimization",
-                            "Microsoft 365 & Power Automate",
+                            "Power Automate - Approval workflows & flow automation",
+                            "Microsoft 365 & Power Platform",
                             "Microsoft Azure - Cloud platforms",
-                            "Figma - Design collaboration",
-                            "Python - Data analysis & automation"
+                            "Figma - Design collaboration"
                         ]
                     }
                 },
@@ -153,7 +153,7 @@ window.RESUME_DATA = {
             tilt: 0.41,
             color: 0x6b93d6,
             texture: "drawEarth",
-            description: "18 years of delivered impact across retail, banking, and enterprise platforms",
+            description: "Delivered impact across retail, banking, and enterprise platforms since 2005",
             
             moons: [
                 {
@@ -449,6 +449,62 @@ window.RESUME_DATA = {
             ]
         },
 
+        // ===== COMMUNITY / VOLUNTEERING PLANET (Teal) =====
+        {
+            name: "Community",
+            title: "Volunteering & Community",
+            section: "main",
+            order: 4,
+            renderType: "experience",
+            size: 16,
+            distance: 1780,
+            speed: 0.00013,
+            type: "planet",
+            inclination: 0.14,
+            node: 3.2,
+            eccentricity: 0.03,
+            tilt: 0.3,
+            color: 0x1abc9c,
+            texture: "drawTeal",
+            description: "Community leadership and volunteering — building tools that serve people",
+            moons: [
+                {
+                    name: "Events Management System",
+                    size: 2.0, distance: 2, speed: 0.004,
+                    color: 0x16a085, texture: "drawTeal", inclination: 0.1, node: 0.6,
+                    pdfDetails: {
+                        company: "Ismaili Council for British Columbia",
+                        role: "Developer — Data & Technology Team (BC)",
+                        duration: "2022 – Present",
+                        industry: "Non-profit / Community Technology",
+                        achievements: [
+                            "Built an Events Management System: a Drupal event-request form that triggers a Microsoft Power Automate flow, routing each submission through a two-stage approval workflow and auto-creating a calendar entry once approved.",
+                            "Replaced a manual, email-driven intake with an automated pipeline — reducing turnaround time and eliminating missed or duplicated requests.",
+                            "Standardized approvals with clear routing and an audit trail, giving the community reliable governance over events.",
+                            "Volunteered on the Data & Technology team, supporting digital tooling and automation across community initiatives."
+                        ]
+                    }
+                },
+                {
+                    name: "Care for the Elderly",
+                    size: 1.7, distance: 3, speed: 0.003,
+                    color: 0x2ecc71, texture: "drawGreen", inclination: -0.15, node: 2.4,
+                    pdfDetails: {
+                        company: "Ismaili Community, British Columbia",
+                        role: "Volunteer — Care for the Elderly Team",
+                        duration: "Ongoing",
+                        industry: "Non-profit / Seniors Support",
+                        achievements: [
+                            "Standardized Visitation Reporting: designed a structured form for volunteers to capture details of each senior visit.",
+                            "Automated consolidation of submissions into a unified report using spreadsheets and Microsoft Power Automate.",
+                            "Gave coordinators a consistent, at-a-glance view of visits to better support seniors and follow up on needs.",
+                            "Reduced manual compilation effort and improved data consistency across volunteers."
+                        ]
+                    }
+                }
+            ]
+        },
+
         // ===== 5. EDUCATION PLANET (Blue, 5th) =====
         {
             name: "Education",
@@ -481,7 +537,7 @@ window.RESUME_DATA = {
                     institution: "V.E.S.I.T",
                     degree: "Bachelor of Engineering",
                     field: "Computer Science",
-                    duration: "2001 - 2005",
+                    duration: "2005",
                     location: "Mumbai, India",
                     details: "Bachelor of Engineering - Computer Science\n2001 – 2005\n\nVivekanand Education Society's Institute of Technology (V.E.S.I.T)\nMumbai University, India\n\nSpecialization: Software Engineering, Database Systems, Computer Networks\nRelevant Coursework: Data Structures, Algorithms, Software Engineering, Database Management, Computer Networks, Operating Systems",
                     mapQuery: "Vivekanand Education Society's Institute of Technology Mumbai",
@@ -514,7 +570,7 @@ window.RESUME_DATA = {
                     institution: "K. J. Somaiya College",
                     degree: "Higher Secondary Certificate",
                     field: "Science Stream",
-                    duration: "1999 - 2001",
+                    duration: "2001",
                     location: "Mumbai, India",
                     details: "Higher Secondary Certificate - Science Stream\n1999 – 2001\n\nK. J. Somaiya College of Science and Commerce\nMumbai University, India\n\nSubjects: Physics, Chemistry, Mathematics, Biology\nFocus: Mathematical and analytical thinking foundation",
                     mapQuery: "K. J. Somaiya College of Science and Commerce Mumbai",
@@ -545,7 +601,7 @@ window.RESUME_DATA = {
                     institution: "St. Sebastian's High School",
                     degree: "Secondary School Certificate",
                     field: "General Education",
-                    duration: "1988 - 1999",
+                    duration: "1999",
                     location: "Mumbai, India",
                     details: "Secondary School Certificate\n1988 – 1999\n\nSt. Sebastian's High School\nMumbai, India\n\nComprehensive secondary education with focus on academic excellence and character development. Strong foundation in core subjects including Mathematics, Science, and Languages.",
                     mapQuery: "St. Sebastian's High School Chembur Mumbai",
@@ -618,8 +674,8 @@ window.RESUME_DATA = {
                     inclination: -0.15,
                     node: 4.1,
                     pdfDetails: {
-                        title: "AGILE & SAFE METHODOLOGIES",
-                        description: "Expertise in Agile and Scaled Agile Framework practices",
+                        title: "AGILE & SAFE (PRACTITIONER)",
+                        description: "Hands-on, practitioner-level experience with Agile and SAFe — working knowledge, not a formal certification",
                         skills: [
                             "SAFe Program Increment Planning",
                             "Scrum Master Principles",
@@ -727,7 +783,7 @@ window.RESUME_DATA = {
                         description: "Current professional location",
                         contact: {
                             method: "Location",
-                            value: "Port Coquitlam, BC, Canada",
+                            value: "Port Coquitlam, BC Canada",
                             icon: "📍"
                         }
                     }
@@ -736,3 +792,144 @@ window.RESUME_DATA = {
         }
     ]
 };
+
+// =====================================================================
+// ROLE-TARGETING VARIANTS  (used by resume.html — ignored by the site)
+// ---------------------------------------------------------------------
+// Single source of truth stays above. This block only controls WHICH
+// summary + emphasis the clean printable resume shows for a given target.
+// Aligned with RESUME_STRATEGY_PLAN.md (target: Senior / Lead / Principal BA).
+// Edit freely — add or tweak a target any time.
+// =====================================================================
+window.RESUME_DATA.variants = {
+    generic: {
+        label: "Senior BA (all-round)",
+        tagline: "Business Analyst | Bridging AI Technology & Multi-Million-Dollar Business Outcomes",
+        summary: "Senior Business Analyst driving digital transformation across retail and financial services since 2005. Recently delivered a multi-million-dollar AI personalization initiative at lululemon and led an enterprise architecture revamp serving millions of guests. Expert at translating complex stakeholder needs into scalable technical solutions within Agile/SAFe frameworks, with a track record of zero-downtime migrations and measurable business impact.",
+        emphasizeCompanies: ["LULULEMON ATHLETICA", "VANCITY", "HSBC CANADA"],
+        focusSkills: [
+            "Requirements engineering & user stories",
+            "Backlog management & prioritization",
+            "Stakeholder collaboration",
+            "Agile / SAFe delivery",
+            "Business process improvement",
+            "Power Automate & workflow automation",
+            "Data analysis · SQL",
+            "JIRA · Confluence · Azure · Figma"
+        ],
+        focusHighlights: [
+            "Multi-million-dollar revenue via AI product highlights",
+            "$500K+ annual savings from paperless banking",
+            "Enterprise architecture revamp — 40% faster page loads",
+            "Zero data loss on core banking migration"
+        ]
+    },
+    product: {
+        label: "AI / Digital Product",
+        tagline: "Business Analyst | AI-Driven Digital Products & Personalization",
+        summary: "Product-focused Business Analyst turning customer problems into shipped digital products since 2005. At lululemon I led an AI-driven personalization initiative delivering multi-million-dollar revenue impact and drove an architecture revamp across all guest-facing pages. I partner with product, design, and engineering in SAFe — writing crisp epics and stories and aligning teams on outcomes for products reaching millions.",
+        emphasizeCompanies: ["LULULEMON ATHLETICA"],
+        focusSkills: [
+            "AI-driven personalization & experimentation",
+            "Epics, user stories & MVP definition",
+            "Backlog management & roadmapping",
+            "Product analytics & merchandising",
+            "Power Automate & workflow automation",
+            "Cross-functional facilitation",
+            "JIRA · Confluence · Figma · SQL"
+        ],
+        focusHighlights: [
+            "Multi-million-dollar revenue via AI product highlights",
+            "45% increase in community engagement",
+            "Architecture revamp — scaled for 10x traffic",
+            "Olympics x Team Canada activation"
+        ]
+    },
+    banking: {
+        label: "Banking / FinTech",
+        tagline: "Business Analyst | Banking, FinTech & Core Systems",
+        summary: "Business Analyst with 13+ years in financial services across HSBC and Vancity — core banking, lending, migrations, and regulatory reporting. I elicit integration requirements, manage risk through change, and keep large programs compliant and on track, from FATCA reporting to a zero-data-loss commercial banking migration — backed by recent AI and digital-transformation delivery at lululemon.",
+        emphasizeCompanies: ["VANCITY", "HSBC CANADA", "HSBC GLOBAL TECHNOLOGY"],
+        focusSkills: [
+            "Core banking & lending systems",
+            "Integration requirements & APIs",
+            "Regulatory reporting (FATCA)",
+            "System migration & gap analysis",
+            "System integration testing (UFT)",
+            "Stakeholder & vendor management"
+        ],
+        focusHighlights: [
+            "Zero data loss on commercial banking migration",
+            "$500K+ annual savings from paperless banking",
+            "40% reduction in testing time via automation",
+            "13+ years across HSBC banking platforms"
+        ]
+    },
+    lead: {
+        label: "Lead / Principal BA",
+        tagline: "Lead Business Analyst | BA Practice, Standards & Delivery Leadership",
+        summary: "Lead Business Analyst with a deep technical foundation (B.E. Computer Science) and delivery experience since 2005. I mentor BAs, set standards for epic and story writing, and govern backlog quality across cross-functional SAFe teams. At lululemon I lead architecture and AI initiatives with multi-million-dollar impact; earlier I led QA strategy and delivery for core banking programs — pairing hands-on delivery with practice leadership.",
+        emphasizeCompanies: ["LULULEMON ATHLETICA", "HSBC CANADA"],
+        focusSkills: [
+            "BA mentorship & team leadership",
+            "Standards & governance (epics/stories)",
+            "Backlog quality & prioritization",
+            "Strategic planning & roadmapping",
+            "SAFe delivery at scale",
+            "Power Automate & workflow automation",
+            "Stakeholder alignment across vendors"
+        ],
+        focusHighlights: [
+            "Set epic/story standards across project teams",
+            "Multi-million-dollar AI revenue initiative",
+            "Led QA strategy for core banking (UFT)",
+            "Delivering since 2005 — engineering-to-BA depth"
+        ]
+    },
+    it: {
+        label: "IT / Technical (Automation)",
+        tagline: "Business Systems Analyst & Automation Developer | Power Platform · SQL · Integrations",
+        summary: "Technically hands-on Business Systems Analyst and automation builder with an engineering foundation (B.E. Computer Science). I design and ship automations and integrations end-to-end — from Microsoft Power Automate approval workflows and Power Platform apps to SQL and API integrations — bridging business needs and working software. Background spans core-banking systems engineering (mainframe/zOS), test automation (UFT/Selenium), and delivery in Agile/SAFe teams.",
+        emphasizeCompanies: ["LULULEMON ATHLETICA", "HSBC GLOBAL TECHNOLOGY", "HSBC CANADA"],
+        focusSkills: [
+            "Power Automate & Power Platform",
+            "SQL — complex queries & optimization",
+            "System integration & APIs",
+            "Test automation (UFT, Selenium)",
+            "Microsoft 365 · Azure",
+            "Requirements-to-solution delivery"
+        ],
+        focusHighlights: [
+            "Built Drupal → Power Automate approval + calendar workflow",
+            "Automated visitation reporting (spreadsheets + Power Automate)",
+            "40% less testing time via UFT automation",
+            "Engineering foundation: core banking on mainframe/zOS"
+        ]
+    }
+};
+
+// =====================================================================
+// VOLUNTEERING & COMMUNITY  (rendered by resume pages — ignored by site)
+// ---------------------------------------------------------------------
+// Kept compact on purpose. Edit bullets/dates freely.
+// =====================================================================
+window.RESUME_DATA.volunteering = [
+    {
+        role: "Developer — Data & Technology Team (BC)",
+        organization: "Ismaili Council for British Columbia",
+        duration: "2022 – Present",
+        location: "British Columbia, Canada",
+        bullets: [
+            "Built an Events Management System: a Drupal event-request form that triggers a Microsoft Power Automate flow, routing each submission through a two-stage approval workflow and auto-creating a calendar entry once approved — replacing a manual, email-driven process."
+        ]
+    },
+    {
+        role: "Volunteer — Care for the Elderly Team",
+        organization: "Ismaili Community, British Columbia",
+        duration: "Ongoing",
+        location: "British Columbia, Canada",
+        bullets: [
+            "Standardized Visitation Reporting: designed a structured form for volunteers to capture details of each senior visit, then automated consolidation of submissions into a unified report using spreadsheets and Microsoft Power Automate."
+        ]
+    }
+];
