@@ -882,7 +882,12 @@
         <button class="hud-btn" onclick="event.stopPropagation(); resetView()">⊙ Reset View</button>
         <button class="hud-btn" onclick="toggleSound()" id="sound-btn">🔇 Sound Off</button>
         <button class="hud-btn" onclick="toggleOrbits()" id="orbits-btn">🪐 Show Orbits</button>
-        <button class="hud-btn" onclick="event.stopPropagation(); startTour()" id="tour-btn">▶ Tour</button>
+        <div class="hud-btn resume-menu-wrap" id="tour-menu-btn" onclick="event.stopPropagation(); toggleTourMenu(event)"><span id="tour-label">▶ Tour</span>
+            <div class="resume-menu" id="tour-menu-list">
+                <button onclick="event.stopPropagation(); closeTourMenu(); startTour('quick')">🚀 Quick flythrough (~40s)</button>
+                <button onclick="event.stopPropagation(); closeTourMenu(); startTour('detailed')">🔍 Detailed — every role &amp; achievement</button>
+            </div>
+        </div>
         <button class="hud-btn" onclick="startNurWars()" id="nur-wars-btn" aria-label="Nur Wars" style="background: url('assets/images/nurwars.png') no-repeat center/contain; background-color: transparent; border: none; width: 120px; height: 60px; padding: 0; min-width: auto; box-shadow: none; backdrop-filter: none;"></button>
         <div class="hud-btn resume-menu-wrap" id="resume-menu-btn" onclick="event.stopPropagation(); toggleResumeMenu(event)">📄 Résumé ▾
             <div class="resume-menu" id="resume-menu-list">
@@ -1451,19 +1456,34 @@
         // ---- Guided tour ----
         let tourActive = false, tourTimers = [];
         const TOUR_ORDER = ['Experience','Expertise & Impact','Projects','Skills & Tools','Community','Education','Certifications','Contact'];
-        function stopTour(){ tourActive = false; tourTimers.forEach(t => clearTimeout(t)); tourTimers = []; const b = document.getElementById('tour-btn'); if(b) b.textContent = '▶ Tour'; }
-        function startTour(){
+        function setTourLabel(txt){ const l = document.getElementById('tour-label'); if(l) l.textContent = txt; }
+        function moonsOfPlanet(name){ try { return clickableObjects.filter(o => o && o.userData && o.userData.isMoon && o.userData.parentPlanet && o.userData.parentPlanet.userData && o.userData.parentPlanet.userData.name === name); } catch(e){ return []; } }
+        function stopTour(){ tourActive = false; tourTimers.forEach(t => clearTimeout(t)); tourTimers = []; setTourLabel('▶ Tour'); }
+        function startTour(mode){
+            mode = mode || 'quick';
             if (tourActive){ stopTour(); if (typeof resetView === 'function') resetView(); return; }
-            tourActive = true; const b = document.getElementById('tour-btn'); if(b) b.textContent = '■ Stop';
-            const step = (i) => {
+            tourActive = true; setTourLabel('■ Stop tour');
+            // Build the sequence: planets (quick) or planets + their moons (detailed)
+            const seq = [];
+            TOUR_ORDER.forEach(name => {
+                const g = planetGroupByName(name);
+                if (!g) return;
+                seq.push({ o: g, t: 4200 });
+                if (mode === 'detailed') moonsOfPlanet(name).forEach(m => seq.push({ o: m, t: 4800 }));
+            });
+            let i = 0;
+            const step = () => {
                 if (!tourActive) return;
-                if (i >= TOUR_ORDER.length){ stopTour(); if (typeof resetView === 'function') resetView(); return; }
-                const ok = focusPlanetByName(TOUR_ORDER[i]);
-                tourTimers.push(setTimeout(() => step(i+1), ok ? 5200 : 250));
+                if (i >= seq.length){ stopTour(); if (typeof resetView === 'function') resetView(); return; }
+                const s = seq[i++];
+                try { focusOnObject(s.o); } catch(e){}
+                tourTimers.push(setTimeout(step, s.t));
             };
-            step(0);
+            step();
         }
         window.startTour = startTour;
+        window.stopTour = stopTour;
+        window.isTourActive = () => tourActive;
         window.addEventListener('keydown', e => { if (e.key === 'Escape' && tourActive) stopTour(); });
 
         function checkSolarModelsReady() {
@@ -9525,6 +9545,13 @@
         function toggleResumeMenu(e){ if(e) e.stopPropagation(); document.getElementById('resume-menu-list').classList.toggle('open'); }
         function closeResumeMenu(){ var m=document.getElementById('resume-menu-list'); if(m) m.classList.remove('open'); }
         document.addEventListener('click', closeResumeMenu);
+        // Tour menu (Quick / Detailed); if a tour is running, the button stops it instead of opening the menu
+        function toggleTourMenu(e){ if(e) e.stopPropagation();
+            if (window.isTourActive && window.isTourActive()){ if(window.stopTour) window.stopTour(); if(window.resetView) window.resetView(); return; }
+            var m=document.getElementById('tour-menu-list'); if(m) m.classList.toggle('open');
+        }
+        function closeTourMenu(){ var m=document.getElementById('tour-menu-list'); if(m) m.classList.remove('open'); }
+        document.addEventListener('click', closeTourMenu);
         document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeResumeMenu(); });
 
         // Download a polished, pre-generated PDF (matches the HTML resumes)
