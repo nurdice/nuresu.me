@@ -21,6 +21,7 @@
     <meta name="twitter:description" content="An interactive 3D résumé — explore the solar system, or grab a print-ready PDF.">
     <meta name="twitter:image" content="https://www.nuresu.me/assets/images/Profile.jpg">
     <link rel="icon" href="data:,">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Preconnect to CDN servers for faster resource loading -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -190,6 +191,17 @@
         }
         #focus-name.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         @media (max-width: 768px){ #focus-name{ font-size: 12px; top: 14px; padding: 6px 14px; } }
+
+        /* First-visit hint */
+        #firstHint {
+            position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(10px);
+            z-index: 60; background: rgba(10,18,38,0.72); border: 1px solid rgba(56,189,248,0.4);
+            color: #eaf4ff; padding: 10px 18px; border-radius: 30px; font-family: 'Poppins', sans-serif;
+            font-size: 13px; letter-spacing: 0.3px; backdrop-filter: blur(8px); pointer-events: none;
+            opacity: 0; transition: opacity 0.5s, transform 0.5s; text-align: center; max-width: 92vw;
+        }
+        #firstHint.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        @media (max-width: 768px){ #firstHint{ font-size: 11px; bottom: 120px; padding: 8px 13px; } }
 
         .label:hover {
             transform: translate(-50%, -50%) scale(1.1);
@@ -817,6 +829,7 @@
     <div id="blackhole-overlay"></div>
     <div id="ui-layer" style="display:none;"></div>
     <div id="focus-name"></div>
+    <div id="firstHint">🖐️ Drag to look around &nbsp;·&nbsp; 🔍 Scroll to zoom &nbsp;·&nbsp; 🪐 Click a planet to explore &nbsp;·&nbsp; ▶ Tour for a guided flythrough</div>
     <div id="sky-details">
         <div id="sky-close" onclick="closeSkyModal()">✕</div>
         <h1 id="sky-title">Moon Title</h1>
@@ -869,6 +882,7 @@
         <button class="hud-btn" onclick="event.stopPropagation(); resetView()">⊙ Reset View</button>
         <button class="hud-btn" onclick="toggleSound()" id="sound-btn">🔇 Sound Off</button>
         <button class="hud-btn" onclick="toggleOrbits()" id="orbits-btn">🪐 Show Orbits</button>
+        <button class="hud-btn" onclick="event.stopPropagation(); startTour()" id="tour-btn">▶ Tour</button>
         <button class="hud-btn" onclick="startNurWars()" id="nur-wars-btn" aria-label="Nur Wars" style="background: url('assets/images/nurwars.png') no-repeat center/contain; background-color: transparent; border: none; width: 120px; height: 60px; padding: 0; min-width: auto; box-shadow: none; backdrop-filter: none;"></button>
         <div class="hud-btn resume-menu-wrap" id="resume-menu-btn" onclick="event.stopPropagation(); toggleResumeMenu(event)">📄 Résumé ▾
             <div class="resume-menu" id="resume-menu-list">
@@ -1413,7 +1427,44 @@
                 clearTimeout(solarLoadTimeoutId);
                 solarLoadTimeoutId = null;
             }
+            // Enhancements: deep-link to a planet, then show the first-visit hint
+            setTimeout(() => { try { processDeepLink(); } catch(e){} try { showFirstVisitHint(); } catch(e){} }, 700);
         }
+
+        // ---- Deep links (#experience, #skills, …) ----
+        const PLANET_SLUGS = { 'Skills & Tools':'skills','Experience':'experience','Expertise & Impact':'expertise','Projects':'projects','Community':'community','Education':'education','Certifications':'certifications','Contact':'contact' };
+        function planetGroupByName(name){ try { return clickableObjects.find(o => o && o.userData && o.userData.isPlanet && o.userData.name === name); } catch(e){ return null; } }
+        function focusPlanetByName(name){ const g = planetGroupByName(name); if (g && typeof focusOnObject === 'function'){ focusOnObject(g); return true; } return false; }
+        function processDeepLink(){ const slug = (location.hash||'').replace('#','').toLowerCase(); if(!slug) return; const name = Object.keys(PLANET_SLUGS).find(k => PLANET_SLUGS[k] === slug); if(name) focusPlanetByName(name); }
+        window.addEventListener('hashchange', () => { try { processDeepLink(); } catch(e){} });
+
+        // ---- First-visit hint ----
+        function showFirstVisitHint(){
+            try { if (localStorage.getItem('nuresu_hint_seen')) return; } catch(e){}
+            const h = document.getElementById('firstHint'); if(!h) return;
+            h.classList.add('show');
+            const hide = () => { h.classList.remove('show'); try{ localStorage.setItem('nuresu_hint_seen','1'); }catch(e){} };
+            setTimeout(hide, 9000);
+            ['pointerdown','wheel','keydown','touchstart'].forEach(ev => window.addEventListener(ev, hide, { once:true, passive:true }));
+        }
+
+        // ---- Guided tour ----
+        let tourActive = false, tourTimers = [];
+        const TOUR_ORDER = ['Experience','Expertise & Impact','Projects','Skills & Tools','Community','Education','Certifications','Contact'];
+        function stopTour(){ tourActive = false; tourTimers.forEach(t => clearTimeout(t)); tourTimers = []; const b = document.getElementById('tour-btn'); if(b) b.textContent = '▶ Tour'; }
+        function startTour(){
+            if (tourActive){ stopTour(); if (typeof resetView === 'function') resetView(); return; }
+            tourActive = true; const b = document.getElementById('tour-btn'); if(b) b.textContent = '■ Stop';
+            const step = (i) => {
+                if (!tourActive) return;
+                if (i >= TOUR_ORDER.length){ stopTour(); if (typeof resetView === 'function') resetView(); return; }
+                const ok = focusPlanetByName(TOUR_ORDER[i]);
+                tourTimers.push(setTimeout(() => step(i+1), ok ? 5200 : 250));
+            };
+            step(0);
+        }
+        window.startTour = startTour;
+        window.addEventListener('keydown', e => { if (e.key === 'Escape' && tourActive) stopTour(); });
 
         function checkSolarModelsReady() {
             updateSolarLoadingOverlay();
@@ -4001,6 +4052,7 @@
                 event.target.closest('#controls, #pdf-modal, #overlay-panel, #sky-details, #ui-layer, .resume-menu, .hud-btn, #focus-name, #blackhole-overlay')) {
                 return;
             }
+            if (typeof tourActive !== 'undefined' && tourActive) { stopTour(); }
             if (isDragging) {
                 isDragging = false;
                 return;
@@ -4453,6 +4505,7 @@
             if (object && object.userData && object.userData.name &&
                 !object.userData.isSun && object.userData.viewType !== 'center') {
                 setFocusName(object.userData.name);
+                try { if (object.userData.isPlanet && PLANET_SLUGS[object.userData.name]) history.replaceState(null, '', '#' + PLANET_SLUGS[object.userData.name]); } catch(e){}
             } else {
                 setFocusName(null);
             }
@@ -4955,6 +5008,29 @@
         }
 
         // Contact modal for Contact planet moons
+        // Build a vCard from the resume contact data (for QR + .vcf download)
+        function buildVCard(){
+            const c = (RESUME_DATA && RESUME_DATA.contact) || {};
+            return [
+                'BEGIN:VCARD','VERSION:3.0',
+                'N:Dawoodani;Nuruddinali;;;',
+                'FN:' + (RESUME_DATA.name || 'Nuruddinali Dawoodani'),
+                'TITLE:' + (RESUME_DATA.role || 'Business Analyst'),
+                c.email ? ('EMAIL;TYPE=INTERNET:' + c.email) : '',
+                c.phone ? ('TEL;TYPE=CELL:' + c.phone) : '',
+                'URL:https://www.nuresu.me',
+                c.linkedin ? ('URL:https://' + c.linkedin) : '',
+                c.location ? ('ADR;TYPE=HOME:;;' + c.location + ';;;;') : '',
+                'END:VCARD'
+            ].filter(Boolean).join('\r\n');
+        }
+        function downloadVCard(){
+            try {
+                const blob = new Blob([buildVCard()], { type: 'text/vcard' });
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Nur_Dawoodani.vcf';
+                document.body.appendChild(a); a.click(); a.remove();
+            } catch(e){}
+        }
         function showContactModal(moon) {
             const skyDetails = document.getElementById('sky-details');
             const titleEl = document.getElementById('sky-title');
@@ -4985,19 +5061,31 @@
                             `}
                         </div>
                         
-                        <p style="color: #94a3b8; font-size: 14px; margin: 0;">
-                            ${contactInfo.method === 'Email' ? 'Click to send email' : 
-                              contactInfo.method === 'Phone' ? 'Click to call' : 
-                              contactInfo.method === 'LinkedIn' ? 'Click to view profile' : 
+                        <p style="color: #94a3b8; font-size: 14px; margin: 0 0 20px;">
+                            ${contactInfo.method === 'Email' ? 'Click to send email' :
+                              contactInfo.method === 'Phone' ? 'Click to call' :
+                              contactInfo.method === 'LinkedIn' ? 'Click to view profile' :
                               'Professional contact information'}
                         </p>
+
+                        <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:20px; display:flex; flex-direction:column; align-items:center; gap:10px;">
+                            <div id="contact-qr" style="background:#fff; padding:8px; border-radius:12px; line-height:0;"></div>
+                            <button id="vcard-btn" style="background:#1abc9c; color:#04211c; border:0; padding:10px 20px; border-radius:10px; font-weight:700; font-family:'Poppins',sans-serif; font-size:13px; cursor:pointer;">＋ Save my contact (.vcf)</button>
+                            <div style="color:#64748b; font-size:12px;">or scan the code with your phone</div>
+                        </div>
                     </div>
                 </div>
             `;
-            
+
             contentEl.innerHTML = html;
             skyDetails.style.display = 'block';
             document.getElementById('overlay-panel').classList.remove('active');
+            // QR (encodes a vCard so a phone scan saves the contact) + .vcf download
+            try {
+                const qEl = document.getElementById('contact-qr');
+                if (qEl && window.QRCode) { qEl.innerHTML = ''; new QRCode(qEl, { text: buildVCard(), width: 150, height: 150, colorDark: '#0b1020', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.L }); }
+                const vb = document.getElementById('vcard-btn'); if (vb) vb.onclick = downloadVCard;
+            } catch(e){}
         }
 
         // Experience modal for Experience planet moons
