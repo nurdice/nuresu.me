@@ -1458,11 +1458,17 @@
         const TOUR_ORDER = ['Experience','Expertise & Impact','Projects','Skills & Tools','Community','Education','Certifications','Contact'];
         function setTourLabel(txt){ const l = document.getElementById('tour-label'); if(l) l.textContent = txt; }
         function moonsOfPlanet(name){ try { return clickableObjects.filter(o => o && o.userData && o.userData.isMoon && o.userData.parentPlanet && o.userData.parentPlanet.userData && o.userData.parentPlanet.userData.name === name); } catch(e){ return []; } }
-        function stopTour(){ tourActive = false; tourTimers.forEach(t => clearTimeout(t)); tourTimers = []; setTourLabel('▶ Tour'); }
+        let tourAudio = null;
+        function fadeAudio(a, target, ms, done){ if(!a) return; const steps=20, start=(a.volume||0), dt=Math.max(20, ms/steps); let i=0; const id=setInterval(()=>{ i++; try{ a.volume=Math.max(0,Math.min(1, start+(target-start)*(i/steps))); }catch(e){} if(i>=steps){ clearInterval(id); if(done) done(); } }, dt); }
+        function stopTour(){ tourActive = false; tourTimers.forEach(t => clearTimeout(t)); tourTimers = []; setTourLabel('▶ Tour');
+            try { if(tourAudio){ fadeAudio(tourAudio, 0, 900, () => { try { tourAudio.pause(); tourAudio.currentTime = 0; } catch(e){} }); } } catch(e){}
+        }
         function startTour(mode){
             mode = mode || 'quick';
             if (tourActive){ stopTour(); if (typeof resetView === 'function') resetView(); return; }
             tourActive = true; setTourLabel('■ Stop tour');
+            // Cinematic score — fades in on tour start, out on stop (click counts as the autoplay gesture)
+            try { if(!tourAudio){ tourAudio = new Audio('assets/audio/Star Wars Main Theme.mp3'); tourAudio.loop = true; } tourAudio.volume = 0; tourAudio.currentTime = 0; tourAudio.play().then(() => fadeAudio(tourAudio, 0.4, 1500)).catch(() => {}); } catch(e){}
             // Build the sequence: planets (quick) or planets + their moons (detailed)
             const seq = [];
             TOUR_ORDER.forEach(name => {
@@ -5569,7 +5575,7 @@
 
         function startNurWars() {
             if (nurWarsActive) return;
-            
+            try { if (typeof tourActive !== 'undefined' && tourActive) stopTour(); } catch(e){}
             nurWarsActive = true;
             moviePaused = false;
             movieStartTime = Date.now();
